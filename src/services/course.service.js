@@ -39,10 +39,18 @@ async function assertRefsExist(categoryId, userId) {
 
 /**
  * 分页查询课程列表
- * @param {{ page: number, pageSize: number, categoryId?: number, userId?: number, isRecommended?: string, keyword?: string }} options
+ * @param {{ page: number, pageSize: number, categoryId?: number, userId?: number, isRecommended?: string, keyword?: string, withContent?: boolean }} options
  * @returns {Promise<{ list: object[], total: number }>}
  */
-async function listCourses({ page, pageSize, categoryId, userId, isRecommended, keyword }) {
+async function listCourses({
+  page,
+  pageSize,
+  categoryId,
+  userId,
+  isRecommended,
+  keyword,
+  withContent = false
+}) {
   const where = {};
   if (categoryId) {
     where.category_id = categoryId;
@@ -61,7 +69,8 @@ async function listCourses({ page, pageSize, categoryId, userId, isRecommended, 
 
   const { count, rows } = await Course.findAndCountAll({
     where,
-    attributes: LIST_ATTRIBUTES,
+    // 前台需要展示课程简介，后台列表仍保持精简
+    attributes: withContent ? [...LIST_ATTRIBUTES, 'content'] : LIST_ATTRIBUTES,
     include: [CATEGORY_INCLUDE, USER_INCLUDE],
     order: [
       ['createdAt', 'DESC'],

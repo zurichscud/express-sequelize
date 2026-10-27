@@ -5,10 +5,11 @@ const STATUSES = ['draft', 'published'];
 
 /**
  * 分页查询文章列表
- * @param {{ page: number, pageSize: number, title?: string, keyword?: string, status?: string }} options
+ * @param {{ page: number, pageSize: number, title?: string, keyword?: string, status?: string, sort?: string }} options
+ *   sort 为 hot/views 时按浏览量倒序，其余按创建时间倒序
  * @returns {Promise<{ list: object[], total: number }>}
  */
-async function listArticles({ page, pageSize, title, keyword, status }) {
+async function listArticles({ page, pageSize, title, keyword, status, sort }) {
   const where = {};
   if (STATUSES.includes(status)) {
     where.status = status;
@@ -23,14 +24,23 @@ async function listArticles({ page, pageSize, title, keyword, status }) {
     ];
   }
 
+  const order =
+    sort === 'hot' || sort === 'views'
+      ? [
+          ['views', 'DESC'],
+          ['createdAt', 'DESC'],
+          ['id', 'DESC']
+        ]
+      : [
+          ['createdAt', 'DESC'],
+          ['id', 'DESC']
+        ];
+
   const { count, rows } = await Article.findAndCountAll({
     where,
     // 列表不返回正文，减少传输体积
     attributes: ['id', 'title', 'summary', 'author', 'status', 'views', 'createdAt', 'updatedAt'],
-    order: [
-      ['createdAt', 'DESC'],
-      ['id', 'DESC']
-    ],
+    order,
     offset: (page - 1) * pageSize,
     limit: pageSize
   });
@@ -44,6 +54,25 @@ async function listArticles({ page, pageSize, title, keyword, status }) {
  */
 async function getArticleById(id) {
   return Article.findByPk(id);
+}
+
+/**
+ * 前台查询已发布文章详情，并累加一次浏览量
+ * 草稿或文章不存在时统一返回 null，避免暴露草稿状态
+ * @param {number|string} id
+ * @returns {Promise<object|null>}
+ */
+async function getPublishedArticleDetail(id) {
+  const article = await Article.findByPk(id);
+  if (!article || article.status !== 'published') {
+    return null;
+  }
+
+  // silent 避免浏览量变化刷新 updatedAt，保持“最后编辑时间”语义
+  await article.increment('views', { silent: true });
+  // increment 是数据库层自增，重新读取以返回最新浏览量
+  await article.reload();
+  return article;
 }
 
 /**
@@ -88,6 +117,7 @@ async function deleteArticleById(id) {
 module.exports = {
   listArticles,
   getArticleById,
+  getPublishedArticleDetail,
   createArticle,
   updateArticleById,
   deleteArticleById

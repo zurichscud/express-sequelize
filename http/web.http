@@ -1,0 +1,106 @@
+@origin = http://localhost:3000
+
+### 前台注册（成功后直接返回登录态）
+# @name webRegister
+POST {{origin}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user01@example.com",
+  "password": "123456",
+  "username": "user01",
+  "nickname": "前台用户",
+  "sex": "unknown"
+}
+
+### 前台登录
+# @name webLogin
+POST {{origin}}/api/auth/login
+Content-Type: application/json
+
+{
+  "account": "user01@example.com",
+  "password": "123456"
+}
+
+### 当前登录用户
+GET {{origin}}/api/auth/me
+Authorization: Bearer {{webLogin.response.body.$.data.token}}
+
+### 更新个人资料（仅昵称、性别）
+PUT {{origin}}/api/auth/me
+Authorization: Bearer {{webLogin.response.body.$.data.token}}
+Content-Type: application/json
+
+{
+  "nickname": "新的昵称",
+  "sex": "female"
+}
+
+### 修改密码
+PUT {{origin}}/api/auth/password
+Authorization: Bearer {{webLogin.response.body.$.data.token}}
+Content-Type: application/json
+
+{
+  "oldPassword": "123456",
+  "newPassword": "abcdef"
+}
+
+### 退出登录（客户端删除本地 token）
+POST {{origin}}/api/auth/logout
+
+### 文章列表（仅已发布）
+GET {{origin}}/api/articles?page=1&pageSize=10
+
+### 文章列表（按浏览量倒序）
+GET {{origin}}/api/articles?sort=hot
+
+### 文章详情（浏览量 +1）
+GET {{origin}}/api/articles/1
+
+### 章节列表（按课程筛选）
+GET {{origin}}/api/chapters?course_id=1
+
+### 章节详情
+GET {{origin}}/api/chapters/1
+
+### 课程列表
+GET {{origin}}/api/courses?page=1&pageSize=12
+
+### 课程详情（含章节目录）
+GET {{origin}}/api/courses/1
+
+### 分类列表
+GET {{origin}}/api/categories
+
+### 系统信息
+GET {{origin}}/api/settings
+
+### 系统信息（别名）
+GET {{origin}}/api/system/info
+
+### 点赞课程
+POST {{origin}}/api/likes
+Authorization: Bearer {{webLogin.response.body.$.data.token}}
+Content-Type: application/json
+
+{
+  "course_id": 1
+}
+
+### 查询点赞状态
+GET {{origin}}/api/likes/1
+Authorization: Bearer {{webLogin.response.body.$.data.token}}
+
+### 我点赞过的课程
+GET {{origin}}/api/likes?page=1&pageSize=10
+Authorization: Bearer {{webLogin.response.body.$.data.token}}
+
+### 取消点赞
+DELETE {{origin}}/api/likes/1
+Authorization: Bearer {{webLogin.response.body.$.data.token}}
+
+### 点赞课程（课程维度别名）
+POST {{origin}}/api/courses/1/like
+Authorization: Bearer {{webLogin.response.body.$.data.token}}

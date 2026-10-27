@@ -38,11 +38,11 @@ function toUniqueError(err) {
 
 /**
  * 只保留可对外暴露的字段，避免把密码哈希返回给客户端
- * @param {object} user Sequelize 用户实例
+ * @param {object} user Sequelize 用户实例或普通对象
  * @returns {object}
  */
 function toSafeUser(user) {
-  const data = user.get({ plain: true });
+  const data = typeof user.get === 'function' ? user.get({ plain: true }) : user;
   const safe = {};
   for (const field of SAFE_ATTRIBUTES) {
     safe[field] = data[field];
@@ -51,12 +51,37 @@ function toSafeUser(user) {
 }
 
 /**
+ * 签发登录态。scope 用于隔离后台与前台登录态：
+ * 后台 token 为 admin，前台 token 为 web，互不通用
+ * @param {object} user Sequelize 用户实例或普通对象
+ * @param {'admin'|'web'} scope
+ * @returns {{ token: string, tokenType: string, expiresIn: number, expiresAt: string, user: object }}
+ */
+function issueAuthResult(user, scope) {
+  const safeUser = toSafeUser(user);
+  const { token, expiresIn, expiresAt } = signToken({
+    sub: safeUser.id,
+    username: safeUser.username,
+    role: safeUser.role,
+    scope
+  });
+
+  return {
+    token,
+    tokenType: 'Bearer',
+    expiresIn,
+    expiresAt,
+    user: safeUser
+  };
+}
+
+/**
  * 登录取 token
  * 账号可以传邮箱或用户名（account，兼容 email / username 字段）
- * @param {{ account: string, password: string }} credentials
+ * @param {{ account: string, password: string, scope?: 'admin'|'web' }} credentials
  * @returns {Promise<object>} 用户不存在或密码错误时抛出 401
  */
-async function login({ account, password }) {
+async function login({ account, password, scope = 'admin' }) {
   // 邮箱入库时统一转小写，这里同步转换；用户名按原值匹配
   const user = await User.findOne({
     where: {
@@ -71,19 +96,59 @@ async function login({ account, password }) {
     throw authError;
   }
 
-  const { token, expiresIn, expiresAt } = signToken({
-    sub: user.id,
-    username: user.username,
-    role: user.role
-  });
+  return issueAuthResult(user, scope);
+}
 
-  return {
-    token,
-    tokenType: 'Bearer',
-    expiresIn,
-    expiresAt,
-    user: toSafeUser(user)
-  };
+/**
+ * 前台注册并直接签发登录态（注册用户固定为普通用户，不接受 role 入参）
+ * @param {{ email: string, password: string, username: string, nickname?: string, sex?: string }} data
+ * @returns {Promise<object>}
+ */
+async function register(data) {
+  const user = await createUser(data);
+  return issueAuthResult(user, 'web');
+}
+
+/**
+ * 更新当前登录用户的资料（仅昵称、性别）
+ * @param {number|string} id
+ * @param {{ nickname?: string, sex?: string }} data
+ * @returns {Promise<object|null>} 用户不存在时返回 null
+ */
+async function updateUserProfile(id, data) {
+  const user = await User.findByPk(id);
+  if (!user) {
+    return null;
+  }
+
+  await user.update(data);
+  return getUserById(id);
+}
+
+/**
+ * 修改当前登录用户的密码
+ * 需要校验原密码，新密码沿用与注册一致的格式要求
+ * @param {number|string} id
+ * @param {{ oldPassword: string, newPassword: string }} data
+ * @returns {Promise<boolean>} 用户不存在时返回 false
+ */
+async function changePassword(id, { oldPassword, newPassword }) {
+  const user = await User.findByPk(id);
+  if (!user) {
+    return false;
+  }
+
+  if (!verifyPassword(oldPassword, user.password)) {
+    const businessError = new Error('原密码不正确');
+    businessError.status = 400;
+    throw businessError;
+  }
+
+  assertPasswordStrength(newPassword);
+  // 赋值后 save 会触发模型 beforeUpdate 钩子重新哈希
+  user.password = newPassword;
+  await user.save();
+  return true;
 }
 
 /**
@@ -204,6 +269,9 @@ async function deleteUserById(id) {
 
 module.exports = {
   login,
+  register,
+  updateUserProfile,
+  changePassword,
   listUsers,
   getUserById,
   createUser,

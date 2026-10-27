@@ -13,6 +13,7 @@ module.exports = {
 
     const now = new Date();
     // 依赖 users / categories 种子先执行（按文件名顺序保证）
+    // chapter_count 由章节接口按 chapters 实际数量维护，种子课程统一从 0 开始
     await queryInterface.bulkInsert('courses', [
       {
         category_id: 1,
@@ -22,7 +23,7 @@ module.exports = {
         is_recommended: true,
         content: '从组合式 API 讲到工程化实践，带你完整开发一个中后台项目。',
         like_count: 128,
-        chapter_count: 24,
+        chapter_count: 0,
         created_at: now,
         updated_at: now
       },
@@ -34,7 +35,7 @@ module.exports = {
         is_recommended: true,
         content: '深入 Fiber 架构、并发特性与调度机制，读懂 React 设计思想。',
         like_count: 96,
-        chapter_count: 18,
+        chapter_count: 0,
         created_at: now,
         updated_at: now
       },
@@ -46,7 +47,7 @@ module.exports = {
         is_recommended: true,
         content: '以 Express 为例拆解中间件流水线，覆盖错误处理与鉴权实践。',
         like_count: 210,
-        chapter_count: 12,
+        chapter_count: 0,
         created_at: now,
         updated_at: now
       },
@@ -58,7 +59,7 @@ module.exports = {
         is_recommended: false,
         content: '从 B+ 树原理到执行计划分析，系统讲解慢查询排查与优化。',
         like_count: 88,
-        chapter_count: 10,
+        chapter_count: 0,
         created_at: now,
         updated_at: now
       },
@@ -70,7 +71,7 @@ module.exports = {
         is_recommended: false,
         content: '一套代码同时运行在 iOS 与 Android，涵盖状态管理与原生桥接。',
         like_count: 45,
-        chapter_count: 30,
+        chapter_count: 0,
         created_at: now,
         updated_at: now
       },
@@ -82,7 +83,7 @@ module.exports = {
         is_recommended: true,
         content: 'Prompt 工程、Function Calling 到 RAG，快速上手大模型应用开发。',
         like_count: 320,
-        chapter_count: 15,
+        chapter_count: 0,
         created_at: now,
         updated_at: now
       }

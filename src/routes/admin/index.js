@@ -4,6 +4,7 @@ const settingRouter = require('./setting.routes');
 const userRouter = require('./user.routes');
 const categoryRouter = require('./category.routes');
 const courseRouter = require('./course.routes');
+const chapterRouter = require('./chapter.routes');
 const chartRouter = require('./chart.routes');
 const { login } = require('../../controllers/admin/user.controller');
 const { authenticate } = require('../../middlewares/auth.middleware');
@@ -19,6 +20,7 @@ router.use('/settings', settingRouter);
 router.use('/users', userRouter);
 router.use('/categories', categoryRouter);
 router.use('/courses', courseRouter);
+router.use('/chapters', chapterRouter);
 router.use('/charts', chartRouter);
 
 module.exports = router;

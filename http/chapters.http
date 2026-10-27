@@ -1,0 +1,44 @@
+@token = 请先调用 http/users.http 的登录接口，把返回的 data.token 粘贴到此处
+
+### 章节列表（按 rank 升序）
+GET {{baseUrl}}/chapters
+Authorization: Bearer {{token}}
+
+### 章节列表（按课程筛选）
+GET {{baseUrl}}/chapters?course_id=1
+Authorization: Bearer {{token}}
+
+### 章节列表（关键词搜索）
+GET {{baseUrl}}/chapters?keyword=环境搭建
+Authorization: Bearer {{token}}
+
+### 章节详情（含课程信息）
+GET {{baseUrl}}/chapters/1
+Authorization: Bearer {{token}}
+
+### 创建章节
+POST {{baseUrl}}/chapters
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "course_id": 1,
+  "title": "第 1 章：环境搭建与项目初始化",
+  "content": "安装 Node.js 与编辑器，使用 Vite 初始化项目。",
+  "video_url": "https://example.com/videos/chapter-1.mp4",
+  "rank": 1
+}
+
+### 更新章节（仅传需要修改的字段）
+PUT {{baseUrl}}/chapters/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "第 1 章：环境搭建与工程初始化",
+  "rank": 2
+}
+
+### 删除章节
+DELETE {{baseUrl}}/chapters/1
+Authorization: Bearer {{token}}

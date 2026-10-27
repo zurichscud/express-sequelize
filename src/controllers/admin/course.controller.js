@@ -2,6 +2,7 @@ const { success, fail } = require('../../utils/response');
 const courseService = require('../../services/course.service');
 
 // 字段白名单（创建需要 user_id；更新不支持变更归属用户）
+// chapter_count 由章节接口自动维护，不接受客户端直接修改
 const CREATE_FIELDS = [
   'category_id',
   'user_id',
@@ -9,8 +10,7 @@ const CREATE_FIELDS = [
   'image',
   'is_recommended',
   'content',
-  'like_count',
-  'chapter_count'
+  'like_count'
 ];
 const UPDATE_FIELDS = [
   'category_id',
@@ -18,8 +18,7 @@ const UPDATE_FIELDS = [
   'image',
   'is_recommended',
   'content',
-  'like_count',
-  'chapter_count'
+  'like_count'
 ];
 
 function toPositiveInt(value, fallback) {
@@ -91,7 +90,7 @@ async function listCourses(req, res, next) {
  *   is_recommended 选填，是否推荐，默认 false
  *   content        选填，课程内容
  *   like_count     选填，点赞数，默认 0
- *   chapter_count  选填，章节总数，默认 0
+ *   chapter_count  只读，由章节接口自动维护
  */
 async function createCourse(req, res, next) {
   try {
@@ -135,7 +134,7 @@ async function getCourse(req, res, next) {
  *   is_recommended 选填，是否推荐
  *   content        选填，课程内容
  *   like_count     选填，点赞数
- *   chapter_count  选填，章节总数
+ *   chapter_count  只读，由章节接口自动维护
  */
 async function updateCourse(req, res, next) {
   try {

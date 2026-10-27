@@ -164,78 +164,9 @@ npm run db:seed:undo
 
 全部接口的参数、示例与错误响应见 [docs/api.md](docs/api.md)。
 
-## 数据表 articles
+## 数据表
 
-| 字段       | 类型                             | 说明                   |
-| ---------- | -------------------------------- | ---------------------- |
-| id         | INT UNSIGNED, PK, AUTO_INCREMENT | 主键                   |
-| title      | VARCHAR(200), NOT NULL           | 标题                   |
-| summary    | VARCHAR(500), NULL               | 摘要                   |
-| content    | TEXT, NOT NULL                   | 正文                   |
-| author     | VARCHAR(64), NOT NULL            | 作者，默认“匿名”       |
-| status     | ENUM('draft','published')        | 状态，默认 `published` |
-| views      | INT UNSIGNED, NOT NULL           | 浏览量，默认 0         |
-| created_at | DATETIME, NOT NULL               | 创建时间               |
-| updated_at | DATETIME, NOT NULL               | 更新时间               |
-
-索引：`idx_articles_status_created(status, created_at)`、`idx_articles_title(title)`。
-
-## 数据表 settings
-
-站点设置表，业务上仅一条记录（由 seeder 写入或首次查询自动初始化）。
-
-| 字段       | 类型                             | 说明       |
-| ---------- | -------------------------------- | ---------- |
-| id         | INT UNSIGNED, PK, AUTO_INCREMENT | 主键       |
-| name       | VARCHAR(100), NOT NULL           | 站点名称   |
-| icp        | VARCHAR(64), NULL                | ICP 备案号 |
-| copyright  | VARCHAR(200), NULL               | 版权信息   |
-| created_at | DATETIME, NOT NULL               | 创建时间   |
-| updated_at | DATETIME, NOT NULL               | 更新时间   |
-
-## 数据表 users
-
-| 字段       | 类型                             | 说明                  |
-| ---------- | -------------------------------- | --------------------- |
-| id         | INT UNSIGNED, PK, AUTO_INCREMENT | 主键                  |
-| email      | VARCHAR(128), NOT NULL, UNIQUE   | 邮箱，登录凭证        |
-| password   | VARCHAR(255), NOT NULL           | 密码，bcrypt 哈希存储 |
-| username   | VARCHAR(64), NOT NULL, UNIQUE    | 用户名                |
-| nickname   | VARCHAR(64), NULL                | 昵称                  |
-| sex        | ENUM('unknown','male','female')  | 性别，默认 `unknown`  |
-| role       | ENUM('user','admin')             | 角色，默认 `user`     |
-| created_at | DATETIME, NOT NULL               | 创建时间              |
-| updated_at | DATETIME, NOT NULL               | 更新时间              |
-
-## 数据表 categories
-
-| 字段       | 类型                             | 说明                         |
-| ---------- | -------------------------------- | ---------------------------- |
-| id         | INT UNSIGNED, PK, AUTO_INCREMENT | 主键                         |
-| name       | VARCHAR(64), NOT NULL, UNIQUE    | 分类名称                     |
-| rank       | INT, NOT NULL                    | 排序序号，越小越靠前，默认 0 |
-| created_at | DATETIME, NOT NULL               | 创建时间                     |
-| updated_at | DATETIME, NOT NULL               | 更新时间                     |
-
-## 数据表 courses
-
-| 字段           | 类型                             | 说明                                  |
-| -------------- | -------------------------------- | ------------------------------------- |
-| id             | INT UNSIGNED, PK, AUTO_INCREMENT | 主键                                  |
-| category_id    | INT UNSIGNED, NOT NULL, FK       | 分类 ID，外键关联 categories          |
-| user_id        | INT UNSIGNED, NOT NULL, FK       | 所属用户 ID（创建者），外键关联 users |
-| name           | VARCHAR(128), NOT NULL           | 课程名称                              |
-| image          | VARCHAR(500), NULL               | 封面图片地址                          |
-| is_recommended | TINYINT(1), NOT NULL             | 是否推荐，默认 false                  |
-| content        | TEXT, NULL                       | 课程内容                              |
-| like_count     | INT UNSIGNED, NOT NULL           | 点赞数，默认 0                        |
-| chapter_count  | INT UNSIGNED, NOT NULL           | 章节总数，默认 0                      |
-| created_at     | DATETIME, NOT NULL               | 创建时间                              |
-| updated_at     | DATETIME, NOT NULL               | 更新时间                              |
-
-索引：`idx_courses_category_id`、`idx_courses_user_id`、`idx_courses_recommended_created(is_recommended, created_at)`。
-
-外键：`category_id` → `categories.id`、`user_id` → `users.id`，均为 `ON DELETE RESTRICT ON UPDATE CASCADE`，删除被引用的记录前需先处理课程（接口层已做友好拦截）。
+各表字段、索引与外键说明见参考 SQL：[sql/schema.sql](sql/schema.sql)（实际建表以迁移为准）。
 
 ## 常用命令
 

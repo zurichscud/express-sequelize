@@ -1,10 +1,26 @@
 const express = require('express');
+const cors = require('cors');
 const { ValidationError } = require('sequelize');
 const apiRouter = require('./routes');
 const { fail } = require('./utils/response');
 
 // 只负责创建并导出 Express 实例；监听端口在 src/server.js 中通过 app.listen() 完成
 const app = express();
+
+// CORS：默认放行所有来源（Access-Control-Allow-Origin: *）；
+// 需要收紧时配置 CORS_ORIGIN 为逗号分隔的白名单（如 http://localhost:5173,http://localhost:5174）。
+// 注意：* 模式不能同时返回 credentials（浏览器规范限制），本项目用 Authorization 头传 JWT，不受影响
+const corsOrigins = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: corsOrigins.length ? corsOrigins : '*',
+    credentials: corsOrigins.length > 0
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

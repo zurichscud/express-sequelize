@@ -1,11 +1,9 @@
 ### 分类列表（按 rank 升序）
-GET {{baseUrl}}/api/categories
-Accept: application/json
+GET {{baseUrl}}/categories
 
 ### 创建分类
-POST {{baseUrl}}/api/categories
+POST {{baseUrl}}/categories
 Content-Type: application/json
-Accept: application/json
 
 {
   "name": "云计算",
@@ -13,13 +11,11 @@ Accept: application/json
 }
 
 ### 分类详情
-GET {{baseUrl}}/api/categories/1
-Accept: application/json
+GET {{baseUrl}}/categories/1
 
 ### 更新分类
-PUT {{baseUrl}}/api/categories/1
+PUT {{baseUrl}}/categories/1
 Content-Type: application/json
-Accept: application/json
 
 {
   "name": "前端工程化",
@@ -27,5 +23,4 @@ Accept: application/json
 }
 
 ### 删除分类（分类下有课程时会被拒绝）
-DELETE {{baseUrl}}/api/categories/4
-Accept: application/json
+DELETE {{baseUrl}}/categories/4

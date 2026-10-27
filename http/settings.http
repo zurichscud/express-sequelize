@@ -1,11 +1,9 @@
 ### 查询站点设置
-GET {{baseUrl}}/api/settings
-Accept: application/json
+GET {{baseUrl}}/settings
 
 ### 更新站点设置（仅传需要修改的字段）
-PUT {{baseUrl}}/api/settings
+PUT {{baseUrl}}/settings
 Content-Type: application/json
-Accept: application/json
 
 {
   "name": "我的网站",
@@ -14,9 +12,8 @@ Accept: application/json
 }
 
 ### 更新站点设置（清空可选字段）
-PUT {{baseUrl}}/api/settings
+PUT {{baseUrl}}/settings
 Content-Type: application/json
-Accept: application/json
 
 {
   "icp": "",
@@ -24,8 +21,7 @@ Accept: application/json
 }
 
 ### 更新站点设置（缺少字段，应返回 400）
-PUT {{baseUrl}}/api/settings
+PUT {{baseUrl}}/settings
 Content-Type: application/json
-Accept: application/json
 
 {}

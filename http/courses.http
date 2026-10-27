@@ -1,23 +1,18 @@
 ### 课程列表
-GET {{baseUrl}}/api/courses
-Accept: application/json
+GET {{baseUrl}}/courses
 
 ### 课程列表（推荐课程 + 分类筛选）
-GET {{baseUrl}}/api/courses?category_id=1&is_recommended=true
-Accept: application/json
+GET {{baseUrl}}/courses?category_id=1&is_recommended=true
 
 ### 课程列表（关键词搜索）
-GET {{baseUrl}}/api/courses?keyword=Node
-Accept: application/json
+GET {{baseUrl}}/courses?keyword=Node
 
 ### 课程详情（含分类与用户信息）
-GET {{baseUrl}}/api/courses/1
-Accept: application/json
+GET {{baseUrl}}/courses/1
 
 ### 创建课程
-POST {{baseUrl}}/api/courses
+POST {{baseUrl}}/courses
 Content-Type: application/json
-Accept: application/json
 
 {
   "category_id": 1,
@@ -31,9 +26,8 @@ Accept: application/json
 }
 
 ### 更新课程（仅传需要修改的字段）
-PUT {{baseUrl}}/api/courses/5
+PUT {{baseUrl}}/courses/5
 Content-Type: application/json
-Accept: application/json
 
 {
   "is_recommended": true,
@@ -41,5 +35,4 @@ Accept: application/json
 }
 
 ### 删除课程
-DELETE {{baseUrl}}/api/courses/5
-Accept: application/json
+DELETE {{baseUrl}}/courses/5

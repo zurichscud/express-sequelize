@@ -1,15 +1,12 @@
 ### 用户列表
-GET {{baseUrl}}/api/users
-Accept: application/json
+GET {{baseUrl}}/users
 
 ### 用户列表（关键词搜索 + 角色筛选）
-GET {{baseUrl}}/api/users?keyword=zhang&role=user
-Accept: application/json
+GET {{baseUrl}}/users?keyword=zhang&role=user
 
 ### 创建用户
-POST {{baseUrl}}/api/users
+POST {{baseUrl}}/users
 Content-Type: application/json
-Accept: application/json
 
 {
   "email": "wangwu@example.com",
@@ -21,13 +18,11 @@ Accept: application/json
 }
 
 ### 用户详情（响应中不包含密码）
-GET {{baseUrl}}/api/users/1
-Accept: application/json
+GET {{baseUrl}}/users/1
 
 ### 更新用户（仅传需要修改的字段）
-PUT {{baseUrl}}/api/users/1
+PUT {{baseUrl}}/users/1
 Content-Type: application/json
-Accept: application/json
 
 {
   "nickname": "超级管理员",
@@ -35,14 +30,12 @@ Accept: application/json
 }
 
 ### 更新用户（修改密码，存储时自动哈希）
-PUT {{baseUrl}}/api/users/1
+PUT {{baseUrl}}/users/1
 Content-Type: application/json
-Accept: application/json
 
 {
   "password": "abcdef"
 }
 
 ### 删除用户
-DELETE {{baseUrl}}/api/users/4
-Accept: application/json
+DELETE {{baseUrl}}/users/4

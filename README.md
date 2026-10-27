@@ -1,17 +1,3 @@
-# Express + Sequelize + MySQL
-
-一个基于 **Express 5 + Sequelize 6 + MySQL 8** 的示例项目，包含 `articles` 文章表、`settings` 站点设置表（单记录）、`users` 用户表、`categories` 分类表和 `courses` 课程表（外键关联分类与用户），以及对应的 CRUD 接口和 sequelize-cli 数据库迁移和 seeder。
-
-## 技术栈
-
-| 依赖          | 版本  | 用途                 |
-| ------------- | ----- | -------------------- |
-| Express       | ^5.3  | HTTP 服务            |
-| Sequelize     | ^6.37 | ORM                  |
-| mysql2        | ^3.24 | MySQL 驱动           |
-| dotenv        | ^18   | 读取 `.env` 环境变量 |
-| sequelize-cli | ^6.6  | 迁移与 seeder（dev） |
-
 ## 目录结构
 
 ```
@@ -79,36 +65,6 @@
 ```
 
 ## 快速开始
-
-### 1. 启动 WSL 中的 MySQL
-
-当前机器的 `3306` 端口已被 Windows 的 MySQL91 服务占用，因此把 WSL 中的 MySQL 容器映射到 **3307**。Docker Hub 直连会超时，这里使用国内镜像源 `docker.m.daocloud.io`：
-
-```bash
-wsl -d Ubuntu
-
-docker pull docker.m.daocloud.io/library/mysql:8.4
-
-docker run -d --name mysql-dev \
-  --restart unless-stopped \
-  -e MYSQL_ROOT_PASSWORD=root123456 \
-  -e MYSQL_DATABASE=express_sequelize \
-  -e MYSQL_USER=app \
-  -e MYSQL_PASSWORD=app123456 \
-  -p 3307:3306 \
-  docker.m.daocloud.io/library/mysql:8.4
-```
-
-> 也可以换用 `docker.1ms.run/library/mysql:8.4`。如果本机 Docker 已配置 `registry-mirrors`，直接写 `mysql:8.4` 也会自动走加速源。
->
-> 如果你的 3306 端口空闲，也可以使用 `-p 3306:3306`，同时把 `.env` 里的 `DB_PORT` 改成 `3306`。
-
-等待容器就绪：
-
-```bash
-docker exec mysql-dev mysqladmin ping -uroot -proot123456
-# 输出 mysqld is alive 即可
-```
 
 ### 2. 安装依赖并初始化数据
 

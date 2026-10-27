@@ -1,23 +1,18 @@
 ### 健康检查
-GET {{baseUrl}}/health
-Accept: application/json
+GET {{origin}}/health
 
 ### 文章列表
-GET {{baseUrl}}/api/articles
-Accept: application/json
+GET {{baseUrl}}/articles
 
 ### 文章列表（标题模糊搜索）
-GET {{baseUrl}}/api/articles?title=Express
-Accept: application/json
+GET {{baseUrl}}/articles?title=Express
 
 ### 文章详情
-GET {{baseUrl}}/api/articles/1
-Accept: application/json
+GET {{baseUrl}}/articles/1
 
 ### 创建文章
-POST {{baseUrl}}/api/articles
+POST {{baseUrl}}/articles
 Content-Type: application/json
-Accept: application/json
 
 {
   "title": "Express + Sequelize 入门",
@@ -28,13 +23,11 @@ Accept: application/json
 }
 
 ### 删除文章
-DELETE {{baseUrl}}/api/articles/1
-Accept: application/json
+DELETE {{baseUrl}}/articles/1
 
 ### 更新文章（仅传需要修改的字段）
-PUT {{baseUrl}}/api/articles/1
+PUT {{baseUrl}}/articles/1
 Content-Type: application/json
-Accept: application/json
 
 {
   "title": "更新后的标题",

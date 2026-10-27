@@ -208,3 +208,55 @@ curl -X PUT "http://localhost:3000/api/settings" \
 ### DELETE /api/courses/:id
 
 删除单个课程。不存在时返回 404「课程不存在」。
+
+## 图表
+
+### GET /api/charts/gender
+
+统计用户性别分布，无查询参数。按 `unknown` / `male` / `female` 固定顺序返回各性别的数量与占比（占比保留两位小数），未出现过的性别也返回 0，保证图表数据结构稳定。
+
+响应示例：
+
+```json
+{
+  "code": 0,
+  "message": "ok",
+  "data": {
+    "total": 42,
+    "list": [
+      { "sex": "unknown", "count": 12, "percent": 28.57 },
+      { "sex": "male", "count": 18, "percent": 42.86 },
+      { "sex": "female", "count": 12, "percent": 28.57 }
+    ]
+  }
+}
+```
+
+### GET /api/charts/monthly-users
+
+统计每个月的用户注册数量，按月份升序返回。没有用户的月份补 `0`，保证 x 轴连续。
+
+| 参数 | 类型   | 必填 | 默认值 | 说明                                                       |
+| ---- | ------ | ---- | ------ | ---------------------------------------------------------- |
+| year | number | 否   | —      | 四位年份（1970~2100）。传了只返回该年 1-12 月，不传则返回有数据以来的所有月份 |
+
+非法 `year`（非四位数字或超出范围）返回 400「year 参数无效，需为 1970-2100 之间的四位年份」。
+
+响应示例：
+
+```json
+{
+  "code": 0,
+  "message": "ok",
+  "data": {
+    "year": null,
+    "total": 3,
+    "list": [
+      { "month": "2026-09", "count": 1 },
+      { "month": "2026-10", "count": 2 }
+    ]
+  }
+}
+```
+
+`data.year` 为传参的年份，未传时为 `null`；`data.total` 为统计范围内用户总数。

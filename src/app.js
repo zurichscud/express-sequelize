@@ -5,6 +5,7 @@ const settingRouter = require('./routes/setting.routes');
 const userRouter = require('./routes/user.routes');
 const categoryRouter = require('./routes/category.routes');
 const courseRouter = require('./routes/course.routes');
+const chartRouter = require('./routes/chart.routes');
 const { fail } = require('./utils/response');
 
 // 只负责创建并导出 Express 实例；监听端口在 src/server.js 中通过 app.listen() 完成
@@ -22,6 +23,7 @@ app.use('/api/settings', settingRouter);
 app.use('/api/users', userRouter);
 app.use('/api/categories', categoryRouter);
 app.use('/api/courses', courseRouter);
+app.use('/api/charts', chartRouter);
 
 // 404
 app.use((req, res) => {

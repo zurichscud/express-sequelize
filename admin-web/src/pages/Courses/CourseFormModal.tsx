@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { App as AntdApp, Col, Form, Input, InputNumber, Modal, Row, Select, Switch } from 'antd'
+import { App as AntdApp, Col, Form, Input, InputNumber, Modal, Row, Select, Switch, Typography } from 'antd'
 import { createCourse, updateCourse } from '@/api/course'
+import MediaUpload from '@/components/MediaUpload'
 import type { Category, Course, CoursePayload, User } from '@/types'
 
 interface CourseFormModalProps {
@@ -18,7 +19,6 @@ interface CourseFormValues {
   image?: string
   is_recommended: boolean
   like_count: number
-  chapter_count: number
   content?: string
 }
 
@@ -49,7 +49,6 @@ export default function CourseFormModal({
         image: values.image?.trim() || '',
         is_recommended: values.is_recommended,
         like_count: values.like_count,
-        chapter_count: values.chapter_count,
         content: values.content ?? '',
       }
 
@@ -94,14 +93,12 @@ export default function CourseFormModal({
                 image: course.image ?? '',
                 is_recommended: course.is_recommended,
                 like_count: course.like_count,
-                chapter_count: course.chapter_count,
                 content: course.content ?? '',
               }
             : {
                 name: '',
                 is_recommended: false,
                 like_count: 0,
-                chapter_count: 0,
                 content: '',
               }
         }
@@ -155,29 +152,28 @@ export default function CourseFormModal({
 
         <Form.Item
           name="image"
-          label="封面图片地址"
+          label="封面图片"
           rules={[{ max: 500, message: '图片地址不能超过 500 个字符' }]}
         >
-          <Input placeholder="https://example.com/cover.jpg" maxLength={500} />
+          <MediaUpload type="image" />
         </Form.Item>
 
         <Row gutter={16}>
-          <Col span={8}>
+          <Col span={12}>
             <Form.Item name="like_count" label="点赞数" rules={[{ required: true }]}>
               <InputNumber min={0} precision={0} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
-          <Col span={8}>
-            <Form.Item name="chapter_count" label="章节总数" rules={[{ required: true }]}>
-              <InputNumber min={0} precision={0} style={{ width: '100%' }} />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
+          <Col span={12}>
             <Form.Item name="is_recommended" label="推荐课程" valuePropName="checked">
               <Switch />
             </Form.Item>
           </Col>
         </Row>
+
+        <Typography.Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
+          章节总数由「章节管理」根据实际章节自动统计。
+        </Typography.Text>
 
         <Form.Item name="content" label="课程内容">
           <Input.TextArea placeholder="请输入课程简介或内容" autoSize={{ minRows: 5, maxRows: 12 }} />

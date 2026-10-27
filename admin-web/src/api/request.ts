@@ -16,7 +16,7 @@ const request = axios.create({
 })
 
 request.interceptors.request.use((config) => {
-  // 演示环境没有真实登录接口，token 由前端本地生成；接入后端认证后可直接复用
+  // 登录接口签发真实 JWT，后续请求统一携带
   const token = localStorage.getItem('admin_token')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
@@ -35,7 +35,10 @@ request.interceptors.response.use(
     return response
   },
   (error: AxiosError<{ message?: string }>) => {
-    if (error.response?.status === 401) {
+    const isLoginRequest = error.config?.url?.includes('/users/login')
+
+    // 登录失败也是 401，此时只提示后端错误，不清除会话/跳转
+    if (error.response?.status === 401 && !isLoginRequest) {
       logout()
       showError('登录状态已失效，请重新登录')
       if (!window.location.pathname.startsWith('/login')) {

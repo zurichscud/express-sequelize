@@ -8,7 +8,8 @@ import {
   UserOutlined,
 } from '@ant-design/icons'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { isAuthenticated, login } from '@/utils/auth'
+import { login } from '@/api/auth'
+import { isAuthenticated, saveSession } from '@/utils/auth'
 
 interface LoginFormValues {
   username: string
@@ -27,17 +28,21 @@ export default function LoginPage() {
   const from = (location.state as { from?: string } | null)?.from
 
   if (isAuthenticated()) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to={from && from !== '/login' ? from : '/dashboard'} replace />
   }
 
   async function handleFinish(values: LoginFormValues) {
     setLoading(true)
     try {
-      login(values.username.trim(), values.password)
+      const result = await login({
+        account: values.username.trim(),
+        password: values.password,
+      })
+      saveSession(result.token, result.user)
       message.success('登录成功')
       navigate(from && from !== '/login' ? from : '/dashboard', { replace: true })
-    } catch (error) {
-      message.error(error instanceof Error ? error.message : '登录失败')
+    } catch {
+      // 请求层已统一提示错误信息
     } finally {
       setLoading(false)
     }
@@ -97,7 +102,7 @@ export default function LoginPage() {
           <Form<LoginFormValues>
             layout="vertical"
             size="large"
-            initialValues={{ username: 'admin', password: 'admin123' }}
+            initialValues={{ username: 'admin', password: '123456' }}
             onFinish={handleFinish}
           >
             <Form.Item label="账号" name="username" rules={[{ required: true, message: '请输入账号' }]}>
@@ -115,7 +120,7 @@ export default function LoginPage() {
             </Button>
           </Form>
 
-          <div className="login-hint">演示账号：admin / admin123</div>
+          <div className="login-hint">演示账号：admin / 123456</div>
         </div>
 
         <div className="login-main__footer">

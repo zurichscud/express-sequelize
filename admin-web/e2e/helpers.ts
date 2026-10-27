@@ -24,12 +24,30 @@ function apiUrl(path: string) {
   return `${API_ORIGIN}/api/admin${path}`
 }
 
+let apiToken: string | null = null
+
+/** 获取后端 JWT，供 E2E 直接调用接口准备/清理数据 */
+export async function getApiAuthHeaders(api: APIRequestContext) {
+  if (!apiToken) {
+    const response = await api.post(apiUrl('/users/login'), {
+      data: { account: 'admin', password: '123456' },
+    })
+    const payload = (await response.json()) as ApiEnvelope<{ token: string }>
+    if (!response.ok() || payload.code !== 0) {
+      throw new Error(`E2E API 登录失败：${payload.message || response.status()}`)
+    }
+    apiToken = payload.data.token
+  }
+  return { Authorization: `Bearer ${apiToken}` }
+}
+
 async function fetchList<T extends ListItem>(
   api: APIRequestContext,
   path: string,
   params?: Record<string, string | number>,
 ): Promise<T[]> {
-  const response = await api.get(apiUrl(path), { params })
+  const headers = await getApiAuthHeaders(api)
+  const response = await api.get(apiUrl(path), { params, headers })
   if (!response.ok()) return []
 
   const payload = (await response.json()) as ApiEnvelope<{ list: T[] }>
@@ -41,13 +59,15 @@ async function fetchList<T extends ListItem>(
  * 删除顺序：文章 -> 课程 -> 分类 -> 用户，避免外键约束导致删除失败。
  */
 export async function cleanupE2EData(api: APIRequestContext) {
+  const headers = await getApiAuthHeaders(api)
+
   const articles = await fetchList(api, '/articles', {
     keyword: TEST_PREFIX,
     page: 1,
     pageSize: 100,
   })
   for (const article of articles) {
-    await api.delete(apiUrl(`/articles/${article.id}`))
+    await api.delete(apiUrl(`/articles/${article.id}`), { headers })
   }
 
   const courses = await fetchList(api, '/courses', {
@@ -56,14 +76,14 @@ export async function cleanupE2EData(api: APIRequestContext) {
     pageSize: 100,
   })
   for (const course of courses) {
-    await api.delete(apiUrl(`/courses/${course.id}`))
+    await api.delete(apiUrl(`/courses/${course.id}`), { headers })
   }
 
   const categories = (await fetchList(api, '/categories')).filter((category) =>
     (category.name ?? '').startsWith(TEST_PREFIX),
   )
   for (const category of categories) {
-    await api.delete(apiUrl(`/categories/${category.id}`))
+    await api.delete(apiUrl(`/categories/${category.id}`), { headers })
   }
 
   const users = await fetchList(api, '/users', {
@@ -72,15 +92,15 @@ export async function cleanupE2EData(api: APIRequestContext) {
     pageSize: 100,
   })
   for (const user of users) {
-    await api.delete(apiUrl(`/users/${user.id}`))
+    await api.delete(apiUrl(`/users/${user.id}`), { headers })
   }
 }
 
-/** 通过 UI 使用演示账号登录，成功后停在仪表盘 */
+/** 通过 UI 使用种子账号登录，成功后停在仪表盘 */
 export async function loginAsAdmin(page: Page) {
   await page.goto('/login')
   await page.getByLabel('账号').fill('admin')
-  await page.getByLabel('密码').fill('admin123')
+  await page.getByLabel('密码').fill('123456')
   await page.getByRole('button', { name: /登\s*录/ }).click()
   await expect(page).toHaveURL(/\/dashboard$/)
 }

@@ -19,6 +19,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   MoonOutlined,
+  PaperClipOutlined,
   ReadOutlined,
   SettingOutlined,
   SunOutlined,
@@ -47,6 +48,7 @@ const MENU_ITEMS: MenuProps['items'] = [
       { key: '/courses', label: '课程管理' },
     ],
   },
+  { key: '/attachments', icon: <PaperClipOutlined />, label: '附件管理' },
   { key: '/users', icon: <TeamOutlined />, label: '用户管理' },
   { key: '/settings', icon: <SettingOutlined />, label: '系统设置' },
 ]
@@ -57,6 +59,7 @@ const BREADCRUMBS: Record<string, string[]> = {
   '/categories': ['内容管理', '分类管理'],
   '/courses': ['内容管理', '课程管理'],
   '/users': ['用户管理'],
+  '/attachments': ['附件管理'],
   '/settings': ['系统设置'],
 }
 
@@ -68,6 +71,7 @@ export default function AdminLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const user = getAuthUser()
+  const roleLabel = user?.role === 'admin' ? '管理员' : '普通用户'
 
   const selectedKey = useMemo(() => {
     const first = location.pathname.split('/')[1]
@@ -89,7 +93,7 @@ export default function AdminLayout() {
       label: (
         <div className="admin-user__meta" style={{ padding: '2px 0' }}>
           <strong>{user?.nickname ?? '管理员'}</strong>
-          <span>{user?.username ?? 'admin'} · 管理员</span>
+          <span>{user?.username ?? 'admin'} · {roleLabel}</span>
         </div>
       ),
     },

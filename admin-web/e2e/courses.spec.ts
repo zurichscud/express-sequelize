@@ -1,10 +1,18 @@
 import { expect, test } from './fixtures'
-import { API_ORIGIN, selectFirstOption, selectOption, uniqueName } from './helpers'
+import {
+  API_ORIGIN,
+  getApiAuthHeaders,
+  selectFirstOption,
+  selectOption,
+  uniqueName,
+} from './helpers'
 
 test.describe('课程管理', () => {
   test('新建、推荐、编辑并删除课程', async ({ page, request }) => {
+    const headers = await getApiAuthHeaders(request)
     const categoryName = uniqueName('课程分类')
     const categoryResponse = await request.post(`${API_ORIGIN}/api/admin/categories`, {
+      headers,
       data: { name: categoryName, rank: -1 },
     })
     expect(categoryResponse.ok()).toBeTruthy()

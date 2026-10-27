@@ -128,8 +128,39 @@ export interface CoursePayload {
   image?: string
   is_recommended: boolean
   like_count: number
-  chapter_count: number
   content?: string
+}
+
+export interface ChapterCourseRef {
+  id: number
+  name: string
+}
+
+export interface Chapter {
+  id: number
+  course_id: number
+  title: string
+  video_url: string | null
+  rank: number
+  createdAt: string
+  updatedAt: string
+  content?: string
+  course?: ChapterCourseRef
+}
+
+export interface ChapterQuery {
+  page?: number
+  pageSize?: number
+  course_id?: number
+  keyword?: string
+}
+
+export interface ChapterPayload {
+  course_id: number
+  title: string
+  content?: string
+  video_url?: string
+  rank: number
 }
 
 export interface SiteSetting {
@@ -137,6 +168,48 @@ export interface SiteSetting {
   name: string
   icp: string | null
   copyright: string | null
+}
+
+export type UploadMediaType = 'image' | 'video'
+
+export interface UploadResult {
+  id: number
+  user_id: number | null
+  name: string
+  object_key: string
+  url: string
+  type: UploadMediaType
+  mime_type: string
+  size: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface AttachmentUploader {
+  id: number
+  username: string
+  nickname: string | null
+}
+
+export interface Attachment {
+  id: number
+  user_id: number | null
+  name: string
+  object_key: string
+  url: string
+  type: UploadMediaType
+  mime_type: string
+  size: number
+  createdAt: string
+  updatedAt: string
+  user?: AttachmentUploader | null
+}
+
+export interface AttachmentQuery {
+  page?: number
+  pageSize?: number
+  keyword?: string
+  type?: UploadMediaType | ''
 }
 
 export interface GenderChartData {

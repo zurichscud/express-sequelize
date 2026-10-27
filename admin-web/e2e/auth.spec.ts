@@ -9,7 +9,7 @@ test.describe('未登录访问', () => {
     await expect(page.getByRole('heading', { name: '欢迎回来' })).toBeVisible()
 
     await page.getByLabel('账号').fill('admin')
-    await page.getByLabel('密码').fill('admin123')
+    await page.getByLabel('密码').fill('123456')
     await page.getByRole('button', { name: /登\s*录/ }).click()
 
     await expect(page).toHaveURL(/\/users$/)

@@ -26,7 +26,12 @@ export const test = base.extend<Fixtures>({
 
       page.on('console', (message) => {
         if (message.type() === 'error') {
-          errors.push(message.text())
+          const text = message.text()
+          // 登录失败用例会主动触发 401，浏览器会额外记录一条资源加载错误
+          if (text.includes('401') && message.location().url.includes('/users/login')) {
+            return
+          }
+          errors.push(text)
         }
       })
       page.on('pageerror', (error) => {

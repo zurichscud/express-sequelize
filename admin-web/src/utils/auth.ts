@@ -1,17 +1,19 @@
+export type UserRole = 'user' | 'admin'
+export type UserSex = 'unknown' | 'male' | 'female'
+
 export interface AuthUser {
+  id: number
+  email: string
   username: string
-  nickname: string
-  role: 'admin'
+  nickname: string | null
+  sex: UserSex
+  role: UserRole
+  createdAt?: string
+  updatedAt?: string
 }
 
 const TOKEN_KEY = 'admin_token'
 const USER_KEY = 'admin_user'
-
-// 演示账号：后端暂未提供登录接口，先在前端做本地校验
-const DEMO_ACCOUNT = {
-  username: 'admin',
-  password: 'admin123',
-}
 
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY)
@@ -28,23 +30,19 @@ export function getAuthUser(): AuthUser | null {
 }
 
 export function isAuthenticated() {
-  return Boolean(getToken())
+  const token = getToken()
+  // 兼容旧版本本地演示 token：发现后直接清理，强制走真实登录
+  if (!token || token.startsWith('demo-token-')) {
+    if (token) logout()
+    return false
+  }
+  return true
 }
 
-export function login(username: string, password: string): AuthUser {
-  if (username !== DEMO_ACCOUNT.username || password !== DEMO_ACCOUNT.password) {
-    throw new Error('账号或密码错误')
-  }
-
-  const user: AuthUser = {
-    username: DEMO_ACCOUNT.username,
-    nickname: '系统管理员',
-    role: 'admin',
-  }
-
-  localStorage.setItem(TOKEN_KEY, `demo-token-${Date.now()}`)
+/** 保存登录接口返回的 JWT 与用户信息 */
+export function saveSession(token: string, user: AuthUser) {
+  localStorage.setItem(TOKEN_KEY, token)
   localStorage.setItem(USER_KEY, JSON.stringify(user))
-  return user
 }
 
 export function logout() {

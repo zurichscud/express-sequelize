@@ -1,8 +1,9 @@
 import { expect, test } from './fixtures'
-import { API_ORIGIN, uniqueName } from './helpers'
+import { API_ORIGIN, getApiAuthHeaders, uniqueName } from './helpers'
 
 test.describe('系统设置', () => {
   test('修改站点名称后刷新仍生效，并可恢复', async ({ page, request }) => {
+    const headers = await getApiAuthHeaders(request)
     await page.goto('/settings')
     await expect(page.getByRole('heading', { name: '系统设置', level: 4 })).toBeVisible()
     await expect(page.locator('#name')).not.toHaveValue('')
@@ -31,7 +32,7 @@ test.describe('系统设置', () => {
       await expect(page.locator('.ant-message').getByText('站点设置已保存')).toBeVisible()
     } finally {
       // 即使断言失败也确保不污染站点设置
-      await request.put(`${API_ORIGIN}/api/admin/settings`, { data: original })
+      await request.put(`${API_ORIGIN}/api/admin/settings`, { headers, data: original })
     }
   })
 })

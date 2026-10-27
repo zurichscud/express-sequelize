@@ -18,6 +18,7 @@ import type { TableProps } from 'antd'
 import { PlusOutlined, ReadOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import PageContainer from '@/components/PageContainer'
 import CourseFormModal from './CourseFormModal'
+import ChapterDrawer from './ChapterDrawer'
 import { deleteCourse, getCourse, getCourses, updateCourse } from '@/api/course'
 import { getCategories } from '@/api/category'
 import { getUsers } from '@/api/user'
@@ -47,6 +48,7 @@ export default function CoursesPage() {
 
   const [formOpen, setFormOpen] = useState(false)
   const [editingCourse, setEditingCourse] = useState<Course | null>(null)
+  const [chapterCourse, setChapterCourse] = useState<Course | null>(null)
   const [detailLoadingId, setDetailLoadingId] = useState<number | null>(null)
   const [togglingId, setTogglingId] = useState<number | null>(null)
 
@@ -222,10 +224,18 @@ export default function CoursesPage() {
     {
       title: '操作',
       key: 'actions',
-      width: 140,
+      width: 190,
       fixed: 'right',
       render: (_, record) => (
         <Space size={4}>
+          <Button
+            type="link"
+            size="small"
+            aria-label={`管理章节：${record.name}`}
+            onClick={() => setChapterCourse(record)}
+          >
+            章节
+          </Button>
           <Button
             type="link"
             size="small"
@@ -354,6 +364,14 @@ export default function CoursesPage() {
             if (!wasEditing) setPage(1)
             setRefreshKey((key) => key + 1)
           }}
+        />
+      ) : null}
+
+      {chapterCourse ? (
+        <ChapterDrawer
+          course={chapterCourse}
+          onClose={() => setChapterCourse(null)}
+          onChanged={() => setRefreshKey((key) => key + 1)}
         />
       ) : null}
     </PageContainer>

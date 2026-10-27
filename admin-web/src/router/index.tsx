@@ -11,6 +11,7 @@ const ArticlesPage = lazy(() => import('@/pages/Articles'))
 const CategoriesPage = lazy(() => import('@/pages/Categories'))
 const CoursesPage = lazy(() => import('@/pages/Courses'))
 const UsersPage = lazy(() => import('@/pages/Users'))
+const AttachmentsPage = lazy(() => import('@/pages/Attachments'))
 const SettingsPage = lazy(() => import('@/pages/Settings'))
 const NotFoundPage = lazy(() => import('@/pages/NotFound'))
 
@@ -37,6 +38,7 @@ export const router = createBrowserRouter([
       { path: 'categories', element: withSuspense(<CategoriesPage />) },
       { path: 'courses', element: withSuspense(<CoursesPage />) },
       { path: 'users', element: withSuspense(<UsersPage />) },
+      { path: 'attachments', element: withSuspense(<AttachmentsPage />) },
       { path: 'settings', element: withSuspense(<SettingsPage />) },
       { path: '*', element: withSuspense(<NotFoundPage />) },
     ],

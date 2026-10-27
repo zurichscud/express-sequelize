@@ -93,6 +93,15 @@ body {
   margin-bottom: 0;
 }
 
+.chapter-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
 .settings-card {
   max-width: 760px;
 }

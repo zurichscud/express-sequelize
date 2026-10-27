@@ -1,0 +1,31 @@
+### 查询站点设置
+GET {{baseUrl}}/api/settings
+Accept: application/json
+
+### 更新站点设置（仅传需要修改的字段）
+PUT {{baseUrl}}/api/settings
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "我的网站",
+  "icp": "粤ICP备00000000号",
+  "copyright": "© 2026 我的网站"
+}
+
+### 更新站点设置（清空可选字段）
+PUT {{baseUrl}}/api/settings
+Content-Type: application/json
+Accept: application/json
+
+{
+  "icp": "",
+  "copyright": ""
+}
+
+### 更新站点设置（缺少字段，应返回 400）
+PUT {{baseUrl}}/api/settings
+Content-Type: application/json
+Accept: application/json
+
+{}

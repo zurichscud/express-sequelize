@@ -1,6 +1,3 @@
-### 变量
-@baseUrl = http://localhost:3000
-
 ### 健康检查
 GET {{baseUrl}}/health
 Accept: application/json

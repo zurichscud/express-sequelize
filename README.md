@@ -1,6 +1,6 @@
 # Express + Sequelize + MySQL
 
-一个基于 **Express 5 + Sequelize 6 + MySQL 8** 的示例项目，包含一张 `articles` 文章表、分页列表/单篇详情接口，以及 sequelize-cli 数据库迁移和 seeder。
+一个基于 **Express 5 + Sequelize 6 + MySQL 8** 的示例项目，包含 `articles` 文章表、`settings` 站点设置表（单记录）、`users` 用户表、`categories` 分类表和 `courses` 课程表（外键关联分类与用户），以及对应的 CRUD 接口和 sequelize-cli 数据库迁移和 seeder。
 
 ## 技术栈
 
@@ -18,6 +18,12 @@
 .
 ├─ sql/
 │  └─ schema.sql                 # 参考 SQL（实际建表以迁移为准）
+├─ http/
+│  ├─ articles.http              # 文章接口调试请求
+│  ├─ categories.http            # 分类接口调试请求
+│  ├─ courses.http               # 课程接口调试请求
+│  ├─ settings.http              # 站点设置接口调试请求
+│  └─ users.http                 # 用户接口调试请求
 ├─ src/
 │  ├─ app.js                     # Express 应用与错误处理
 │  ├─ server.js                  # 启动入口：连接数据库、监听端口
@@ -25,16 +31,45 @@
 │  │  ├─ config.js               # 数据库配置（CLI 与运行时共用）
 │  │  └─ database.js             # Sequelize 实例
 │  ├─ migrations/
-│  │  └─ 20261026000000-create-articles.js
+│  │  ├─ 20261026000000-create-articles.js
+│  │  ├─ 20261027000000-create-settings.js
+│  │  ├─ 20261027020000-create-users.js
+│  │  ├─ 20261027030000-create-categories.js
+│  │  └─ 20261027030001-create-courses.js
 │  ├─ seeders/
-│  │  └─ 20261026000001-demo-articles.js
+│  │  ├─ 20261026000001-demo-articles.js
+│  │  ├─ 20261027000001-default-settings.js
+│  │  ├─ 20261027020001-demo-users.js
+│  │  ├─ 20261027030002-demo-categories.js
+│  │  └─ 20261027030003-demo-courses.js
 │  ├─ models/
-│  │  ├─ index.js                # 模型汇总
-│  │  └─ article.model.js        # 文章模型
+│  │  ├─ index.js                # 模型汇总与关联关系
+│  │  ├─ article.model.js        # 文章模型
+│  │  ├─ category.model.js       # 分类模型
+│  │  ├─ course.model.js         # 课程模型
+│  │  ├─ setting.model.js        # 站点设置模型
+│  │  └─ user.model.js           # 用户模型
 │  ├─ controllers/
-│  │  └─ article.controller.js   # 文章列表与详情逻辑
-│  └─ routes/
-│     └─ article.routes.js       # 文章路由
+│  │  ├─ article.controller.js   # 文章接口逻辑
+│  │  ├─ category.controller.js  # 分类接口逻辑
+│  │  ├─ course.controller.js    # 课程接口逻辑
+│  │  ├─ setting.controller.js   # 站点设置接口逻辑
+│  │  └─ user.controller.js      # 用户接口逻辑
+│  ├─ services/
+│  │  ├─ article.service.js      # 文章数据访问
+│  │  ├─ category.service.js     # 分类数据访问
+│  │  ├─ course.service.js       # 课程数据访问（含关联查询）
+│  │  ├─ setting.service.js      # 站点设置数据访问
+│  │  └─ user.service.js         # 用户数据访问
+│  ├─ routes/
+│  │  ├─ article.routes.js       # 文章路由
+│  │  ├─ category.routes.js      # 分类路由
+│  │  ├─ course.routes.js        # 课程路由
+│  │  ├─ setting.routes.js       # 站点设置路由
+│  │  └─ user.routes.js          # 用户路由
+│  └─ utils/
+│     ├─ password.js             # 密码 bcrypt 哈希与校验
+│     └─ response.js             # 统一成功/失败响应
 ├─ .sequelizerc                  # sequelize-cli 路径配置
 ├─ .env                          # 本地环境变量（已被 git 忽略）
 ├─ .env.example                  # 环境变量模板
@@ -77,8 +112,8 @@ docker exec mysql-dev mysqladmin ping -uroot -proot123456
 
 ```bash
 npm install
-npm run db:migrate   # 执行迁移，创建 articles 表
-npm run db:seed      # 写入 6 条示例文章
+npm run db:migrate   # 执行迁移，创建全部数据表
+npm run db:seed      # 写入示例数据：6 篇文章、站点设置、3 个用户（密码均为 123456）、4 个分类、6 门课程
 
 # 也可以一条命令完成迁移 + 种子数据
 npm run seed
@@ -97,6 +132,10 @@ npm start
 - 健康检查：<http://localhost:3000/health>
 - 文章列表：<http://localhost:3000/api/articles>
 - 文章详情：<http://localhost:3000/api/articles/1>
+- 站点设置：<http://localhost:3000/api/settings>
+- 用户列表：<http://localhost:3000/api/users>
+- 分类列表：<http://localhost:3000/api/categories>
+- 课程列表：<http://localhost:3000/api/courses>
 
 ## 数据库迁移
 
@@ -210,6 +249,114 @@ curl "http://localhost:3000/api/articles/1"
 | 400    | `id` 不是正整数            | `{ "code": 400, "message": "文章 ID 无效" }` |
 | 404    | 对应 ID 的文章不存在       | `{ "code": 404, "message": "文章不存在" }`   |
 
+### GET /api/settings
+
+查询站点设置。表中仅一条记录，记录不存在时自动初始化默认记录，始终有数据返回。
+
+### PUT /api/settings
+
+更新站点设置（仅更新请求体中提供的字段，`icp`/`copyright` 传空字符串可清空）。
+
+```bash
+curl -X PUT "http://localhost:3000/api/settings" \
+  -H "Content-Type: application/json" \
+  -d '{ "name": "我的网站", "icp": "粤ICP备12345678号", "copyright": "© 2026 我的网站 版权所有" }'
+```
+
+| 字段      | 类型   | 必填 | 说明                              |
+| --------- | ------ | ---- | --------------------------------- |
+| name      | string | 否   | 站点名称，最长 100 字             |
+| icp       | string | 否   | ICP 备案号，最长 64 字            |
+| copyright | string | 否   | 版权信息，最长 200 字             |
+
+错误响应：空请求体返回 `{ "code": 400, "message": "没有需要更新的字段" }`，字段校验失败返回对应中文提示。
+
+### GET /api/users
+
+分页查询用户列表，按创建时间倒序，响应中不包含密码。
+
+| 参数     | 类型   | 必填 | 默认值 | 说明                              |
+| -------- | ------ | ---- | ------ | --------------------------------- |
+| page     | number | 否   | 1      | 页码，最小 1                      |
+| pageSize | number | 否   | 10     | 每页条数，1~100                   |
+| keyword  | string | 否   | —      | 邮箱 / 用户名 / 昵称模糊搜索      |
+| sex      | string | 否   | —      | `unknown` / `male` / `female`     |
+| role     | string | 否   | —      | `user` 或 `admin`                 |
+
+### POST /api/users
+
+创建用户。`email` 与 `username` 唯一，重复时返回 400「邮箱已被注册 / 用户名已存在」；`password` 为明文，存储时自动 bcrypt 哈希，接口响应永不返回密码。
+
+| 字段     | 类型   | 必填 | 默认值  | 说明                                        |
+| -------- | ------ | ---- | ------- | ------------------------------------------- |
+| email    | string | 是   | —       | 邮箱，唯一，最长 128 字                     |
+| password | string | 是   | —       | 明文密码，6-72 位                           |
+| username | string | 是   | —       | 用户名，唯一，仅限字母/数字/下划线/短横线   |
+| nickname | string | 否   | null    | 昵称，最长 64 字                            |
+| sex      | string | 否   | unknown | `unknown` / `male` / `female`               |
+| role     | string | 否   | user    | `user` / `admin`                            |
+
+### GET /api/users/:id
+
+查询单个用户详情（不包含密码）。不存在时返回 404「用户不存在」。
+
+### PUT /api/users/:id
+
+更新用户，仅更新请求体中提供的字段。传 `password` 时自动重新哈希（明文格式校验同创建）。空请求体返回 400「没有需要更新的字段」。
+
+### DELETE /api/users/:id
+
+删除单个用户。不存在时返回 404「用户不存在」；名下还有课程时返回 400「该用户名下还有 N 门课程，无法删除」。
+
+### GET /api/categories
+
+查询分类列表，按 `rank` 升序排列（分类数量有限，不分页）。
+
+### POST /api/categories
+
+创建分类。`name` 必填且唯一（重复返回 400「分类名称已存在」），`rank` 选填默认 0，越小越靠前。
+
+### GET /api/categories/:id
+
+查询单个分类详情。不存在时返回 404「分类不存在」。
+
+### PUT /api/categories/:id
+
+更新分类，仅更新请求体中提供的字段（`name` / `rank`）。
+
+### DELETE /api/categories/:id
+
+删除分类。分类下还有课程时返回 400「该分类下还有 N 门课程，无法删除」。
+
+### GET /api/courses
+
+分页查询课程列表，按创建时间倒序，每条课程内嵌 `category`（id/name/rank）与 `user`（id/username/nickname），不返回 `content` 正文。
+
+| 参数           | 类型    | 必填 | 默认值 | 说明                 |
+| -------------- | ------- | ---- | ------ | -------------------- |
+| page           | number  | 否   | 1      | 页码，最小 1         |
+| pageSize       | number  | 否   | 10     | 每页条数，1~100      |
+| category_id    | number  | 否   | —      | 按分类筛选           |
+| user_id        | number  | 否   | —      | 按所属用户筛选       |
+| is_recommended | string  | 否   | —      | `true` / `false`     |
+| keyword        | string  | 否   | —      | 课程名称模糊搜索     |
+
+### POST /api/courses
+
+创建课程。`category_id`、`user_id` 必填且必须存在（不存在返回 400「分类不存在 / 用户不存在」）；`name` 必填；`is_recommended` 默认 `false`；`like_count` / `chapter_count` 默认 0。
+
+### GET /api/courses/:id
+
+查询单个课程详情（含 `content` 正文与关联的分类、用户信息）。
+
+### PUT /api/courses/:id
+
+更新课程，仅更新请求体中提供的字段。可变更 `category_id`（需存在）；`user_id` 创建后不可变更。
+
+### DELETE /api/courses/:id
+
+删除单个课程。不存在时返回 404「课程不存在」。
+
 ## 数据表 articles
 
 | 字段       | 类型                          | 说明                        |
@@ -225,6 +372,63 @@ curl "http://localhost:3000/api/articles/1"
 | updated_at | DATETIME, NOT NULL            | 更新时间                    |
 
 索引：`idx_articles_status_created(status, created_at)`、`idx_articles_title(title)`。
+
+## 数据表 settings
+
+站点设置表，业务上仅一条记录（由 seeder 写入或首次查询自动初始化）。
+
+| 字段       | 类型               | 说明           |
+| ---------- | ------------------ | -------------- |
+| id         | INT UNSIGNED, PK, AUTO_INCREMENT | 主键 |
+| name       | VARCHAR(100), NOT NULL | 站点名称   |
+| icp        | VARCHAR(64), NULL  | ICP 备案号     |
+| copyright  | VARCHAR(200), NULL | 版权信息       |
+| created_at | DATETIME, NOT NULL | 创建时间       |
+| updated_at | DATETIME, NOT NULL | 更新时间       |
+
+## 数据表 users
+
+| 字段       | 类型                              | 说明                                     |
+| ---------- | --------------------------------- | ---------------------------------------- |
+| id         | INT UNSIGNED, PK, AUTO_INCREMENT  | 主键                                     |
+| email      | VARCHAR(128), NOT NULL, UNIQUE    | 邮箱，登录凭证                           |
+| password   | VARCHAR(255), NOT NULL            | 密码，bcrypt 哈希存储                    |
+| username   | VARCHAR(64), NOT NULL, UNIQUE     | 用户名                                   |
+| nickname   | VARCHAR(64), NULL                 | 昵称                                     |
+| sex        | ENUM('unknown','male','female')   | 性别，默认 `unknown`                     |
+| role       | ENUM('user','admin')              | 角色，默认 `user`                        |
+| created_at | DATETIME, NOT NULL                | 创建时间                                 |
+| updated_at | DATETIME, NOT NULL                | 更新时间                                 |
+
+## 数据表 categories
+
+| 字段       | 类型                              | 说明                       |
+| ---------- | --------------------------------- | -------------------------- |
+| id         | INT UNSIGNED, PK, AUTO_INCREMENT  | 主键                       |
+| name       | VARCHAR(64), NOT NULL, UNIQUE     | 分类名称                   |
+| rank       | INT, NOT NULL                     | 排序序号，越小越靠前，默认 0 |
+| created_at | DATETIME, NOT NULL                | 创建时间                   |
+| updated_at | DATETIME, NOT NULL                | 更新时间                   |
+
+## 数据表 courses
+
+| 字段           | 类型                             | 说明                                  |
+| -------------- | -------------------------------- | ------------------------------------- |
+| id             | INT UNSIGNED, PK, AUTO_INCREMENT | 主键                                  |
+| category_id    | INT UNSIGNED, NOT NULL, FK       | 分类 ID，外键关联 categories          |
+| user_id        | INT UNSIGNED, NOT NULL, FK       | 所属用户 ID（创建者），外键关联 users |
+| name           | VARCHAR(128), NOT NULL           | 课程名称                              |
+| image          | VARCHAR(500), NULL               | 封面图片地址                          |
+| is_recommended | TINYINT(1), NOT NULL             | 是否推荐，默认 false                  |
+| content        | TEXT, NULL                       | 课程内容                              |
+| like_count     | INT UNSIGNED, NOT NULL           | 点赞数，默认 0                        |
+| chapter_count  | INT UNSIGNED, NOT NULL           | 章节总数，默认 0                      |
+| created_at     | DATETIME, NOT NULL               | 创建时间                              |
+| updated_at     | DATETIME, NOT NULL               | 更新时间                              |
+
+索引：`idx_courses_category_id`、`idx_courses_user_id`、`idx_courses_recommended_created(is_recommended, created_at)`。
+
+外键：`category_id` → `categories.id`、`user_id` → `users.id`，均为 `ON DELETE RESTRICT ON UPDATE CASCADE`，删除被引用的记录前需先处理课程（接口层已做友好拦截）。
 
 ## 常用命令
 

@@ -1,6 +1,10 @@
 const express = require('express');
 const { ValidationError } = require('sequelize');
 const articleRouter = require('./routes/article.routes');
+const settingRouter = require('./routes/setting.routes');
+const userRouter = require('./routes/user.routes');
+const categoryRouter = require('./routes/category.routes');
+const courseRouter = require('./routes/course.routes');
 const { fail } = require('./utils/response');
 
 // 只负责创建并导出 Express 实例；监听端口在 src/server.js 中通过 app.listen() 完成
@@ -14,6 +18,10 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/articles', articleRouter);
+app.use('/api/settings', settingRouter);
+app.use('/api/users', userRouter);
+app.use('/api/categories', categoryRouter);
+app.use('/api/courses', courseRouter);
 
 // 404
 app.use((req, res) => {
@@ -29,8 +37,11 @@ app.use((err, req, res, next) => {
     return fail(res, 400, item ? item.message : '参数校验失败');
   }
 
-  console.error('[error]', err);
   const status = err.status || 500;
+  // 业务拦截（4xx）不算故障，只对 5xx 记录错误日志
+  if (status >= 500) {
+    console.error('[error]', err);
+  }
   fail(res, status, status === 500 ? '服务器内部错误' : err.message);
 });
 

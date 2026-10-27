@@ -1,5 +1,7 @@
 const { Op, UniqueConstraintError } = require('sequelize');
 const { Course, User } = require('../models');
+const { verifyPassword } = require('../utils/password');
+const { signToken } = require('../utils/jwt');
 
 const SEXES = ['unknown', 'male', 'female'];
 const ROLES = ['user', 'admin'];
@@ -32,6 +34,56 @@ function toUniqueError(err) {
   const businessError = new Error(message);
   businessError.status = 400;
   return businessError;
+}
+
+/**
+ * 只保留可对外暴露的字段，避免把密码哈希返回给客户端
+ * @param {object} user Sequelize 用户实例
+ * @returns {object}
+ */
+function toSafeUser(user) {
+  const data = user.get({ plain: true });
+  const safe = {};
+  for (const field of SAFE_ATTRIBUTES) {
+    safe[field] = data[field];
+  }
+  return safe;
+}
+
+/**
+ * 登录取 token
+ * 账号可以传邮箱或用户名（account，兼容 email / username 字段）
+ * @param {{ account: string, password: string }} credentials
+ * @returns {Promise<object>} 用户不存在或密码错误时抛出 401
+ */
+async function login({ account, password }) {
+  // 邮箱入库时统一转小写，这里同步转换；用户名按原值匹配
+  const user = await User.findOne({
+    where: {
+      [Op.or]: [{ email: account.toLowerCase() }, { username: account }]
+    }
+  });
+
+  // 账号不存在和密码错误返回同一提示，避免暴露账号是否已注册
+  if (!user || !verifyPassword(password, user.password)) {
+    const authError = new Error('账号或密码错误');
+    authError.status = 401;
+    throw authError;
+  }
+
+  const { token, expiresIn, expiresAt } = signToken({
+    sub: user.id,
+    username: user.username,
+    role: user.role
+  });
+
+  return {
+    token,
+    tokenType: 'Bearer',
+    expiresIn,
+    expiresAt,
+    user: toSafeUser(user)
+  };
 }
 
 /**
@@ -151,6 +203,7 @@ async function deleteUserById(id) {
 }
 
 module.exports = {
+  login,
   listUsers,
   getUserById,
   createUser,

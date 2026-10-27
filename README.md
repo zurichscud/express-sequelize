@@ -38,24 +38,34 @@
 │  │  ├─ setting.model.js        # 站点设置模型
 │  │  └─ user.model.js           # 用户模型
 │  ├─ controllers/
-│  │  ├─ article.controller.js   # 文章接口逻辑
-│  │  ├─ category.controller.js  # 分类接口逻辑
-│  │  ├─ course.controller.js    # 课程接口逻辑
-│  │  ├─ setting.controller.js   # 站点设置接口逻辑
-│  │  └─ user.controller.js      # 用户接口逻辑
+│  │  └─ admin/
+│  │     ├─ article.controller.js   # 后台文章接口逻辑
+│  │     ├─ category.controller.js  # 后台分类接口逻辑
+│  │     ├─ chart.controller.js     # 后台图表接口逻辑
+│  │     ├─ course.controller.js    # 后台课程接口逻辑
+│  │     ├─ setting.controller.js   # 后台站点设置接口逻辑
+│  │     └─ user.controller.js      # 后台用户接口逻辑
 │  ├─ services/
 │  │  ├─ article.service.js      # 文章数据访问
 │  │  ├─ category.service.js     # 分类数据访问
+│  │  ├─ chart.service.js        # 图表统计查询
 │  │  ├─ course.service.js       # 课程数据访问（含关联查询）
 │  │  ├─ setting.service.js      # 站点设置数据访问
 │  │  └─ user.service.js         # 用户数据访问
 │  ├─ routes/
-│  │  ├─ article.routes.js       # 文章路由
-│  │  ├─ category.routes.js      # 分类路由
-│  │  ├─ course.routes.js        # 课程路由
-│  │  ├─ setting.routes.js       # 站点设置路由
-│  │  └─ user.routes.js          # 用户路由
+│  │  ├─ index.js                # /api 路由汇总，按端划分
+│  │  └─ admin/
+│  │     ├─ index.js             # 后台路由汇总与登录鉴权
+│  │     ├─ article.routes.js    # 后台文章路由
+│  │     ├─ category.routes.js   # 后台分类路由
+│  │     ├─ chart.routes.js      # 后台图表路由
+│  │     ├─ course.routes.js     # 后台课程路由
+│  │     ├─ setting.routes.js    # 后台站点设置路由
+│  │     └─ user.routes.js       # 后台用户路由
+│  ├─ middlewares/
+│  │  └─ auth.middleware.js      # JWT 认证中间件
 │  └─ utils/
+│     ├─ jwt.js                  # JWT 签发与校验
 │     ├─ password.js             # 密码 bcrypt 哈希与校验
 │     └─ response.js             # 统一成功/失败响应
 ├─ .sequelizerc                  # sequelize-cli 路径配置
@@ -85,15 +95,18 @@ npm run dev      # node --watch，修改代码自动重启
 npm start
 ```
 
-启动成功后访问：
+启动成功后访问（当前接口均为后台管理端，统一位于 `/api/admin` 下）：
 
 - 健康检查：<http://localhost:3000/health>
-- 文章列表：<http://localhost:3000/api/articles>
-- 文章详情：<http://localhost:3000/api/articles/1>
-- 站点设置：<http://localhost:3000/api/settings>
-- 用户列表：<http://localhost:3000/api/users>
-- 分类列表：<http://localhost:3000/api/categories>
-- 课程列表：<http://localhost:3000/api/courses>
+- 文章列表：<http://localhost:3000/api/admin/articles>
+- 文章详情：<http://localhost:3000/api/admin/articles/1>
+- 站点设置：<http://localhost:3000/api/admin/settings>
+- 用户列表：<http://localhost:3000/api/admin/users>
+- 用户登录：`POST http://localhost:3000/api/admin/users/login`
+- 分类列表：<http://localhost:3000/api/admin/categories>
+- 课程列表：<http://localhost:3000/api/admin/courses>
+
+> 除健康检查和后台登录接口外，所有 `/api/admin` 接口都需要在请求头携带 `Authorization: Bearer <token>`，token 通过 `POST /api/admin/users/login` 获取。后续新增前台接口时，在 `src/routes/index.js` 中与 `/admin` 并列注册即可。
 
 ## 数据库迁移
 

@@ -1,17 +1,23 @@
+@token = 请先调用 http/users.http 的登录接口，把返回的 data.token 粘贴到此处
+
 ### 健康检查
 GET {{origin}}/health
 
 ### 文章列表
 GET {{baseUrl}}/articles
+Authorization: Bearer {{token}}
 
 ### 文章列表（标题模糊搜索）
 GET {{baseUrl}}/articles?title=Express
+Authorization: Bearer {{token}}
 
 ### 文章详情
 GET {{baseUrl}}/articles/1
+Authorization: Bearer {{token}}
 
 ### 创建文章
 POST {{baseUrl}}/articles
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -24,9 +30,11 @@ Content-Type: application/json
 
 ### 删除文章
 DELETE {{baseUrl}}/articles/1
+Authorization: Bearer {{token}}
 
 ### 更新文章（仅传需要修改的字段）
 PUT {{baseUrl}}/articles/1
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {

@@ -1,0 +1,514 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ---------- 通用页面结构 ---------- */
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.page-header h4.ant-typography {
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+
+.page-header__extra {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cell-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cell-title > .ant-typography {
+  margin: 0;
+}
+
+.cell-title__sub {
+  overflow: hidden;
+  color: var(--ant-color-text-tertiary, #8c8c8c);
+  font-size: 12px;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.course-cell,
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.filter-card .ant-card-body {
+  padding: 16px 20px;
+}
+
+.filter-card .ant-form-inline {
+  gap: 12px;
+}
+
+.filter-card .ant-form-item {
+  margin-inline-end: 0;
+  margin-bottom: 0;
+}
+
+.settings-card {
+  max-width: 760px;
+}
+
+.settings-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ---------- 后台布局 ---------- */
+
+.admin-layout {
+  min-height: 100vh;
+}
+
+.admin-sider {
+  position: fixed !important;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: 30;
+  height: 100vh;
+  overflow: auto;
+}
+
+.admin-sider .ant-layout-sider-children {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-sider .ant-menu {
+  border-inline-end: none !important;
+  padding: 8px;
+}
+
+.admin-sider .ant-menu-sub.ant-menu-inline {
+  background: transparent !important;
+}
+
+.admin-logo {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+  height: 64px;
+  padding: 0 16px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--ant-color-border-secondary, rgba(5, 5, 5, 0.06));
+  cursor: pointer;
+}
+
+.admin-logo--collapsed {
+  justify-content: center;
+  padding: 0;
+}
+
+.admin-logo__mark {
+  display: grid;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  color: #fff;
+  font-size: 18px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1, #4338ca);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+  place-items: center;
+}
+
+.admin-logo__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.admin-logo__text span {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.admin-logo__text small {
+  color: var(--ant-color-text-tertiary, #8c8c8c);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.admin-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: margin-inline-start 0.2s ease;
+}
+
+.admin-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 64px;
+}
+
+.admin-header__left,
+.admin-header__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.admin-header__trigger {
+  font-size: 16px;
+}
+
+.admin-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.admin-user:hover {
+  background: var(--ant-color-fill-tertiary, rgba(0, 0, 0, 0.04));
+}
+
+.admin-user__meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.admin-user__meta strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.admin-user__meta span {
+  color: var(--ant-color-text-tertiary, #8c8c8c);
+  font-size: 11px;
+}
+
+.admin-content {
+  flex: 1;
+  padding: 24px;
+}
+
+.admin-footer {
+  padding: 16px 24px 24px;
+  text-align: center;
+  background: transparent;
+}
+
+/* ---------- 仪表盘 ---------- */
+
+.stat-card__body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.stat-card__icon {
+  display: grid;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  font-size: 22px;
+  border-radius: 14px;
+  place-items: center;
+}
+
+.stat-card .ant-statistic-content {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 220px;
+  padding-top: 16px;
+}
+
+.bar-chart__item {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  min-width: 0;
+}
+
+.bar-chart__value {
+  color: var(--ant-color-text-tertiary, #8c8c8c);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.bar-chart__track {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  max-width: 40px;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--ant-color-fill-quaternary, rgba(0, 0, 0, 0.04));
+}
+
+.bar-chart__bar {
+  width: 100%;
+  min-height: 2px;
+  border-radius: 6px 6px 0 0;
+  transition: height 0.3s ease;
+}
+
+.bar-chart__label {
+  color: var(--ant-color-text-tertiary, #8c8c8c);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.gender-row + .gender-row {
+  margin-top: 18px;
+}
+
+.gender-row__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.gender-row__count {
+  color: var(--ant-color-text-tertiary, #8c8c8c);
+  font-size: 12px;
+}
+
+/* ---------- 登录页 ---------- */
+
+.login-page {
+  display: flex;
+  min-height: 100vh;
+}
+
+.login-brand {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 52%;
+  max-width: 780px;
+  padding: 48px 56px;
+  overflow: hidden;
+  color: #fff;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(99, 102, 241, 0.45), transparent 42%),
+    radial-gradient(circle at 82% 84%, rgba(14, 165, 233, 0.28), transparent 42%),
+    linear-gradient(135deg, #0b1120, #1e1b4b 58%, #312e81);
+}
+
+.login-brand::before {
+  position: absolute;
+  right: -180px;
+  bottom: -200px;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.35), transparent 65%);
+  content: '';
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+.login-brand::after {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+  background-size: 22px 22px;
+  content: '';
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.login-brand > * {
+  position: relative;
+  z-index: 1;
+}
+
+.login-brand__logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.login-brand__mark {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(6px);
+  place-items: center;
+}
+
+.login-brand__body {
+  max-width: 520px;
+}
+
+.login-brand__title.ant-typography {
+  margin: 0 0 20px;
+  color: #fff;
+  font-size: 46px;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.login-brand__desc.ant-typography {
+  max-width: 500px;
+  margin-bottom: 32px;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.login-brand__features {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 0;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 14px;
+  list-style: none;
+}
+
+.login-brand__features li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.login-brand__features .anticon {
+  color: #a5b4fc;
+  font-size: 16px;
+}
+
+.login-brand__footer {
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.login-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 48px 40px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 40px;
+  border-radius: 20px;
+}
+
+.login-card h2.ant-typography {
+  margin-bottom: 0;
+  font-weight: 650;
+}
+
+.login-hint {
+  padding: 10px 12px;
+  margin-top: 20px;
+  color: var(--ant-color-text-tertiary, #8c8c8c);
+  font-size: 12px;
+  text-align: center;
+  border-radius: 8px;
+  background: var(--ant-color-fill-quaternary, rgba(99, 102, 241, 0.06));
+}
+
+.login-main__footer {
+  color: var(--ant-color-text-tertiary, #8c8c8c);
+  font-size: 12px;
+}
+
+@media (max-width: 960px) {
+  .login-brand {
+    display: none;
+  }
+
+  .login-page {
+    justify-content: center;
+  }
+}

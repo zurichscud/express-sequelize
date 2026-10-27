@@ -1,17 +1,24 @@
+@token = 请先调用 http/users.http 的登录接口，把返回的 data.token 粘贴到此处
+
 ### 课程列表
 GET {{baseUrl}}/courses
+Authorization: Bearer {{token}}
 
 ### 课程列表（推荐课程 + 分类筛选）
 GET {{baseUrl}}/courses?category_id=1&is_recommended=true
+Authorization: Bearer {{token}}
 
 ### 课程列表（关键词搜索）
 GET {{baseUrl}}/courses?keyword=Node
+Authorization: Bearer {{token}}
 
 ### 课程详情（含分类与用户信息）
 GET {{baseUrl}}/courses/1
+Authorization: Bearer {{token}}
 
 ### 创建课程
 POST {{baseUrl}}/courses
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -27,6 +34,7 @@ Content-Type: application/json
 
 ### 更新课程（仅传需要修改的字段）
 PUT {{baseUrl}}/courses/5
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -36,3 +44,4 @@ Content-Type: application/json
 
 ### 删除课程
 DELETE {{baseUrl}}/courses/5
+Authorization: Bearer {{token}}

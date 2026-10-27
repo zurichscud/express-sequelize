@@ -1,8 +1,12 @@
+@token = 请先调用 http/users.http 的登录接口，把返回的 data.token 粘贴到此处
+
 ### 分类列表（按 rank 升序）
 GET {{baseUrl}}/categories
+Authorization: Bearer {{token}}
 
 ### 创建分类
 POST {{baseUrl}}/categories
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -12,9 +16,11 @@ Content-Type: application/json
 
 ### 分类详情
 GET {{baseUrl}}/categories/1
+Authorization: Bearer {{token}}
 
 ### 更新分类
 PUT {{baseUrl}}/categories/1
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -24,3 +30,4 @@ Content-Type: application/json
 
 ### 删除分类（分类下有课程时会被拒绝）
 DELETE {{baseUrl}}/categories/4
+Authorization: Bearer {{token}}

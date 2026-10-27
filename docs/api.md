@@ -2,9 +2,27 @@
 
 基础地址：`http://localhost:3000`。所有接口返回统一 JSON 结构：`{ "code": 0, "message": "ok", "data": ... }`，出错时 `code` 为对应状态码。也可直接使用 `http/` 目录下的 `.http` 文件在 VS Code REST Client 中调试。
 
+> 当前接口均为后台管理端接口，统一挂载在 `/api/admin` 下；后续前台接口将在 `/api` 下的独立路径中提供，不复用后台登录态。
+
+## 认证
+
+除 `GET /health` 与 `POST /api/admin/users/login` 外，所有 `/api/admin` 接口都要求携带登录接口返回的 JWT：
+
+```http
+Authorization: Bearer <token>
+```
+
+`token` 由 `POST /api/admin/users/login` 签发，默认有效期 7 天。未携带、格式错误、签名不合法或已过期时返回 401：
+
+| 场景             | 响应体                                               |
+| ---------------- | ---------------------------------------------------- |
+| 未携带 token     | `{ "code": 401, "message": "请先登录" }`             |
+| token 已过期     | `{ "code": 401, "message": "登录已过期，请重新登录" }` |
+| token 签名不合法 | `{ "code": 401, "message": "登录状态无效，请重新登录" }` |
+
 ## 文章
 
-### GET /api/articles
+### GET /api/admin/articles
 
 分页查询文章列表，按创建时间倒序。
 
@@ -18,7 +36,7 @@
 请求示例：
 
 ```bash
-curl "http://localhost:3000/api/articles?page=1&pageSize=2&keyword=Sequelize"
+curl "http://localhost:3000/api/admin/articles?page=1&pageSize=2&keyword=Sequelize"
 ```
 
 响应示例：
@@ -52,7 +70,7 @@ curl "http://localhost:3000/api/articles?page=1&pageSize=2&keyword=Sequelize"
 
 > 列表接口不返回 `content` 正文字段，避免一次传输过多数据。
 
-### GET /api/articles/:id
+### GET /api/admin/articles/:id
 
 查询单篇文章详情，返回包含 `content` 正文在内的完整字段。
 
@@ -63,7 +81,7 @@ curl "http://localhost:3000/api/articles?page=1&pageSize=2&keyword=Sequelize"
 请求示例：
 
 ```bash
-curl "http://localhost:3000/api/articles/1"
+curl "http://localhost:3000/api/admin/articles/1"
 ```
 
 响应示例：
@@ -95,16 +113,16 @@ curl "http://localhost:3000/api/articles/1"
 
 ## 站点设置
 
-### GET /api/settings
+### GET /api/admin/settings
 
 查询站点设置。表中仅一条记录，记录不存在时自动初始化默认记录，始终有数据返回。
 
-### PUT /api/settings
+### PUT /api/admin/settings
 
 更新站点设置（仅更新请求体中提供的字段，`icp`/`copyright` 传空字符串可清空）。
 
 ```bash
-curl -X PUT "http://localhost:3000/api/settings" \
+curl -X PUT "http://localhost:3000/api/admin/settings" \
   -H "Content-Type: application/json" \
   -d '{ "name": "我的网站", "icp": "粤ICP备12345678号", "copyright": "© 2026 我的网站 版权所有" }'
 ```
@@ -119,7 +137,58 @@ curl -X PUT "http://localhost:3000/api/settings" \
 
 ## 用户
 
-### GET /api/users
+### POST /api/admin/users/login
+
+登录并签发 JWT。`account` 支持传邮箱或用户名；登录成功返回的 `token` 需在后续所有 `/api/admin` 接口中通过请求头 `Authorization: Bearer <token>` 携带。
+
+| 字段     | 类型   | 必填 | 说明                                               |
+| -------- | ------ | ---- | -------------------------------------------------- |
+| account  | string | 是   | 邮箱或用户名（也可改用 `email` / `username` 字段） |
+| password | string | 是   | 明文密码                                           |
+
+请求示例：
+
+```bash
+curl -X POST "http://localhost:3000/api/admin/users/login" \
+  -H "Content-Type: application/json" \
+  -d '{ "account": "admin@example.com", "password": "123456" }'
+```
+
+响应示例：
+
+```json
+{
+  "code": 0,
+  "message": "ok",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "tokenType": "Bearer",
+    "expiresIn": 604800,
+    "expiresAt": "2026-11-03T05:00:00.000Z",
+    "user": {
+      "id": 1,
+      "email": "admin@example.com",
+      "username": "admin",
+      "nickname": "管理员",
+      "sex": "male",
+      "role": "admin",
+      "createdAt": "2026-10-27T05:00:00.000Z",
+      "updatedAt": "2026-10-27T05:00:00.000Z"
+    }
+  }
+}
+```
+
+`expiresIn` 单位为秒，由环境变量 `JWT_EXPIRES_IN` 控制（默认 `7d`）；签名密钥由 `JWT_SECRET` 提供。
+
+错误响应：
+
+| 状态码 | 场景                 | 响应体                                             |
+| ------ | -------------------- | -------------------------------------------------- |
+| 400    | 未传账号或密码       | `{ "code": 400, "message": "请输入邮箱或用户名" }` |
+| 401    | 账号不存在或密码错误 | `{ "code": 401, "message": "账号或密码错误" }`     |
+
+### GET /api/admin/users
 
 分页查询用户列表，按创建时间倒序，响应中不包含密码。
 
@@ -131,7 +200,7 @@ curl -X PUT "http://localhost:3000/api/settings" \
 | sex      | string | 否   | —      | `unknown` / `male` / `female` |
 | role     | string | 否   | —      | `user` 或 `admin`             |
 
-### POST /api/users
+### POST /api/admin/users
 
 创建用户。`email` 与 `username` 唯一，重复时返回 400「邮箱已被注册 / 用户名已存在」；`password` 为明文，存储时自动 bcrypt 哈希，接口响应永不返回密码。
 
@@ -144,43 +213,43 @@ curl -X PUT "http://localhost:3000/api/settings" \
 | sex      | string | 否   | unknown | `unknown` / `male` / `female`             |
 | role     | string | 否   | user    | `user` / `admin`                          |
 
-### GET /api/users/:id
+### GET /api/admin/users/:id
 
 查询单个用户详情（不包含密码）。不存在时返回 404「用户不存在」。
 
-### PUT /api/users/:id
+### PUT /api/admin/users/:id
 
 更新用户，仅更新请求体中提供的字段。传 `password` 时自动重新哈希（明文格式校验同创建）。空请求体返回 400「没有需要更新的字段」。
 
-### DELETE /api/users/:id
+### DELETE /api/admin/users/:id
 
 删除单个用户。不存在时返回 404「用户不存在」；名下还有课程时返回 400「该用户名下还有 N 门课程，无法删除」。
 
 ## 分类
 
-### GET /api/categories
+### GET /api/admin/categories
 
 查询分类列表，按 `rank` 升序排列（分类数量有限，不分页）。
 
-### POST /api/categories
+### POST /api/admin/categories
 
 创建分类。`name` 必填且唯一（重复返回 400「分类名称已存在」），`rank` 选填默认 0，越小越靠前。
 
-### GET /api/categories/:id
+### GET /api/admin/categories/:id
 
 查询单个分类详情。不存在时返回 404「分类不存在」。
 
-### PUT /api/categories/:id
+### PUT /api/admin/categories/:id
 
 更新分类，仅更新请求体中提供的字段（`name` / `rank`）。
 
-### DELETE /api/categories/:id
+### DELETE /api/admin/categories/:id
 
 删除分类。分类下还有课程时返回 400「该分类下还有 N 门课程，无法删除」。
 
 ## 课程
 
-### GET /api/courses
+### GET /api/admin/courses
 
 分页查询课程列表，按创建时间倒序，每条课程内嵌 `category`（id/name/rank）与 `user`（id/username/nickname），不返回 `content` 正文。
 
@@ -193,25 +262,25 @@ curl -X PUT "http://localhost:3000/api/settings" \
 | is_recommended | string | 否   | —      | `true` / `false` |
 | keyword        | string | 否   | —      | 课程名称模糊搜索 |
 
-### POST /api/courses
+### POST /api/admin/courses
 
 创建课程。`category_id`、`user_id` 必填且必须存在（不存在返回 400「分类不存在 / 用户不存在」）；`name` 必填；`is_recommended` 默认 `false`；`like_count` / `chapter_count` 默认 0。
 
-### GET /api/courses/:id
+### GET /api/admin/courses/:id
 
 查询单个课程详情（含 `content` 正文与关联的分类、用户信息）。
 
-### PUT /api/courses/:id
+### PUT /api/admin/courses/:id
 
 更新课程，仅更新请求体中提供的字段。可变更 `category_id`（需存在）；`user_id` 创建后不可变更。
 
-### DELETE /api/courses/:id
+### DELETE /api/admin/courses/:id
 
 删除单个课程。不存在时返回 404「课程不存在」。
 
 ## 图表
 
-### GET /api/charts/gender
+### GET /api/admin/charts/gender
 
 统计用户性别分布，无查询参数。按 `unknown` / `male` / `female` 固定顺序返回各性别的数量与占比（占比保留两位小数），未出现过的性别也返回 0，保证图表数据结构稳定。
 
@@ -232,7 +301,7 @@ curl -X PUT "http://localhost:3000/api/settings" \
 }
 ```
 
-### GET /api/charts/monthly-users
+### GET /api/admin/charts/monthly-users
 
 统计每个月的用户注册数量，按月份升序返回。没有用户的月份补 `0`，保证 x 轴连续。
 

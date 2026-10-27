@@ -1,11 +1,6 @@
 const express = require('express');
 const { ValidationError } = require('sequelize');
-const articleRouter = require('./routes/article.routes');
-const settingRouter = require('./routes/setting.routes');
-const userRouter = require('./routes/user.routes');
-const categoryRouter = require('./routes/category.routes');
-const courseRouter = require('./routes/course.routes');
-const chartRouter = require('./routes/chart.routes');
+const apiRouter = require('./routes');
 const { fail } = require('./utils/response');
 
 // 只负责创建并导出 Express 实例；监听端口在 src/server.js 中通过 app.listen() 完成
@@ -18,12 +13,8 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
 });
 
-app.use('/api/articles', articleRouter);
-app.use('/api/settings', settingRouter);
-app.use('/api/users', userRouter);
-app.use('/api/categories', categoryRouter);
-app.use('/api/courses', courseRouter);
-app.use('/api/charts', chartRouter);
+// 业务接口按端划分，当前全部为后台管理端：/api/admin/*
+app.use('/api', apiRouter);
 
 // 404
 app.use((req, res) => {

@@ -1,11 +1,24 @@
+### 登录（成功返回 JWT）
+# @name login
+POST {{baseUrl}}/users/login
+Content-Type: application/json
+
+{
+  "account": "admin@example.com",
+  "password": "123456"
+}
+
 ### 用户列表
 GET {{baseUrl}}/users
+Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### 用户列表（关键词搜索 + 角色筛选）
 GET {{baseUrl}}/users?keyword=zhang&role=user
+Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### 创建用户
 POST {{baseUrl}}/users
+Authorization: Bearer {{login.response.body.$.data.token}}
 Content-Type: application/json
 
 {
@@ -19,9 +32,11 @@ Content-Type: application/json
 
 ### 用户详情（响应中不包含密码）
 GET {{baseUrl}}/users/1
+Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### 更新用户（仅传需要修改的字段）
 PUT {{baseUrl}}/users/1
+Authorization: Bearer {{login.response.body.$.data.token}}
 Content-Type: application/json
 
 {
@@ -31,6 +46,7 @@ Content-Type: application/json
 
 ### 更新用户（修改密码，存储时自动哈希）
 PUT {{baseUrl}}/users/1
+Authorization: Bearer {{login.response.body.$.data.token}}
 Content-Type: application/json
 
 {
@@ -39,3 +55,4 @@ Content-Type: application/json
 
 ### 删除用户
 DELETE {{baseUrl}}/users/4
+Authorization: Bearer {{login.response.body.$.data.token}}

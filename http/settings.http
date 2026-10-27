@@ -1,8 +1,12 @@
+@token = 请先调用 http/users.http 的登录接口，把返回的 data.token 粘贴到此处
+
 ### 查询站点设置
 GET {{baseUrl}}/settings
+Authorization: Bearer {{token}}
 
 ### 更新站点设置（仅传需要修改的字段）
 PUT {{baseUrl}}/settings
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -13,6 +17,7 @@ Content-Type: application/json
 
 ### 更新站点设置（清空可选字段）
 PUT {{baseUrl}}/settings
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -22,6 +27,7 @@ Content-Type: application/json
 
 ### 更新站点设置（缺少字段，应返回 400）
 PUT {{baseUrl}}/settings
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {}

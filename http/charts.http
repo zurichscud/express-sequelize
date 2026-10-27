@@ -1,11 +1,17 @@
+@token = 请先调用 http/users.http 的登录接口，把返回的 data.token 粘贴到此处
+
 ### 用户性别分布
 GET {{baseUrl}}/charts/gender
+Authorization: Bearer {{token}}
 
 ### 每月用户数量（有数据以来的所有月份）
 GET {{baseUrl}}/charts/monthly-users
+Authorization: Bearer {{token}}
 
 ### 每月用户数量（指定年份，返回该年 1-12 月）
 GET {{baseUrl}}/charts/monthly-users?year=2026
+Authorization: Bearer {{token}}
 
 ### 每月用户数量（非法年份，返回 400）
 GET {{baseUrl}}/charts/monthly-users?year=abc
+Authorization: Bearer {{token}}

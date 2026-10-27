@@ -136,7 +136,7 @@ const Course = sequelize.define(
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
       defaultValue: 0,
-      comment: '章节总数',
+      comment: '章节总数（由章节接口自动维护）',
       validate: {
         notNull: { msg: '章节总数不能为空' },
         isValidCount(value) {

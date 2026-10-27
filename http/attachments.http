@@ -1,0 +1,13 @@
+@token = 请先调用 http/users.http 的登录接口，把返回的 data.token 粘贴到此处
+
+### 附件列表
+GET {{baseUrl}}/attachments?page=1&pageSize=10
+Authorization: Bearer {{token}}
+
+### 附件列表（只看图片 + 关键词搜索）
+GET {{baseUrl}}/attachments?type=image&keyword=cover
+Authorization: Bearer {{token}}
+
+### 删除附件（同时删除 OSS 文件）
+DELETE {{baseUrl}}/attachments/1
+Authorization: Bearer {{token}}

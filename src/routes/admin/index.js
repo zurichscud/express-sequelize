@@ -6,6 +6,8 @@ const categoryRouter = require('./category.routes');
 const courseRouter = require('./course.routes');
 const chapterRouter = require('./chapter.routes');
 const chartRouter = require('./chart.routes');
+const uploadRouter = require('./upload.routes');
+const attachmentRouter = require('./attachment.routes');
 const { login } = require('../../controllers/admin/user.controller');
 const { authenticate } = require('../../middlewares/auth.middleware');
 
@@ -22,5 +24,7 @@ router.use('/categories', categoryRouter);
 router.use('/courses', courseRouter);
 router.use('/chapters', chapterRouter);
 router.use('/charts', chartRouter);
+router.use('/uploads', uploadRouter);
+router.use('/attachments', attachmentRouter);
 
 module.exports = router;

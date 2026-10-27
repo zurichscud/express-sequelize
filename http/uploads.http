@@ -1,0 +1,25 @@
+@token = 请先调用 http/users.http 的登录接口，把返回的 data.token 粘贴到此处
+
+### 上传图片（字段名固定为 file；示例文件放到 http/fixtures/ 下）
+POST {{baseUrl}}/uploads
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="cover.png"
+Content-Type: image/png
+
+< ./fixtures/cover.png
+--WebAppBoundary--
+
+### 上传视频
+POST {{baseUrl}}/uploads
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="chapter.mp4"
+Content-Type: video/mp4
+
+< ./fixtures/chapter.mp4
+--WebAppBoundary--

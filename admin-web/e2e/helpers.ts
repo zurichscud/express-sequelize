@@ -94,6 +94,16 @@ export async function cleanupE2EData(api: APIRequestContext) {
   for (const user of users) {
     await api.delete(apiUrl(`/users/${user.id}`), { headers })
   }
+
+  // 前台用户最后清理：名下课程必须已在上方删除，否则接口会拒绝删除
+  const appUsers = await fetchList(api, '/app-users', {
+    keyword: TEST_PREFIX,
+    page: 1,
+    pageSize: 100,
+  })
+  for (const appUser of appUsers) {
+    await api.delete(apiUrl(`/app-users/${appUser.id}`), { headers })
+  }
 }
 
 /** 通过 UI 使用种子账号登录，成功后停在仪表盘 */

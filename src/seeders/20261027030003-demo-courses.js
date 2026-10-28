@@ -12,12 +12,12 @@ module.exports = {
     }
 
     const now = new Date();
-    // 依赖 users / categories 种子先执行（按文件名顺序保证）
+    // 依赖 app_users / categories 种子先执行（按文件名顺序保证）
     // chapter_count 由章节接口按 chapters 实际数量维护，种子课程统一从 0 开始
     await queryInterface.bulkInsert('courses', [
       {
         category_id: 1,
-        user_id: 2,
+        user_id: 1,
         name: 'Vue 3 从入门到实战',
         image: 'https://picsum.photos/seed/course-vue/640/360',
         is_recommended: true,
@@ -29,7 +29,7 @@ module.exports = {
       },
       {
         category_id: 1,
-        user_id: 2,
+        user_id: 1,
         name: 'React 18 核心原理与源码解析',
         image: 'https://picsum.photos/seed/course-react/640/360',
         is_recommended: true,
@@ -65,7 +65,7 @@ module.exports = {
       },
       {
         category_id: 3,
-        user_id: 3,
+        user_id: 2,
         name: 'Flutter 跨平台移动开发',
         image: 'https://picsum.photos/seed/course-flutter/640/360',
         is_recommended: false,
@@ -77,7 +77,7 @@ module.exports = {
       },
       {
         category_id: 4,
-        user_id: 3,
+        user_id: 2,
         name: '大模型应用开发入门',
         image: 'https://picsum.photos/seed/course-llm/640/360',
         is_recommended: true,

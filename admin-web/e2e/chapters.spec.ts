@@ -12,7 +12,7 @@ test.describe('课程章节', () => {
     expect(categoryResponse.ok()).toBeTruthy()
     const category = (await categoryResponse.json()).data
 
-    const usersResponse = await request.get(`${API_ORIGIN}/api/admin/users?page=1&pageSize=1`, {
+    const usersResponse = await request.get(`${API_ORIGIN}/api/admin/app-users?page=1&pageSize=1`, {
       headers,
     })
     expect(usersResponse.ok()).toBeTruthy()

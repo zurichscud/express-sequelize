@@ -1,13 +1,17 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
 const { hashPassword } = require('../utils/password');
 
 const SEXES = ['unknown', 'male', 'female'];
 const ROLES = ['user', 'admin'];
 
-const User = sequelize.define(
-  'User',
-  {
+/**
+ * 构造系统用户 / 前台用户共用的字段定义
+ * sys_users 额外保留 role，app_users 不包含角色字段
+ * @param {{ withRole?: boolean }} [options]
+ * @returns {object}
+ */
+function buildUserAttributes({ withRole = false } = {}) {
+  const attributes = {
     id: {
       type: DataTypes.INTEGER.UNSIGNED,
       primaryKey: true,
@@ -121,8 +125,11 @@ const User = sequelize.define(
           msg: '性别只能是 unknown、male 或 female'
         }
       }
-    },
-    role: {
+    }
+  };
+
+  if (withRole) {
+    attributes.role = {
       type: DataTypes.ENUM('user', 'admin'),
       allowNull: false,
       defaultValue: 'user',
@@ -142,23 +149,27 @@ const User = sequelize.define(
           msg: '角色只能是 user 或 admin'
         }
       }
-    }
+    };
+  }
+
+  return attributes;
+}
+
+const userHooks = {
+  // 入库前把明文哈希（bcrypt，明文长度校验在服务层完成）
+  beforeCreate(instance) {
+    instance.password = hashPassword(instance.password);
   },
-  {
-    tableName: 'users',
-    comment: '用户表',
-    hooks: {
-      // 入库前把明文哈希（bcrypt，明文长度校验在服务层完成）
-      beforeCreate(instance) {
-        instance.password = hashPassword(instance.password);
-      },
-      beforeUpdate(instance) {
-        if (instance.changed('password')) {
-          instance.password = hashPassword(instance.password);
-        }
-      }
+  beforeUpdate(instance) {
+    if (instance.changed('password')) {
+      instance.password = hashPassword(instance.password);
     }
   }
-);
+};
 
-module.exports = User;
+module.exports = {
+  SEXES,
+  ROLES,
+  buildUserAttributes,
+  userHooks
+};

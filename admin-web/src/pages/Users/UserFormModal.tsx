@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { App as AntdApp, Col, Form, Input, Modal, Row, Select } from 'antd'
+import { App as AntdApp, Col, Form, Input, Row, Select } from 'antd'
 import { createUser, updateUser } from '@/api/user'
+import FormModal from '@/components/FormModal'
 import type { Role, Sex, User, UserPayload } from '@/types'
 
 interface UserFormModalProps {
@@ -55,7 +56,7 @@ export default function UserFormModal({ user, onClose, onSaved }: UserFormModalP
   }
 
   return (
-    <Modal
+    <FormModal
       open
       title={isEdit ? '编辑用户' : '新建用户'}
       width={620}
@@ -189,6 +190,6 @@ export default function UserFormModal({ user, onClose, onSaved }: UserFormModalP
           </Col>
         </Row>
       </Form>
-    </Modal>
+    </FormModal>
   )
 }

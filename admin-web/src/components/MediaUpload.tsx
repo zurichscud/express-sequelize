@@ -22,7 +22,7 @@ const ACCEPT: Record<UploadMediaType, string> = {
 }
 
 /**
- * 图片 / 视频上传组件：文件经后台代理上传到阿里云 OSS，表单只保存返回的 URL
+ * 图片 / 视频上传组件：浏览器凭后台签发的预签名地址直传阿里云 OSS，表单只保存返回的 URL
  * 兼容 Form.Item 的 value / onChange 受控用法，也允许手动填写外部文件地址
  */
 export default function MediaUpload({ id, value: rawValue = '', onChange, type, disabled }: MediaUploadProps) {

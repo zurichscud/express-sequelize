@@ -3,6 +3,8 @@
 基础地址：`http://localhost:3000`。所有接口返回统一 JSON 结构：`{ "code": 0, "message": "ok", "data": ... }`，出错时 `code` 为对应状态码。也可直接使用 `http/` 目录下的 `.http` 文件在 VS Code REST Client 中调试。
 
 > 接口分为两端：后台管理端统一挂载在 `/api/admin`（需要后台登录态）；前台接口挂载在 `/api`（公开接口无需登录，个人资料与点赞需要前台登录态）。两套 token 通过 JWT 载荷中的 `scope` 隔离：后台为 `admin`，前台为 `web`，不能混用。
+>
+> 账号同样分为两套表：后台登录使用 `sys_users`，前台注册 / 登录使用 `app_users`，两套账号互不影响。课程与点赞归属前台用户，附件归属后台上传者；管理员账号不会出现在前台用户中。
 
 ## 认证
 
@@ -135,11 +137,11 @@ curl -X PUT "http://localhost:3000/api/admin/settings" \
 
 错误响应：空请求体返回 `{ "code": 400, "message": "没有需要更新的字段" }`，字段校验失败返回对应中文提示。
 
-## 用户
+## 系统用户
 
 ### POST /api/admin/users/login
 
-登录并签发 JWT。`account` 支持传邮箱或用户名；登录成功返回的 `token` 需在后续所有 `/api/admin` 接口中通过请求头 `Authorization: Bearer <token>` 携带。
+登录并签发 JWT。账号从 `sys_users` 表校验，`account` 支持传邮箱或用户名；登录成功返回的 `token` 需在后续所有 `/api/admin` 接口中通过请求头 `Authorization: Bearer <token>` 携带。
 
 | 字段     | 类型   | 必填 | 说明                                               |
 | -------- | ------ | ---- | -------------------------------------------------- |
@@ -190,7 +192,7 @@ curl -X POST "http://localhost:3000/api/admin/users/login" \
 
 ### GET /api/admin/users
 
-分页查询用户列表，按创建时间倒序，响应中不包含密码。
+分页查询系统用户列表（`sys_users`），按创建时间倒序，响应中不包含密码。
 
 | 参数     | 类型   | 必填 | 默认值 | 说明                          |
 | -------- | ------ | ---- | ------ | ----------------------------- |
@@ -202,7 +204,7 @@ curl -X POST "http://localhost:3000/api/admin/users/login" \
 
 ### POST /api/admin/users
 
-创建用户。`email` 与 `username` 唯一，重复时返回 400「邮箱已被注册 / 用户名已存在」；`password` 为明文，存储时自动 bcrypt 哈希，接口响应永不返回密码。
+创建系统用户（`sys_users`）。`email` 与 `username` 唯一，重复时返回 400「邮箱已被注册 / 用户名已存在」；`password` 为明文，存储时自动 bcrypt 哈希，接口响应永不返回密码。
 
 | 字段     | 类型   | 必填 | 默认值  | 说明                                      |
 | -------- | ------ | ---- | ------- | ----------------------------------------- |
@@ -215,15 +217,50 @@ curl -X POST "http://localhost:3000/api/admin/users/login" \
 
 ### GET /api/admin/users/:id
 
-查询单个用户详情（不包含密码）。不存在时返回 404「用户不存在」。
+查询单个系统用户详情（不包含密码）。不存在时返回 404「用户不存在」。
 
 ### PUT /api/admin/users/:id
 
-更新用户，仅更新请求体中提供的字段。传 `password` 时自动重新哈希（明文格式校验同创建）。空请求体返回 400「没有需要更新的字段」。
+更新系统用户，仅更新请求体中提供的字段。传 `password` 时自动重新哈希（明文格式校验同创建）。空请求体返回 400「没有需要更新的字段」。1 号系统用户为超级管理员，不可编辑，返回 403「超级管理员不可编辑」。
 
 ### DELETE /api/admin/users/:id
 
-删除单个用户。不存在时返回 404「用户不存在」；名下还有课程时返回 400「该用户名下还有 N 门课程，无法删除」。
+删除单个系统用户。不存在时返回 404「用户不存在」。1 号系统用户为超级管理员，不可删除，返回 403「超级管理员不可删除」。该接口只操作 `sys_users`，不会影响前台用户与课程归属；附件表外键为 `ON DELETE SET NULL`，删除后附件记录保留、上传者置空。
+
+### GET /api/admin/app-users
+
+分页查询前台用户列表（`app_users`），用于前台用户管理、课程归属选择与仪表盘统计，响应中不包含密码。
+
+| 参数     | 类型   | 必填 | 默认值 | 说明                          |
+| -------- | ------ | ---- | ------ | ----------------------------- |
+| page     | number | 否   | 1      | 页码，最小 1                  |
+| pageSize | number | 否   | 10     | 每页条数，1~100               |
+| keyword  | string | 否   | —      | 邮箱 / 用户名 / 昵称模糊搜索  |
+| sex      | string | 否   | —      | `unknown` / `male` / `female` |
+
+### POST /api/admin/app-users
+
+创建前台用户（`app_users`）。`email` 与 `username` 唯一，重复时返回 400「邮箱已被注册 / 用户名已存在」；`password` 为明文，存储时自动 bcrypt 哈希，接口响应永不返回密码。前台用户没有角色字段，不能通过该接口创建后台登录账号。
+
+| 字段     | 类型   | 必填 | 默认值  | 说明                                      |
+| -------- | ------ | ---- | ------- | ----------------------------------------- |
+| email    | string | 是   | —       | 邮箱，唯一，最长 128 字                   |
+| password | string | 是   | —       | 明文密码，6-72 位                         |
+| username | string | 是   | —       | 用户名，唯一，仅限字母/数字/下划线/短横线 |
+| nickname | string | 否   | null    | 昵称，最长 64 字                          |
+| sex      | string | 否   | unknown | `unknown` / `male` / `female`             |
+
+### GET /api/admin/app-users/:id
+
+查询单个前台用户详情（不包含密码）。不存在时返回 404「用户不存在」。
+
+### PUT /api/admin/app-users/:id
+
+更新前台用户，仅更新请求体中提供的字段。传 `password` 时自动重新哈希（明文格式校验同创建）。空请求体返回 400「没有需要更新的字段」。
+
+### DELETE /api/admin/app-users/:id
+
+删除单个前台用户。不存在时返回 404「用户不存在」。该用户名下还有课程时返回 400「该用户名下还有 N 门课程，无法删除」；删除成功后点赞记录由外键级联清理，不会影响后台系统用户。
 
 ## 分类
 
@@ -264,7 +301,7 @@ curl -X POST "http://localhost:3000/api/admin/users/login" \
 
 ### POST /api/admin/courses
 
-创建课程。`category_id`、`user_id` 必填且必须存在（不存在返回 400「分类不存在 / 用户不存在」）；`name` 必填；`is_recommended` 默认 `false`；`like_count` 默认 0；`chapter_count` 由章节接口自动维护，创建/更新课程时传入会被忽略。
+创建课程。`category_id`、`user_id` 必填且必须存在（`user_id` 对应 `app_users` 中的前台用户，不存在返回 400「分类不存在 / 用户不存在」）；`name` 必填；`is_recommended` 默认 `false`；`like_count` 默认 0；`chapter_count` 由章节接口自动维护，创建/更新课程时传入会被忽略。
 
 ### GET /api/admin/courses/:id
 
@@ -309,19 +346,25 @@ curl -X POST "http://localhost:3000/api/admin/users/login" \
 
 删除单个章节。不存在时返回 404「章节不存在」。
 
-## 文件上传（阿里云 OSS）
+## 文件上传（阿里云 OSS 直传）
 
-后台的课程封面上传、章节视频上传都走该接口。文件先以 `multipart/form-data` 提交到 Express 服务器，再由服务器代理上传到阿里云 OSS，浏览器不直接接触 AccessKey。
+后台的课程封面上传、章节视频上传都走这套接口。上传分为三步，文件内容不经过 Express：
 
-每次上传成功后都会写入 `attachments` 附件表，记录上传用户、原始文件名、OSS Key、访问地址、类型、MIME 和大小，可在「附件管理」中统一查看和删除。
+1. `POST /api/admin/uploads/presign`：服务端校验文件类型和大小，签发 OSS 预签名地址（AccessKey 不出服务端）。
+2. 客户端用返回的 `upload_url` 以 `PUT` 方式把文件直传到 OSS，请求头必须与返回的 `headers` 完全一致。
+3. `POST /api/admin/uploads/complete`：直传完成后调用，服务端校验 OSS 对象并写入 `attachments` 附件表。
 
-### POST /api/admin/uploads
+每次确认成功都会写入附件记录，包含上传用户、原始文件名、OSS Key、访问地址、类型、MIME 和实际大小，可在「附件管理」中统一查看和删除。
 
-上传单个图片或视频，需要后台登录态。
+### POST /api/admin/uploads/presign
 
-| 字段 | 类型 | 必填 | 说明                                         |
-| ---- | ---- | ---- | -------------------------------------------- |
-| file | file | 是   | 图片或视频文件，表单字段名固定为 `file`      |
+申请预签名直传地址，需要后台登录态。
+
+| 字段 | 类型   | 必填 | 说明                                     |
+| ---- | ------ | ---- | ---------------------------------------- |
+| name | string | 是   | 原始文件名，用于识别扩展名               |
+| mime | string | 是   | 文件 MIME 类型，如 `image/png`           |
+| size | number | 是   | 文件大小（字节），服务端按类型校验上限   |
 
 支持的格式：
 
@@ -335,9 +378,68 @@ curl -X POST "http://localhost:3000/api/admin/users/login" \
 请求示例：
 
 ```bash
-curl -X POST "http://localhost:3000/api/admin/uploads" \
+curl -X POST "http://localhost:3000/api/admin/uploads/presign" \
   -H "Authorization: Bearer <token>" \
-  -F "file=@./cover.png"
+  -H "Content-Type: application/json" \
+  -d '{"name":"cover.png","mime":"image/png","size":20480}'
+```
+
+响应示例：
+
+```json
+{
+  "code": 0,
+  "message": "ok",
+  "data": {
+    "object_key": "uploads/image/2026/10/6f1c0f0e-3f0f-4f3a-9a4e-8f0d1c2b3a4e.png",
+    "name": "cover.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 20480,
+    "upload_url": "https://my-bucket.oss-cn-shenzhen.aliyuncs.com/uploads/image/2026/10/6f1c0f0e-3f0f-4f3a-9a4e-8f0d1c2b3a4e.png?OSSAccessKeyId=...&Expires=...&Signature=...",
+    "method": "PUT",
+    "headers": { "Content-Type": "image/png" },
+    "expires_at": "2026-10-27T10:00:00.000Z",
+    "upload_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
+```
+
+客户端随后执行（`Content-Type` 必须与签名时一致）：
+
+```bash
+curl -X PUT "<upload_url>" -H "Content-Type: image/png" --data-binary @./cover.png
+```
+
+对象路径为 `<OSS_DIR>/<image|video>/<年>/<月>/<uuid>.<ext>`，`OSS_DIR` 默认 `uploads`。预签名地址有效期由 `OSS_PRESIGN_EXPIRES` 控制，默认 3600 秒。
+
+> 浏览器直传要求 Bucket 配置跨域规则：来源为后台域名，方法包含 `PUT`，请求头允许 `Content-Type`。否则浏览器会因 CORS 拒绝上传。预签名地址使用 `OSS_ENDPOINT`，该地址必须能被浏览器公网访问，不能使用内网 Endpoint。
+
+错误响应：
+
+| 状态码 | 场景                   | 响应体                                                       |
+| ------ | ---------------------- | ------------------------------------------------------------ |
+| 400    | 文件名 / MIME 缺失     | `{ "code": 400, "message": "仅支持上传图片或视频文件" }`     |
+| 400    | 文件大小无效           | `{ "code": 400, "message": "文件大小无效" }`                 |
+| 401    | 未登录或 token 无效    | `{ "code": 401, "message": "请先登录" }` 等                  |
+| 413    | 超过对应类型的大小上限 | `{ "code": 413, "message": "视频不能超过 500MB" }` 等        |
+| 503    | OSS 配置缺失           | `{ "code": 503, "message": "OSS 配置缺失：请先在 .env 中配置 OSS_REGION、..." }` |
+
+### POST /api/admin/uploads/complete
+
+客户端直传成功后确认上传，需要后台登录态。服务端会通过 HEAD 请求校验对象是否存在、实际大小是否超限，再写入附件表；重复调用同一凭证会返回已存在的附件记录。
+
+| 字段         | 类型   | 必填 | 说明                               |
+| ------------ | ------ | ---- | ---------------------------------- |
+| upload_token | string | 是   | 预签名接口返回的 `upload_token`    |
+
+请求示例：
+
+```bash
+curl -X POST "http://localhost:3000/api/admin/uploads/complete" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"upload_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}'
 ```
 
 响应示例（HTTP 201）：
@@ -361,18 +463,20 @@ curl -X POST "http://localhost:3000/api/admin/uploads" \
 }
 ```
 
-对象路径为 `<OSS_DIR>/<image|video>/<年>/<月>/<uuid>.<ext>`，`OSS_DIR` 默认 `uploads`。`url` 可直接作为课程 `image` 或章节 `video_url` 使用。
+`url` 可直接作为课程 `image` 或章节 `video_url` 使用。
 
 错误响应：
 
-| 状态码 | 场景                         | 响应体                                                       |
-| ------ | ---------------------------- | ------------------------------------------------------------ |
-| 400    | 未选择文件                   | `{ "code": 400, "message": "请选择要上传的文件" }`           |
-| 400    | 文件类型不支持               | `{ "code": 400, "message": "仅支持上传图片（...）或视频（...）文件" }` |
-| 401    | 未登录或 token 无效          | `{ "code": 401, "message": "请先登录" }` 等                  |
-| 413    | 超过对应类型的大小上限       | `{ "code": 413, "message": "视频不能超过 500MB" }` 等        |
-| 502    | OSS 上传失败（权限/网络等）  | `{ "code": 502, "message": "上传到 OSS 失败：..." }`         |
-| 503    | OSS 配置缺失                 | `{ "code": 503, "message": "OSS 配置缺失：请先在 .env 中配置 OSS_REGION、..." }` |
+| 状态码 | 场景                     | 响应体                                                     |
+| ------ | ------------------------ | ---------------------------------------------------------- |
+| 400    | 未传 upload_token        | `{ "code": 400, "message": "缺少上传凭证" }`               |
+| 400    | 凭证无效 / 已过期        | `{ "code": 400, "message": "上传凭证无效或已过期，请重新上传" }` |
+| 400    | 对象不存在               | `{ "code": 400, "message": "文件尚未上传完成，请重新上传" }` |
+| 400    | 对象大小为 0 / 内容无效  | `{ "code": 400, "message": "上传的文件内容无效，请重新上传" }` |
+| 403    | 凭证与登录用户不一致     | `{ "code": 403, "message": "上传凭证与当前登录用户不匹配" }` |
+| 413    | 实际文件超过大小上限     | `{ "code": 413, "message": "视频不能超过 500MB" }` 等      |
+| 502    | 查询 OSS 对象失败        | `{ "code": 502, "message": "校验 OSS 文件失败：..." }`     |
+| 503    | OSS 配置缺失             | `{ "code": 503, "message": "OSS 配置缺失：..." }`          |
 
 服务端配置（`.env`）：
 
@@ -382,14 +486,15 @@ curl -X POST "http://localhost:3000/api/admin/uploads" \
 | OSS_BUCKET              | 是   | Bucket 名称                                                        |
 | OSS_ACCESS_KEY_ID       | 是   | AccessKey ID                                                       |
 | OSS_ACCESS_KEY_SECRET   | 是   | AccessKey Secret                                                   |
-| OSS_ENDPOINT            | 否   | 自定义 Endpoint，留空默认 `oss-<region>.aliyuncs.com`              |
+| OSS_ENDPOINT            | 否   | 自定义 Endpoint，留空默认 `oss-<region>.aliyuncs.com`；需公网可访问 |
 | OSS_PUBLIC_URL          | 否   | 公开访问域名（CDN / 自定义域名），留空使用 `https://<bucket>.<endpoint>` |
 | OSS_DIR                 | 否   | 对象目录前缀，默认 `uploads`                                       |
 | OSS_IMAGE_MAX_SIZE_MB   | 否   | 图片大小上限（MB），默认 10                                        |
 | OSS_VIDEO_MAX_SIZE_MB   | 否   | 视频大小上限（MB），默认 500                                       |
-| OSS_TIMEOUT             | 否   | 上传超时（毫秒），默认 600000                                      |
+| OSS_PRESIGN_EXPIRES     | 否   | 预签名地址有效期（秒），默认 3600                                  |
+| OSS_TIMEOUT             | 否   | 服务端访问 OSS 超时（毫秒），默认 600000                           |
 
-> 接口返回的 `url` 为公开访问地址，请确保 Bucket 开启了公共读，或通过 `OSS_PUBLIC_URL` 指向已授权的 CDN 域名。
+> 接口返回的 `url` 为公开访问地址，请确保 Bucket 开启了公共读，或通过 `OSS_PUBLIC_URL` 指向已授权的 CDN 域名。未完成 `complete` 确认的对象不会写入附件表，建议为 Bucket 的临时目录配置生命周期规则定期清理。
 
 ## 附件管理
 
@@ -450,7 +555,7 @@ curl -X POST "http://localhost:3000/api/admin/uploads" \
 
 ### GET /api/admin/charts/gender
 
-统计用户性别分布，无查询参数。按 `unknown` / `male` / `female` 固定顺序返回各性别的数量与占比（占比保留两位小数），未出现过的性别也返回 0，保证图表数据结构稳定。
+统计前台用户（`app_users`）性别分布，无查询参数。按 `unknown` / `male` / `female` 固定顺序返回各性别的数量与占比（占比保留两位小数），未出现过的性别也返回 0，保证图表数据结构稳定。
 
 响应示例：
 
@@ -471,7 +576,7 @@ curl -X POST "http://localhost:3000/api/admin/uploads" \
 
 ### GET /api/admin/charts/monthly-users
 
-统计每个月的用户注册数量，按月份升序返回。没有用户的月份补 `0`，保证 x 轴连续。
+统计每个月的前台用户（`app_users`）注册数量，按月份升序返回。没有用户的月份补 `0`，保证 x 轴连续。
 
 | 参数 | 类型   | 必填 | 默认值 | 说明                                                       |
 | ---- | ------ | ---- | ------ | ---------------------------------------------------------- |
@@ -512,7 +617,7 @@ curl -X POST "http://localhost:3000/api/admin/uploads" \
 
 ### POST /api/auth/register
 
-注册普通用户并直接返回前台登录态。`role`、`id` 等字段即使提交也会被忽略。
+注册普通用户并直接返回前台登录态。账号写入 `app_users`，`role`、`id` 等字段即使提交也会被忽略。
 
 | 字段     | 类型   | 必填 | 默认值  | 说明                                      |
 | -------- | ------ | ---- | ------- | ----------------------------------------- |
@@ -565,7 +670,7 @@ curl -X POST "http://localhost:3000/api/auth/register" \
 
 ### POST /api/auth/login
 
-前台登录并签发 `scope=web` 的 JWT。`account` 支持传邮箱或用户名；登录成功后的 token 需在需要登录的接口中通过 `Authorization: Bearer <token>` 携带。
+前台登录并签发 `scope=web` 的 JWT。账号从 `app_users` 表校验，`account` 支持传邮箱或用户名；登录成功后的 token 需在需要登录的接口中通过 `Authorization: Bearer <token>` 携带。
 
 | 字段     | 类型   | 必填 | 说明                                               |
 | -------- | ------ | ---- | -------------------------------------------------- |

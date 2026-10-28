@@ -1,5 +1,5 @@
 const { Op, UniqueConstraintError } = require('sequelize');
-const { Category, Course, Like, User } = require('../models');
+const { Category, Course, Like, AppUser } = require('../models');
 
 // 返回给前台的课程字段，与前台课程列表保持一致（含 content 供简介展示）
 const COURSE_ATTRIBUTES = [
@@ -16,7 +16,7 @@ const COURSE_ATTRIBUTES = [
   'updatedAt'
 ];
 const CATEGORY_INCLUDE = { model: Category, as: 'category', attributes: ['id', 'name', 'rank'] };
-const USER_INCLUDE = { model: User, as: 'user', attributes: ['id', 'username', 'nickname'] };
+const USER_INCLUDE = { model: AppUser, as: 'user', attributes: ['id', 'username', 'nickname'] };
 
 /**
  * 校验课程是否存在，不存在时抛出 404 业务错误

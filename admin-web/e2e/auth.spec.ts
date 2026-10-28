@@ -13,7 +13,7 @@ test.describe('未登录访问', () => {
     await page.getByRole('button', { name: /登\s*录/ }).click()
 
     await expect(page).toHaveURL(/\/users$/)
-    await expect(page.getByRole('heading', { name: '用户管理', level: 4 })).toBeVisible()
+    await expect(page.getByRole('heading', { name: '系统用户', level: 4 })).toBeVisible()
   })
 
   test('账号或密码错误时停留在登录页并提示', async ({ page }) => {

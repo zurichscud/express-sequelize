@@ -22,7 +22,7 @@
 │  ├─ config/
 │  │  ├─ config.js               # 数据库配置（CLI 与运行时共用）
 │  │  ├─ database.js             # Sequelize 实例
-│  │  ├─ oss.js                  # 阿里云 OSS 客户端与访问地址
+│  │  ├─ oss.js                  # 阿里云 OSS 客户端、直传签名与访问地址
 │  │  └─ upload.js               # 上传类型与大小限制
 │  ├─ migrations/
 │  │  ├─ 20261026000000-create-articles.js
@@ -33,7 +33,9 @@
 │  │  ├─ 20261027040000-create-likes.js
 │  │  ├─ 20261027050000-create-chapters.js
 │  │  ├─ 20261027060000-sync-course-chapter-count.js
-│  │  └─ 20261027070000-create-attachments.js
+│  │  ├─ 20261027070000-create-attachments.js
+│  │  ├─ 20261028000000-split-users-into-sys-and-app.js
+│  │  └─ 20261028010000-remove-admin-from-app-users.js
 │  ├─ seeders/
 │  │  ├─ 20261026000001-demo-articles.js
 │  │  ├─ 20261027000001-default-settings.js
@@ -50,7 +52,9 @@
 │  │  ├─ course.js               # 课程模型
 │  │  ├─ like.js                 # 课程点赞模型
 │  │  ├─ setting.js              # 站点设置模型
-│  │  └─ user.js                 # 用户模型
+│  │  ├─ sysUser.js              # 系统用户模型（后台登录）
+│  │  ├─ appUser.js              # 前台用户模型（Web 登录）
+│  │  └─ userBase.js             # 两类用户的公共字段与密码钩子
 │  ├─ controllers/
 │  │  ├─ admin/
 │  │  │  ├─ article.controller.js   # 后台文章接口逻辑
@@ -60,8 +64,9 @@
 │  │  │  ├─ chart.controller.js     # 后台图表接口逻辑
 │  │  │  ├─ course.controller.js    # 后台课程接口逻辑
 │  │  │  ├─ setting.controller.js   # 后台站点设置接口逻辑
-│  │  │  ├─ upload.controller.js    # 后台 OSS 上传接口逻辑
-│  │  │  └─ user.controller.js      # 后台用户接口逻辑
+│  │  │  ├─ upload.controller.js    # 后台 OSS 直传签名与确认接口逻辑
+│  │  │  ├─ sysUser.controller.js   # 后台系统用户与登录接口逻辑
+│  │  │  └─ appUser.controller.js   # 前台用户管理与课程归属接口逻辑
 │  │  └─ web/
 │  │     ├─ auth.controller.js      # 前台注册、登录与个人资料
 │  │     ├─ article.controller.js   # 前台文章列表与详情
@@ -79,8 +84,10 @@
 │  │  ├─ course.service.js       # 课程数据访问（含关联查询）
 │  │  ├─ like.service.js         # 课程点赞数据访问
 │  │  ├─ setting.service.js      # 站点设置数据访问
-│  │  ├─ upload.service.js       # OSS 上传与临时文件清理
-│  │  └─ user.service.js         # 用户数据访问（含前台注册、登录）
+│  │  ├─ upload.service.js       # OSS 直传签名、确认入库与对象删除
+│  │  ├─ sysUser.service.js      # 系统用户数据访问与后台登录
+│  │  ├─ appUser.service.js      # 前台用户数据访问、注册、登录与后台管理
+│  │  └─ user.helpers.js         # 密码校验、唯一冲突与 JWT 签发
 │  ├─ routes/
 │  │  ├─ index.js                # /api 路由汇总，按端划分
 │  │  ├─ admin/
@@ -93,7 +100,8 @@
 │  │  │  ├─ course.routes.js     # 后台课程路由
 │  │  │  ├─ setting.routes.js    # 后台站点设置路由
 │  │  │  ├─ upload.routes.js     # 后台 OSS 上传路由
-│  │  │  └─ user.routes.js       # 后台用户路由
+│  │  │  ├─ sysUser.routes.js    # 后台系统用户路由
+│  │  │  └─ appUser.routes.js    # 前台用户管理与课程归属路由
 │  │  └─ web/
 │  │     ├─ index.js             # 前台路由汇总
 │  │     ├─ auth.routes.js       # 前台认证路由
@@ -104,8 +112,7 @@
 │  │     ├─ like.routes.js       # 前台点赞路由
 │  │     └─ setting.routes.js    # 前台系统信息路由
 │  ├─ middlewares/
-│  │  ├─ auth.middleware.js      # JWT 认证中间件
-│  │  └─ upload.middleware.js    # 上传文件接收与大小限制
+│  │  └─ auth.middleware.js      # JWT 认证中间件
 │  └─ utils/
 │     ├─ jwt.js                  # JWT 签发与校验
 │     ├─ password.js             # 密码 bcrypt 哈希与校验
@@ -125,7 +132,7 @@
 ```bash
 npm install
 npm run db:migrate   # 执行迁移，创建全部数据表
-npm run db:seed      # 写入示例数据：6 篇文章、站点设置、3 个用户（密码均为 123456）、4 个分类、6 门课程、24 个课程章节
+npm run db:seed      # 写入示例数据：6 篇文章、站点设置、1 个后台账号 + 2 个前台用户（密码均为 123456）、4 个分类、6 门课程、24 个课程章节
 
 # 也可以一条命令完成迁移 + 种子数据
 npm run seed
@@ -152,15 +159,18 @@ npm start
 - 前台点赞：`POST http://localhost:3000/api/likes`（需前台登录态）
 - 后台文章列表：<http://localhost:3000/api/admin/articles>
 - 后台站点设置：<http://localhost:3000/api/admin/settings>
-- 后台用户列表：<http://localhost:3000/api/admin/users>
-- 后台登录：`POST http://localhost:3000/api/admin/users/login`
+- 后台用户列表（系统用户）：<http://localhost:3000/api/admin/users>
+- 前台用户列表：<http://localhost:3000/api/admin/app-users>（支持新建、编辑、重置密码、删除；名下存在课程时不可删除）
+- 后台登录：`POST http://localhost:3000/api/admin/users/login`（校验 `sys_users`）
 - 后台章节列表：<http://localhost:3000/api/admin/chapters>
-- 后台文件上传：`POST http://localhost:3000/api/admin/uploads`（multipart 字段 `file`，服务器代理上传到阿里云 OSS）
+- 后台文件上传：`POST http://localhost:3000/api/admin/uploads/presign`（申请预签名地址，浏览器直传 OSS）→ `POST http://localhost:3000/api/admin/uploads/complete`（确认上传并写入附件表）
 - 后台附件管理：<http://localhost:3000/api/admin/attachments>（记录所有上传文件，可删除并同步移除 OSS 对象）
 
-> 文件上传需要先在 `.env` 中配置阿里云 OSS：`OSS_REGION`、`OSS_BUCKET`、`OSS_ACCESS_KEY_ID`、`OSS_ACCESS_KEY_SECRET`，其余可选项见 [.env.example](.env.example)。未配置时仅上传接口返回 503，不影响其他接口。
+> 文件上传需要先在 `.env` 中配置阿里云 OSS：`OSS_REGION`、`OSS_BUCKET`、`OSS_ACCESS_KEY_ID`、`OSS_ACCESS_KEY_SECRET`，其余可选项见 [.env.example](.env.example)。未配置时仅上传接口返回 503，不影响其他接口。Bucket 需要配置允许 `PUT` 和 `Content-Type` 的跨域规则，浏览器才能直传。
 
 > 后台接口统一位于 `/api/admin`，除后台登录外都需要请求头携带 `Authorization: Bearer <token>`，token 通过 `POST /api/admin/users/login` 获取。
+>
+> 账号拆分为两张表：后台登录与系统用户管理使用 `sys_users`；前台注册、登录、课程归属与点赞使用 `app_users`。两套账号互不影响，管理员账号不会出现在前台用户和课程归属中。
 >
 > 前台公开接口位于 `/api` 下（文章、章节、分类、课程、系统信息）；个人资料与点赞接口需要前台登录态，token 通过 `POST /api/auth/login` 或 `POST /api/auth/register` 获取。前后台 token 通过 `scope` 隔离，不能互相复用。
 
@@ -168,8 +178,8 @@ npm start
 
 | 应用 | 技术栈 | 开发地址 | 说明 |
 | --- | --- | --- | --- |
-| `admin-web/` | Vite + React + Antd | <http://localhost:5173> | 内容管理后台，对接 `/api/admin`，详见 [admin-web/README.md](admin-web/README.md) |
-| `web/` | Vite + React（无组件库） | <http://localhost:5174> | 前台展示站点，对接 `/api` 前台接口，详见 [web/README.md](web/README.md) |
+| `admin-web/` | Vite + React + Antd | <http://localhost:5173> | 内容管理后台，登录校验 `sys_users`，对接 `/api/admin`，详见 [admin-web/README.md](admin-web/README.md) |
+| `web/` | Vite + React（无组件库） | <http://localhost:5174> | 前台展示站点，登录校验 `app_users`，对接 `/api` 前台接口，详见 [web/README.md](web/README.md) |
 
 两个前端均通过 Vite 代理把 `/api` 转发到 Express 服务（默认 `http://localhost:3000`，可用 `VITE_PROXY_TARGET` 覆盖），开发时先启动后端再启动前端。
 

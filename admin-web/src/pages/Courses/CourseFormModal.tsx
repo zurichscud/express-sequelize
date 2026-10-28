@@ -1,13 +1,14 @@
 import { useState } from 'react'
-import { App as AntdApp, Col, Form, Input, InputNumber, Modal, Row, Select, Switch, Typography } from 'antd'
+import { App as AntdApp, Col, Form, Input, InputNumber, Row, Select, Switch, Typography } from 'antd'
 import { createCourse, updateCourse } from '@/api/course'
+import FormModal from '@/components/FormModal'
 import MediaUpload from '@/components/MediaUpload'
-import type { Category, Course, CoursePayload, User } from '@/types'
+import type { AppUser, Category, Course, CoursePayload } from '@/types'
 
 interface CourseFormModalProps {
   course: Course | null
   categories: Category[]
-  users: User[]
+  users: AppUser[]
   onClose: () => void
   onSaved: () => void
 }
@@ -68,7 +69,7 @@ export default function CourseFormModal({
   }
 
   return (
-    <Modal
+    <FormModal
       open
       title={isEdit ? '编辑课程' : '新建课程'}
       width={720}
@@ -176,9 +177,9 @@ export default function CourseFormModal({
         </Typography.Text>
 
         <Form.Item name="content" label="课程内容">
-          <Input.TextArea placeholder="请输入课程简介或内容" autoSize={{ minRows: 5, maxRows: 12 }} />
+          <Input.TextArea placeholder="请输入课程简介或内容" autoSize={{ minRows: 4, maxRows: 10 }} />
         </Form.Item>
       </Form>
-    </Modal>
+    </FormModal>
   )
 }

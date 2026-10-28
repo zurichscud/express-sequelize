@@ -56,6 +56,7 @@ export interface CategoryPayload {
 export type Sex = 'unknown' | 'male' | 'female'
 export type Role = 'user' | 'admin'
 
+/** 系统用户（sys_users），后台登录账号 */
 export interface User {
   id: number
   email: string
@@ -63,6 +64,17 @@ export interface User {
   nickname: string | null
   sex: Sex
   role: Role
+  createdAt: string
+  updatedAt: string
+}
+
+/** 前台用户（app_users），Web 注册账号 */
+export interface AppUser {
+  id: number
+  email: string
+  username: string
+  nickname: string | null
+  sex: Sex
   createdAt: string
   updatedAt: string
 }
@@ -82,6 +94,21 @@ export interface UserPayload {
   password?: string
   sex: Sex
   role: Role
+}
+
+export interface AppUserQuery {
+  page?: number
+  pageSize?: number
+  keyword?: string
+  sex?: Sex | ''
+}
+
+export interface AppUserPayload {
+  email: string
+  username: string
+  nickname?: string
+  password?: string
+  sex: Sex
 }
 
 export interface CourseRef {
@@ -171,6 +198,20 @@ export interface SiteSetting {
 }
 
 export type UploadMediaType = 'image' | 'video'
+
+/** 服务端签发的 OSS 直传凭证 */
+export interface UploadPresign {
+  object_key: string
+  name: string
+  type: UploadMediaType
+  mime_type: string
+  size: number
+  upload_url: string
+  method: 'PUT'
+  headers: Record<string, string>
+  expires_at: string
+  upload_token: string
+}
 
 export interface UploadResult {
   id: number

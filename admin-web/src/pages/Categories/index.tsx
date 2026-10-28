@@ -6,7 +6,6 @@ import {
   Form,
   Input,
   InputNumber,
-  Modal,
   Popconfirm,
   Space,
   Table,
@@ -14,6 +13,7 @@ import {
 } from 'antd'
 import type { TableProps } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
+import FormModal from '@/components/FormModal'
 import PageContainer from '@/components/PageContainer'
 import { createCategory, deleteCategory, getCategories, updateCategory } from '@/api/category'
 import type { Category } from '@/types'
@@ -55,7 +55,7 @@ function CategoryFormModal({ category, onClose, onSaved }: CategoryFormModalProp
   }
 
   return (
-    <Modal
+    <FormModal
       open
       title={isEdit ? '编辑分类' : '新建分类'}
       width={440}
@@ -93,7 +93,7 @@ function CategoryFormModal({ category, onClose, onSaved }: CategoryFormModalProp
           <InputNumber style={{ width: '100%' }} precision={0} />
         </Form.Item>
       </Form>
-    </Modal>
+    </FormModal>
   )
 }
 

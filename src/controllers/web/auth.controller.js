@@ -1,5 +1,5 @@
 const { success, fail } = require('../../utils/response');
-const userService = require('../../services/user.service');
+const appUserService = require('../../services/appUser.service');
 
 // 注册只允许提交普通用户资料，role 等敏感字段由后台接口维护
 const REGISTER_FIELDS = ['email', 'password', 'username', 'nickname', 'sex'];
@@ -30,7 +30,7 @@ function pickFields(body, fields) {
  */
 async function register(req, res, next) {
   try {
-    const data = await userService.register(pickFields(req.body, REGISTER_FIELDS));
+    const data = await appUserService.register(pickFields(req.body, REGISTER_FIELDS));
     success(res, data, { status: 201, message: '注册成功' });
   } catch (err) {
     next(err);
@@ -58,7 +58,7 @@ async function login(req, res, next) {
       return fail(res, 400, '请输入密码');
     }
 
-    const data = await userService.login({ account, password, scope: 'web' });
+    const data = await appUserService.login({ account, password });
     success(res, data);
   } catch (err) {
     next(err);
@@ -71,7 +71,7 @@ async function login(req, res, next) {
  */
 async function getProfile(req, res, next) {
   try {
-    const user = await userService.getUserById(req.user.id);
+    const user = await appUserService.getUserById(req.user.id);
     if (!user) {
       return fail(res, 401, '登录状态无效，请重新登录');
     }
@@ -93,7 +93,7 @@ async function updateProfile(req, res, next) {
       return fail(res, 400, '没有需要更新的字段');
     }
 
-    const user = await userService.updateUserProfile(req.user.id, payload);
+    const user = await appUserService.updateUserProfile(req.user.id, payload);
     if (!user) {
       return fail(res, 401, '登录状态无效，请重新登录');
     }
@@ -123,7 +123,7 @@ async function changePassword(req, res, next) {
       return fail(res, 400, '请输入新密码');
     }
 
-    const exists = await userService.changePassword(req.user.id, { oldPassword, newPassword });
+    const exists = await appUserService.changePassword(req.user.id, { oldPassword, newPassword });
     if (!exists) {
       return fail(res, 401, '登录状态无效，请重新登录');
     }

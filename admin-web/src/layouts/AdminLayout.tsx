@@ -24,6 +24,7 @@ import {
   SettingOutlined,
   SunOutlined,
   TeamOutlined,
+  UserOutlined,
 } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
@@ -49,7 +50,8 @@ const MENU_ITEMS: MenuProps['items'] = [
     ],
   },
   { key: '/attachments', icon: <PaperClipOutlined />, label: '附件管理' },
-  { key: '/users', icon: <TeamOutlined />, label: '用户管理' },
+  { key: '/users', icon: <TeamOutlined />, label: '系统用户' },
+  { key: '/app-users', icon: <UserOutlined />, label: '前台用户' },
   { key: '/settings', icon: <SettingOutlined />, label: '系统设置' },
 ]
 
@@ -58,7 +60,8 @@ const BREADCRUMBS: Record<string, string[]> = {
   '/articles': ['内容管理', '文章管理'],
   '/categories': ['内容管理', '分类管理'],
   '/courses': ['内容管理', '课程管理'],
-  '/users': ['用户管理'],
+  '/users': ['系统用户'],
+  '/app-users': ['前台用户'],
   '/attachments': ['附件管理'],
   '/settings': ['系统设置'],
 }

@@ -20,10 +20,11 @@ function getSecret() {
 /**
  * 签发 JWT
  * @param {object} payload 载荷，需由调用方保证不含密码等敏感信息
+ * @param {{ expiresIn?: string|number }} [options] 可覆盖登录态默认有效期（如 OSS 直传凭证）
  * @returns {{ token: string, expiresIn: number, expiresAt: string }}
  */
-function signToken(payload) {
-  const expiresIn = process.env.JWT_EXPIRES_IN || DEFAULT_EXPIRES_IN;
+function signToken(payload, options = {}) {
+  const expiresIn = options.expiresIn || process.env.JWT_EXPIRES_IN || DEFAULT_EXPIRES_IN;
   const token = jwt.sign(payload, getSecret(), { expiresIn });
   const decoded = jwt.decode(token);
 

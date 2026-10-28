@@ -39,7 +39,7 @@ function getOssClient() {
     client = new OSS({
       ...getOssConfig(),
       secure: true,
-      // 大文件上传耗时较长，默认超时设为 10 分钟
+      // 服务端只做签名、校验和删除，默认超时设为 10 分钟
       timeout: Number.isFinite(timeout) && timeout > 0 ? timeout : 600000
     });
   }

@@ -1,5 +1,5 @@
 const { col, fn, literal, Op } = require('sequelize');
-const { User } = require('../models');
+const { AppUser } = require('../models');
 
 const SEXES = ['unknown', 'male', 'female'];
 
@@ -8,7 +8,7 @@ const SEXES = ['unknown', 'male', 'female'];
  * @returns {Promise<{ total: number, list: { sex: string, count: number, percent: number }[] }>}
  */
 async function getGenderDistribution() {
-  const rows = await User.findAll({
+  const rows = await AppUser.findAll({
     attributes: ['sex', [fn('COUNT', col('sex')), 'count']],
     group: ['sex']
   });
@@ -76,7 +76,7 @@ async function getMonthlyUserCount({ year } = {}) {
   }
 
   // 注意：col() 里用实际列名 created_at（全局 underscored 配置映射，col 不做属性名转换）
-  const rows = await User.findAll({
+  const rows = await AppUser.findAll({
     attributes: [
       [fn('DATE_FORMAT', col('created_at'), '%Y-%m'), 'month'],
       [fn('COUNT', col('id')), 'count']

@@ -26,9 +26,9 @@ test.describe('仪表盘', () => {
     await expect(page).toHaveURL(/\/articles$/)
     await expect(page.getByRole('heading', { name: '文章管理', level: 4 })).toBeVisible()
 
-    await page.getByRole('menuitem', { name: '用户管理' }).click()
+    await page.getByRole('menuitem', { name: '系统用户' }).click()
     await expect(page).toHaveURL(/\/users$/)
-    await expect(page.getByRole('heading', { name: '用户管理', level: 4 })).toBeVisible()
+    await expect(page.getByRole('heading', { name: '系统用户', level: 4 })).toBeVisible()
   })
 
   test('未知路由显示 404 并可返回仪表盘', async ({ page }) => {

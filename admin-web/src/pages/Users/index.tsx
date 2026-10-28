@@ -38,6 +38,9 @@ const ROLE_LABELS: Record<Role, string> = {
   user: '普通用户',
 }
 
+// 1 号系统用户为超级管理员，不允许在后台编辑或删除
+const SUPER_ADMIN_ID = 1
+
 export default function UsersPage() {
   const { message } = AntdApp.useApp()
   const [form] = Form.useForm<SearchValues>()
@@ -142,12 +145,15 @@ export default function UsersPage() {
       dataIndex: 'role',
       key: 'role',
       width: 110,
-      render: (role: Role) => (
-        <Tag color={role === 'admin' ? 'gold' : 'blue'}>{ROLE_LABELS[role]}</Tag>
-      ),
+      render: (role: Role, record) =>
+        record.id === SUPER_ADMIN_ID ? (
+          <Tag color="red">超级管理员</Tag>
+        ) : (
+          <Tag color={role === 'admin' ? 'gold' : 'blue'}>{ROLE_LABELS[role]}</Tag>
+        ),
     },
     {
-      title: '注册时间',
+      title: '创建时间',
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 160,
@@ -158,39 +164,42 @@ export default function UsersPage() {
       key: 'actions',
       width: 140,
       fixed: 'right',
-      render: (_, record) => (
-        <Space size={4}>
-          <Button
-            type="link"
-            size="small"
-            onClick={() => {
-              setEditingUser(record)
-              setFormOpen(true)
-            }}
-          >
-            编辑
-          </Button>
-          <Popconfirm
-            title="删除用户"
-            description={`确定删除用户「${record.username}」吗？`}
-            okText="删除"
-            cancelText="取消"
-            okButtonProps={{ danger: true }}
-            onConfirm={() => handleDelete(record)}
-          >
-            <Button type="link" size="small" danger>
-              删除
+      render: (_, record) =>
+        record.id === SUPER_ADMIN_ID ? (
+          <Typography.Text type="secondary">受保护</Typography.Text>
+        ) : (
+          <Space size={4}>
+            <Button
+              type="link"
+              size="small"
+              onClick={() => {
+                setEditingUser(record)
+                setFormOpen(true)
+              }}
+            >
+              编辑
             </Button>
-          </Popconfirm>
-        </Space>
-      ),
+            <Popconfirm
+              title="删除用户"
+              description={`确定删除用户「${record.username}」吗？`}
+              okText="删除"
+              cancelText="取消"
+              okButtonProps={{ danger: true }}
+              onConfirm={() => handleDelete(record)}
+            >
+              <Button type="link" size="small" danger>
+                删除
+              </Button>
+            </Popconfirm>
+          </Space>
+        ),
     },
   ]
 
   return (
     <PageContainer
-      title="用户管理"
-      description="管理后台账号与前台注册用户"
+      title="系统用户"
+      description="管理系统用户（后台登录账号）"
       extra={
         <Button
           type="primary"

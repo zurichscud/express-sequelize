@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { App as AntdApp, Col, Form, Input, Modal, Row, Select } from 'antd'
+import { App as AntdApp, Col, Form, Input, Row, Select } from 'antd'
 import { createArticle, updateArticle } from '@/api/article'
+import FormModal from '@/components/FormModal'
 import type { Article, ArticlePayload, ArticleStatus } from '@/types'
 
 interface ArticleFormModalProps {
@@ -51,7 +52,7 @@ export default function ArticleFormModal({ article, onClose, onSaved }: ArticleF
   }
 
   return (
-    <Modal
+    <FormModal
       open
       title={isEdit ? '编辑文章' : '新建文章'}
       width={760}
@@ -124,17 +125,17 @@ export default function ArticleFormModal({ article, onClose, onSaved }: ArticleF
             placeholder="用于列表展示的简要说明，可不填"
             maxLength={500}
             showCount
-            autoSize={{ minRows: 2, maxRows: 4 }}
+            autoSize={{ minRows: 2, maxRows: 3 }}
           />
         </Form.Item>
 
         <Form.Item name="content" label="正文" rules={[{ required: true, message: '请输入文章正文' }]}>
           <Input.TextArea
             placeholder="请输入文章正文"
-            autoSize={{ minRows: 10, maxRows: 18 }}
+            autoSize={{ minRows: 6, maxRows: 12 }}
           />
         </Form.Item>
       </Form>
-    </Modal>
+    </FormModal>
   )
 }

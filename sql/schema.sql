@@ -38,8 +38,8 @@ CREATE TABLE IF NOT EXISTS `settings` (
   COLLATE = utf8mb4_unicode_ci
   COMMENT = '站点设置表（仅一条记录）';
 
--- 用户表
-CREATE TABLE IF NOT EXISTS `users` (
+-- 系统用户表（后台登录账号）
+CREATE TABLE IF NOT EXISTS `sys_users` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
   `email` VARCHAR(128) NOT NULL COMMENT '邮箱（唯一，登录凭证）',
   `password` VARCHAR(255) NOT NULL COMMENT '密码（bcrypt 哈希存储）',
@@ -50,12 +50,30 @@ CREATE TABLE IF NOT EXISTS `users` (
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `users_email_unique` (`email`),
-  UNIQUE KEY `users_username_unique` (`username`)
+  UNIQUE KEY `sys_users_email_unique` (`email`),
+  UNIQUE KEY `sys_users_username_unique` (`username`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
-  COMMENT = '用户表';
+  COMMENT = '系统用户表（后台登录账号）';
+
+-- 前台用户表（Web 注册账号）
+CREATE TABLE IF NOT EXISTS `app_users` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `email` VARCHAR(128) NOT NULL COMMENT '邮箱（唯一，登录凭证）',
+  `password` VARCHAR(255) NOT NULL COMMENT '密码（bcrypt 哈希存储）',
+  `username` VARCHAR(64) NOT NULL COMMENT '用户名（唯一）',
+  `nickname` VARCHAR(64) DEFAULT NULL COMMENT '昵称',
+  `sex` ENUM('unknown', 'male', 'female') NOT NULL DEFAULT 'unknown' COMMENT '性别',
+  `created_at` DATETIME NOT NULL,
+  `updated_at` DATETIME NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `app_users_email_unique` (`email`),
+  UNIQUE KEY `app_users_username_unique` (`username`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+  COMMENT = '前台用户表（Web 注册账号）';
 
 -- 分类表
 CREATE TABLE IF NOT EXISTS `categories` (
@@ -89,7 +107,7 @@ CREATE TABLE IF NOT EXISTS `courses` (
   KEY `idx_courses_user_id` (`user_id`),
   KEY `idx_courses_recommended_created` (`is_recommended`, `created_at`),
   CONSTRAINT `courses_category_id_foreign` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `courses_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT `courses_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `app_users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
@@ -106,7 +124,7 @@ CREATE TABLE IF NOT EXISTS `likes` (
   UNIQUE KEY `likes_course_id_user_id_unique` (`course_id`, `user_id`),
   KEY `idx_likes_user_id` (`user_id`),
   CONSTRAINT `likes_course_id_foreign` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `likes_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `likes_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `app_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
@@ -146,7 +164,7 @@ CREATE TABLE IF NOT EXISTS `attachments` (
   UNIQUE KEY `attachments_object_key_unique` (`object_key`),
   KEY `idx_attachments_user_id` (`user_id`),
   KEY `idx_attachments_type_created` (`type`, `created_at`),
-  CONSTRAINT `attachments_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `attachments_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `sys_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci

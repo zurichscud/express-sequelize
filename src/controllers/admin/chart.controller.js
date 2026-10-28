@@ -3,7 +3,7 @@ const chartService = require('../../services/chart.service');
 
 /**
  * GET /api/admin/charts/gender
- * 统计用户性别分布，返回各性别数量与占比（用于图表展示）
+ * 统计前台用户性别分布，返回各性别数量与占比（用于图表展示）
  */
 async function getGenderChart(req, res, next) {
   try {

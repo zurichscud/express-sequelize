@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { App as AntdApp, Col, Form, Input, InputNumber, Modal, Row } from 'antd'
+import { App as AntdApp, Col, Form, Input, InputNumber, Row } from 'antd'
 import { createChapter, updateChapter } from '@/api/chapter'
+import FormModal from '@/components/FormModal'
 import MediaUpload from '@/components/MediaUpload'
 import type { Chapter, ChapterPayload } from '@/types'
 
@@ -60,7 +61,7 @@ export default function ChapterFormModal({
   }
 
   return (
-    <Modal
+    <FormModal
       open
       title={isEdit ? '编辑章节' : '新建章节'}
       width={640}
@@ -130,9 +131,9 @@ export default function ChapterFormModal({
         </Form.Item>
 
         <Form.Item name="content" label="章节内容">
-          <Input.TextArea placeholder="请输入章节内容" autoSize={{ minRows: 6, maxRows: 14 }} />
+          <Input.TextArea placeholder="请输入章节内容" autoSize={{ minRows: 5, maxRows: 10 }} />
         </Form.Item>
       </Form>
-    </Modal>
+    </FormModal>
   )
 }

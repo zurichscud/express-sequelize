@@ -84,7 +84,7 @@ async function listCourses(req, res, next) {
  * POST /api/admin/courses
  * 请求体：
  *   category_id    必填，分类 ID
- *   user_id        必填，所属用户 ID（创建者）
+ *   user_id        必填，所属前台用户 ID（创建者，来自 app_users）
  *   name           必填，课程名称，最长 128 字
  *   image          选填，封面图片地址，最长 500 字
  *   is_recommended 选填，是否推荐，默认 false

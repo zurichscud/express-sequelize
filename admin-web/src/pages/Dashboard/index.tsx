@@ -24,7 +24,7 @@ import {
 import { Link } from 'react-router-dom'
 import PageContainer from '@/components/PageContainer'
 import { getArticles } from '@/api/article'
-import { getUsers } from '@/api/user'
+import { getAppUsers } from '@/api/appUser'
 import { getCourses } from '@/api/course'
 import { getCategories } from '@/api/category'
 import { getGenderChart, getMonthlyUsers } from '@/api/chart'
@@ -154,7 +154,7 @@ export default function DashboardPage() {
       try {
         const [articles, users, courses, categories, monthly, gender, recent] = await Promise.all([
           getArticles({ page: 1, pageSize: 1 }),
-          getUsers({ page: 1, pageSize: 1 }),
+          getAppUsers({ page: 1, pageSize: 1 }),
           getCourses({ page: 1, pageSize: 1 }),
           getCategories(),
           getMonthlyUsers(),

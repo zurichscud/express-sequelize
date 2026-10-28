@@ -37,7 +37,7 @@ npm run dev
 密码：123456
 ```
 
-> 登录调用 `POST /api/admin/users/login`，成功后把后端签发的 JWT 保存到
+> 登录调用 `POST /api/admin/users/login`，后端从 `sys_users` 表校验账号，成功后把签发的 JWT 保存到
 > `localStorage`；`src/api/request.ts` 会自动在请求头携带 `Authorization: Bearer <token>`，
 > 遇到 401 时清理登录态并跳回登录页。
 
@@ -46,10 +46,11 @@ npm run dev
 - **仪表盘**：文章 / 用户 / 课程 / 分类总数、近 12 个月用户增长、性别分布、最新文章
 - **文章管理**：分页列表、关键词与状态筛选、新建、编辑（含正文回填）、删除
 - **分类管理**：列表、新建、编辑、删除，按排序序号展示
-- **课程管理**：分页列表、分类 / 推荐状态筛选、新建、编辑、删除、列表内切换推荐；课程封面支持上传到阿里云 OSS；章节总数由章节接口自动统计，不在课程表单中手工填写
+- **课程管理**：分页列表、分类 / 推荐状态筛选、新建、编辑、删除、列表内切换推荐；课程封面支持上传到阿里云 OSS；课程归属用户来自前台用户表 `app_users`；章节总数由章节接口自动统计，不在课程表单中手工填写
 - **课程章节**：在课程行打开章节抽屉，按课程分页查看、搜索、新建、编辑、删除章节，维护排序与视频地址；章节视频支持上传到阿里云 OSS
 - **附件管理**：查看所有上传到 OSS 的图片与视频，支持关键词 / 类型筛选、图片视频预览、复制地址、删除附件（同步删除 OSS 文件）
-- **用户管理**：分页列表、关键词 / 角色 / 性别筛选、新建、编辑、删除
+- **用户管理**：系统用户管理后台登录账号（`sys_users`），支持分页列表、关键词 / 角色 / 性别筛选、新建、编辑、删除；1 号超级管理员账号为受保护账号，不显示编辑 / 删除操作
+- **前台用户**：管理前台注册账号（`app_users`），支持分页列表、关键词 / 性别筛选、新建、编辑、重置密码、删除；名下存在课程时禁止删除
 - **系统设置**：站点名称、ICP 备案号、版权信息
 - **通用能力**：统一请求层与错误提示、路由懒加载、登录守卫、明暗主题切换、响应式栅格
 
@@ -61,7 +62,7 @@ admin-web/
 │  ├─ api/                 # 接口模块（axios 封装 + 各业务接口）
 │  ├─ components/          # PageContainer、PageLoading、MediaUpload 等通用组件
 │  ├─ layouts/             # AdminLayout（侧边栏 + 顶栏 + 内容区）
-│  ├─ pages/               # 仪表盘、文章、分类、课程、附件、用户、设置、登录、404
+│  ├─ pages/               # 仪表盘、文章、分类、课程、附件、系统用户、前台用户、设置、登录、404
 │  ├─ router/              # 路由表与登录守卫
 │  ├─ styles/              # 全局样式
 │  ├─ theme/               # 明暗主题上下文
@@ -76,14 +77,15 @@ admin-web/
 
 | 页面 | 接口 |
 | --- | --- |
-| 仪表盘 | `GET /api/admin/articles`、`/users`、`/courses`、`/categories`、`/charts/*` |
+| 仪表盘 | `GET /api/admin/articles`、`/app-users`、`/courses`、`/categories`、`/charts/*` |
 | 文章管理 | `GET/POST /api/admin/articles`、`GET/PUT/DELETE /api/admin/articles/:id` |
 | 分类管理 | `GET/POST /api/admin/categories`、`PUT/DELETE /api/admin/categories/:id` |
 | 课程管理 | `GET/POST /api/admin/courses`、`GET/PUT/DELETE /api/admin/courses/:id` |
 | 课程章节 | `GET/POST /api/admin/chapters`、`GET/PUT/DELETE /api/admin/chapters/:id` |
-| 文件上传 | `POST /api/admin/uploads`（图片 / 视频由后端代理上传到阿里云 OSS） |
+| 文件上传 | `POST /api/admin/uploads/presign`（申请预签名地址）→ 浏览器直传 OSS → `POST /api/admin/uploads/complete`（确认入库） |
 | 附件管理 | `GET /api/admin/attachments`、`DELETE /api/admin/attachments/:id` |
-| 用户管理 | `GET/POST /api/admin/users`、`PUT/DELETE /api/admin/users/:id` |
+| 系统用户 | `GET/POST /api/admin/users`、`PUT/DELETE /api/admin/users/:id`（`sys_users`） |
+| 前台用户 | `GET/POST /api/admin/app-users`、`GET/PUT/DELETE /api/admin/app-users/:id`（`app_users`，课程归属选择与仪表盘统计也使用列表接口） |
 | 系统设置 | `GET/PUT /api/admin/settings` |
 
 后端统一返回 `{ code, message, data }`，`src/api/request.ts` 会直接解包 `data`，
@@ -108,12 +110,9 @@ npm run build
 npm run preview   # 本地预览构建产物
 ```
 
-构建产物在 `dist/`，部署时把前端静态文件交给 Nginx，并将 `/api` 反向代理到后端：
+构建产物在 `dist/`，部署时把前端静态文件交给 Nginx，并将 `/api` 反向代理到后端。图片、视频由浏览器凭服务端签发的预签名地址直传 OSS，不经过 Nginx 和后端，因此无需为上传放大 `client_max_body_size`：
 
 ```nginx
-# 视频上传最大 500MB，client_max_body_size 需要不小于 OSS_VIDEO_MAX_SIZE_MB
-client_max_body_size 512m;
-
 location / {
   root /path/to/admin-web/dist;
   try_files $uri $uri/ /index.html;
@@ -123,11 +122,10 @@ location /api/ {
   proxy_pass http://127.0.0.1:3000;
   proxy_set_header Host $host;
   proxy_set_header X-Real-IP $remote_addr;
-  # 大文件上传到 OSS 可能耗时较长，避免 Nginx 提前断开
-  proxy_read_timeout 600s;
-  proxy_send_timeout 600s;
 }
 ```
+
+> 需要在阿里云 OSS 控制台为 Bucket 配置跨域规则：来源包含后台域名，方法允许 `PUT`，请求头允许 `Content-Type`。否则浏览器直传会被 CORS 拦截。
 
 `try_files ... /index.html` 是必须的，否则刷新 `/articles` 等前端路由会 404。
 

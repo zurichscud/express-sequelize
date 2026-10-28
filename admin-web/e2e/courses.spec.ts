@@ -26,7 +26,7 @@ test.describe('课程管理', () => {
     )
     const usersLoaded = page.waitForResponse(
       (response) =>
-        response.url().includes('/api/admin/users') &&
+        response.url().includes('/api/admin/app-users') &&
         response.url().includes('pageSize=100') &&
         response.status() === 200,
     )

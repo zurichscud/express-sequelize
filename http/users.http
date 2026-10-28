@@ -1,4 +1,4 @@
-### 登录（成功返回 JWT）
+### 后台登录（sys_users，成功返回 JWT）
 # @name login
 POST {{baseUrl}}/users/login
 Content-Type: application/json
@@ -8,33 +8,33 @@ Content-Type: application/json
   "password": "123456"
 }
 
-### 用户列表
+### 系统用户列表（sys_users，后台登录账号）
 GET {{baseUrl}}/users
 Authorization: Bearer {{login.response.body.$.data.token}}
 
-### 用户列表（关键词搜索 + 角色筛选）
-GET {{baseUrl}}/users?keyword=zhang&role=user
+### 系统用户列表（关键词搜索 + 角色筛选）
+GET {{baseUrl}}/users?keyword=admin&role=admin
 Authorization: Bearer {{login.response.body.$.data.token}}
 
-### 创建用户
+### 创建系统用户
 POST {{baseUrl}}/users
 Authorization: Bearer {{login.response.body.$.data.token}}
 Content-Type: application/json
 
 {
-  "email": "wangwu@example.com",
+  "email": "operator@example.com",
   "password": "123456",
-  "username": "wangwu",
-  "nickname": "王五",
+  "username": "operator",
+  "nickname": "运营",
   "sex": "male",
-  "role": "user"
+  "role": "admin"
 }
 
-### 用户详情（响应中不包含密码）
+### 系统用户详情（响应中不包含密码）
 GET {{baseUrl}}/users/1
 Authorization: Bearer {{login.response.body.$.data.token}}
 
-### 更新用户（仅传需要修改的字段）
+### 更新系统用户（仅传需要修改的字段）
 PUT {{baseUrl}}/users/1
 Authorization: Bearer {{login.response.body.$.data.token}}
 Content-Type: application/json
@@ -44,7 +44,7 @@ Content-Type: application/json
   "sex": "unknown"
 }
 
-### 更新用户（修改密码，存储时自动哈希）
+### 更新系统用户（修改密码，存储时自动哈希）
 PUT {{baseUrl}}/users/1
 Authorization: Bearer {{login.response.body.$.data.token}}
 Content-Type: application/json
@@ -53,6 +53,54 @@ Content-Type: application/json
   "password": "abcdef"
 }
 
-### 删除用户
+### 删除系统用户
 DELETE {{baseUrl}}/users/4
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### 前台用户列表（app_users，课程归属选择 / 前台用户管理）
+GET {{baseUrl}}/app-users?page=1&pageSize=100
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### 前台用户列表（关键词 + 性别筛选）
+GET {{baseUrl}}/app-users?keyword=demo&sex=female
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### 创建前台用户
+POST {{baseUrl}}/app-users
+Authorization: Bearer {{login.response.body.$.data.token}}
+Content-Type: application/json
+
+{
+  "email": "webuser@example.com",
+  "password": "123456",
+  "username": "webuser",
+  "nickname": "前台用户",
+  "sex": "female"
+}
+
+### 前台用户详情（响应中不包含密码）
+GET {{baseUrl}}/app-users/2
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### 更新前台用户（仅传需要修改的字段）
+PUT {{baseUrl}}/app-users/2
+Authorization: Bearer {{login.response.body.$.data.token}}
+Content-Type: application/json
+
+{
+  "nickname": "前台用户改名",
+  "sex": "unknown"
+}
+
+### 重置前台用户密码（存储时自动哈希）
+PUT {{baseUrl}}/app-users/2
+Authorization: Bearer {{login.response.body.$.data.token}}
+Content-Type: application/json
+
+{
+  "password": "abcdef"
+}
+
+### 删除前台用户（名下存在课程时返回 400）
+DELETE {{baseUrl}}/app-users/2
 Authorization: Bearer {{login.response.body.$.data.token}}

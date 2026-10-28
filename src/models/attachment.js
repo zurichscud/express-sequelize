@@ -15,7 +15,7 @@ const Attachment = sequelize.define(
     user_id: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: true,
-      comment: '上传用户 ID（用户删除后置空）',
+      comment: '上传系统用户 ID（用户删除后置空）',
       validate: {
         isValidId(value) {
           if (value != null && (!Number.isInteger(Number(value)) || Number(value) <= 0)) {

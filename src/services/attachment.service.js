@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Attachment, User } = require('../models');
+const { Attachment, SysUser } = require('../models');
 const { removeObject } = require('./upload.service');
 
 const TYPES = ['image', 'video'];
@@ -19,7 +19,7 @@ const LIST_ATTRIBUTES = [
 ];
 
 const UPLOADER_INCLUDE = {
-  model: User,
+  model: SysUser,
   as: 'user',
   attributes: ['id', 'username', 'nickname']
 };

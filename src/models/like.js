@@ -26,7 +26,7 @@ const Like = sequelize.define(
     user_id: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
-      comment: '点赞用户 ID',
+      comment: '点赞前台用户 ID',
       validate: {
         notNull: { msg: '用户不能为空' },
         isValidId(value) {

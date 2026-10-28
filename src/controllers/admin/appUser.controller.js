@@ -1,8 +1,8 @@
 const { success, fail } = require('../../utils/response');
-const userService = require('../../services/user.service');
+const appUserService = require('../../services/appUser.service');
 
-// 字段白名单
-const EDITABLE_FIELDS = ['email', 'password', 'username', 'nickname', 'sex', 'role'];
+// 字段白名单：前台用户没有角色字段，密码仅在创建或重置时提交
+const EDITABLE_FIELDS = ['email', 'password', 'username', 'nickname', 'sex'];
 
 function toPositiveInt(value, fallback) {
   const parsed = Number.parseInt(value, 10);
@@ -21,42 +21,23 @@ function pickUserFields(body) {
   return payload;
 }
 
-/**
- * POST /api/admin/users/login
- * 请求体：
- *   account  必填，邮箱或用户名（兼容 email / username 字段）
- *   password 必填，明文密码
- * 校验通过后返回 JWT，后续请求放在 Authorization: Bearer <token> 中
- */
-async function login(req, res, next) {
-  try {
-    const body = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
-    const accountSource = body.account ?? body.email ?? body.username;
-    const account = typeof accountSource === 'string' ? accountSource.trim() : '';
-    const password = typeof body.password === 'string' ? body.password : '';
-
-    if (!account) {
-      return fail(res, 400, '请输入邮箱或用户名');
-    }
-    if (!password) {
-      return fail(res, 400, '请输入密码');
-    }
-
-    const data = await userService.login({ account, password });
-    success(res, data);
-  } catch (err) {
-    next(err);
+// 校验并返回路径中的用户 ID
+function parseUserId(req) {
+  const id = String(req.params.id || '').trim();
+  if (!/^\d+$/.test(id) || Number(id) <= 0) {
+    return null;
   }
+  return id;
 }
 
 /**
- * GET /api/admin/users
+ * GET /api/admin/app-users
+ * 查询前台用户列表（课程归属选择、仪表盘统计与前台用户管理共用）
  * 查询参数：
  *   page     页码，默认 1
  *   pageSize 每页条数，默认 10，最大 100
  *   keyword  邮箱/用户名/昵称模糊搜索
  *   sex      unknown | male | female
- *   role     user | admin
  */
 async function listUsers(req, res, next) {
   try {
@@ -64,14 +45,12 @@ async function listUsers(req, res, next) {
     const pageSize = Math.min(toPositiveInt(req.query.pageSize, 10), 100);
     const keyword = String(req.query.keyword || '').trim();
     const sex = String(req.query.sex || '').trim();
-    const role = String(req.query.role || '').trim();
 
-    const { list, total } = await userService.listUsers({
+    const { list, total } = await appUserService.listUsers({
       page,
       pageSize,
       keyword,
-      sex,
-      role
+      sex
     });
 
     success(res, {
@@ -89,18 +68,18 @@ async function listUsers(req, res, next) {
 }
 
 /**
- * POST /api/admin/users
+ * POST /api/admin/app-users
+ * 创建前台用户
  * 请求体：
  *   email    必填，邮箱，唯一
  *   password 必填，明文密码，6-72 位（存储时自动哈希）
  *   username 必填，用户名，唯一，仅限字母/数字/下划线/短横线
  *   nickname 选填，昵称，最长 64 字
  *   sex      选填，unknown | male | female，默认 unknown
- *   role     选填，user | admin，默认 user
  */
 async function createUser(req, res, next) {
   try {
-    const user = await userService.createUser(pickUserFields(req.body));
+    const user = await appUserService.createUser(pickUserFields(req.body));
 
     success(res, user, { status: 201 });
   } catch (err) {
@@ -109,17 +88,17 @@ async function createUser(req, res, next) {
 }
 
 /**
- * GET /api/admin/users/:id
- * 查询单个用户详情
+ * GET /api/admin/app-users/:id
+ * 查询单个前台用户详情
  */
 async function getUser(req, res, next) {
   try {
-    const id = String(req.params.id || '').trim();
-    if (!/^\d+$/.test(id) || Number(id) <= 0) {
+    const id = parseUserId(req);
+    if (!id) {
       return fail(res, 400, '用户 ID 无效');
     }
 
-    const user = await userService.getUserById(id);
+    const user = await appUserService.getUserById(id);
     if (!user) {
       return fail(res, 404, '用户不存在');
     }
@@ -131,20 +110,19 @@ async function getUser(req, res, next) {
 }
 
 /**
- * PUT /api/admin/users/:id
- * 更新用户（仅更新请求体中提供的字段）
+ * PUT /api/admin/app-users/:id
+ * 更新前台用户（仅更新请求体中提供的字段）
  * 请求体：
  *   email    选填，邮箱，唯一
  *   password 选填，明文密码，6-72 位（存储时自动哈希）
  *   username 选填，用户名，唯一
  *   nickname 选填，昵称，传空字符串可清空
  *   sex      选填，unknown | male | female
- *   role     选填，user | admin
  */
 async function updateUser(req, res, next) {
   try {
-    const id = String(req.params.id || '').trim();
-    if (!/^\d+$/.test(id) || Number(id) <= 0) {
+    const id = parseUserId(req);
+    if (!id) {
       return fail(res, 400, '用户 ID 无效');
     }
 
@@ -153,7 +131,7 @@ async function updateUser(req, res, next) {
       return fail(res, 400, '没有需要更新的字段');
     }
 
-    const user = await userService.updateUserById(id, payload);
+    const user = await appUserService.updateUserById(id, payload);
     if (!user) {
       return fail(res, 404, '用户不存在');
     }
@@ -165,17 +143,17 @@ async function updateUser(req, res, next) {
 }
 
 /**
- * DELETE /api/admin/users/:id
- * 删除单个用户
+ * DELETE /api/admin/app-users/:id
+ * 删除单个前台用户（名下还有课程时拒绝删除）
  */
 async function deleteUser(req, res, next) {
   try {
-    const id = String(req.params.id || '').trim();
-    if (!/^\d+$/.test(id) || Number(id) <= 0) {
+    const id = parseUserId(req);
+    if (!id) {
       return fail(res, 400, '用户 ID 无效');
     }
 
-    const deleted = await userService.deleteUserById(id);
+    const deleted = await appUserService.deleteUserById(id);
     if (!deleted) {
       return fail(res, 404, '用户不存在');
     }
@@ -187,7 +165,6 @@ async function deleteUser(req, res, next) {
 }
 
 module.exports = {
-  login,
   listUsers,
   createUser,
   getUser,

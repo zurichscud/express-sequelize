@@ -26,7 +26,7 @@ const Course = sequelize.define(
     user_id: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
-      comment: '所属用户 ID（创建者）',
+      comment: '所属前台用户 ID（创建者）',
       validate: {
         notNull: { msg: '用户不能为空' },
         isValidId(value) {

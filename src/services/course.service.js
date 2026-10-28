@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Category, Course, User } = require('../models');
+const { Category, Course, AppUser } = require('../models');
 
 // 列表不返回 content 正文，减少传输体积
 const LIST_ATTRIBUTES = [
@@ -17,7 +17,7 @@ const LIST_ATTRIBUTES = [
 
 // 关联查询只取必要字段，避免泄漏用户敏感信息
 const CATEGORY_INCLUDE = { model: Category, as: 'category', attributes: ['id', 'name', 'rank'] };
-const USER_INCLUDE = { model: User, as: 'user', attributes: ['id', 'username', 'nickname'] };
+const USER_INCLUDE = { model: AppUser, as: 'user', attributes: ['id', 'username', 'nickname'] };
 
 /**
  * 校验外键对应的记录是否存在，不存在时抛出 400 业务错误
@@ -30,7 +30,7 @@ async function assertRefsExist(categoryId, userId) {
     businessError.status = 400;
     throw businessError;
   }
-  if (userId != null && !(await User.findByPk(userId))) {
+  if (userId != null && !(await AppUser.findByPk(userId))) {
     const businessError = new Error('用户不存在');
     businessError.status = 400;
     throw businessError;

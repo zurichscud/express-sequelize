@@ -21,8 +21,8 @@ import CourseFormModal from './CourseFormModal'
 import ChapterDrawer from './ChapterDrawer'
 import { deleteCourse, getCourse, getCourses, updateCourse } from '@/api/course'
 import { getCategories } from '@/api/category'
-import { getUsers } from '@/api/user'
-import type { Category, Course, PageResult, User } from '@/types'
+import { getAppUsers } from '@/api/appUser'
+import type { AppUser, Category, Course, PageResult } from '@/types'
 import { formatDateTime } from '@/utils/format'
 
 interface SearchValues {
@@ -44,7 +44,7 @@ export default function CoursesPage() {
   const [loading, setLoading] = useState(false)
 
   const [categories, setCategories] = useState<Category[]>([])
-  const [users, setUsers] = useState<User[]>([])
+  const [users, setUsers] = useState<AppUser[]>([])
 
   const [formOpen, setFormOpen] = useState(false)
   const [editingCourse, setEditingCourse] = useState<Course | null>(null)
@@ -59,7 +59,7 @@ export default function CoursesPage() {
       try {
         const [categoryList, userPage] = await Promise.all([
           getCategories(),
-          getUsers({ page: 1, pageSize: 100 }),
+          getAppUsers({ page: 1, pageSize: 100 }),
         ])
         if (!cancelled) {
           setCategories(categoryList)

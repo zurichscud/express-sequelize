@@ -1,25 +1,55 @@
 @token = 请先调用 http/users.http 的登录接口，把返回的 data.token 粘贴到此处
 
-### 上传图片（字段名固定为 file；示例文件放到 http/fixtures/ 下）
-POST {{baseUrl}}/uploads
+### 申请图片直传地址（size 为实际文件字节数）
+# @name presignImage
+POST {{baseUrl}}/uploads/presign
 Authorization: Bearer {{token}}
-Content-Type: multipart/form-data; boundary=WebAppBoundary
+Content-Type: application/json
 
---WebAppBoundary
-Content-Disposition: form-data; name="file"; filename="cover.png"
+{
+  "name": "cover.png",
+  "mime": "image/png",
+  "size": 20480
+}
+
+### 用返回的 upload_url 直传图片到 OSS（示例文件放到 http/fixtures/ 下）
+PUT {{presignImage.response.body.$.data.upload_url}}
 Content-Type: image/png
 
 < ./fixtures/cover.png
---WebAppBoundary--
 
-### 上传视频
-POST {{baseUrl}}/uploads
+### 确认图片上传（服务端校验 OSS 对象后写入附件表）
+POST {{baseUrl}}/uploads/complete
 Authorization: Bearer {{token}}
-Content-Type: multipart/form-data; boundary=WebAppBoundary
+Content-Type: application/json
 
---WebAppBoundary
-Content-Disposition: form-data; name="file"; filename="chapter.mp4"
+{
+  "upload_token": "{{presignImage.response.body.$.data.upload_token}}"
+}
+
+### 申请视频直传地址
+# @name presignVideo
+POST {{baseUrl}}/uploads/presign
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "chapter.mp4",
+  "mime": "video/mp4",
+  "size": 10485760
+}
+
+### 直传视频到 OSS
+PUT {{presignVideo.response.body.$.data.upload_url}}
 Content-Type: video/mp4
 
 < ./fixtures/chapter.mp4
---WebAppBoundary--
+
+### 确认视频上传
+POST {{baseUrl}}/uploads/complete
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "upload_token": "{{presignVideo.response.body.$.data.upload_token}}"
+}

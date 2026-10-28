@@ -1,10 +1,10 @@
 const { Router } = require('express');
-const { uploadFile } = require('../../controllers/admin/upload.controller');
-const { uploadSingleFile } = require('../../middlewares/upload.middleware');
+const { presignUpload, completeUpload } = require('../../controllers/admin/upload.controller');
 
 const router = Router();
 
-// 表单字段名固定为 file，服务器接收后代理上传到 OSS
-router.post('/', uploadSingleFile, uploadFile);
+// 客户端直传：先申请预签名地址，上传完成后再确认入库
+router.post('/presign', presignUpload);
+router.post('/complete', completeUpload);
 
 module.exports = router;

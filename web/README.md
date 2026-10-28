@@ -31,7 +31,7 @@ npm run dev
 ```
 
 打开 <http://localhost:5174>。登录 / 注册走 `POST /api/auth/login` 与 `POST /api/auth/register`，
-成功后把后端签发的 `scope=web` JWT 保存到 `localStorage`，后续点赞、个人资料接口自动携带。
+后端从 `app_users` 表校验账号，成功后把签发的 `scope=web` JWT 保存到 `localStorage`，后续点赞、个人资料接口自动携带。
 演示账号（与后端种子数据一致）：
 
 ```text

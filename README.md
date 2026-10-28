@@ -121,8 +121,9 @@
 ├─ .env                          # 本地环境变量（已被 git 忽略）
 ├─ .env.example                  # 环境变量模板
 ├─ package.json
-├─ admin-web/                    # 后台管理前端（Vite + React + Antd），详见 admin-web/README.md
-└─ web/                          # 前台展示站点（Vite + React），详见 web/README.md
+├─ frontend/                     # 前端应用目录
+├─ frontend/admin/               # 后台管理前端（Vite + React + Antd），详见 frontend/admin/README.md
+└─ frontend/web/                 # 前台展示站点（Vite + React），详见 frontend/web/README.md
 ```
 
 ## 快速开始
@@ -178,8 +179,8 @@ npm start
 
 | 应用 | 技术栈 | 开发地址 | 说明 |
 | --- | --- | --- | --- |
-| `admin-web/` | Vite + React + Antd | <http://localhost:5173> | 内容管理后台，登录校验 `sys_users`，对接 `/api/admin`，详见 [admin-web/README.md](admin-web/README.md) |
-| `web/` | Vite + React（无组件库） | <http://localhost:5174> | 前台展示站点，登录校验 `app_users`，对接 `/api` 前台接口，详见 [web/README.md](web/README.md) |
+| `frontend/admin/` | Vite + React + Antd | <http://localhost:5173> | 内容管理后台，登录校验 `sys_users`，对接 `/api/admin`，详见 [frontend/admin/README.md](frontend/admin/README.md) |
+| `frontend/web/` | Vite + React（无组件库） | <http://localhost:5174> | 前台展示站点，登录校验 `app_users`，对接 `/api` 前台接口，详见 [frontend/web/README.md](frontend/web/README.md) |
 
 两个前端均通过 Vite 代理把 `/api` 转发到 Express 服务（默认 `http://localhost:3000`，可用 `VITE_PROXY_TARGET` 覆盖），开发时先启动后端再启动前端。
 

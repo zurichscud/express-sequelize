@@ -25,7 +25,7 @@ npm run dev
 再启动前台：
 
 ```bash
-cd web
+cd frontend/web
 npm install
 npm run dev
 ```

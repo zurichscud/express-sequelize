@@ -6,13 +6,30 @@ const {
   updateChapter,
   deleteChapter
 } = require('../../controllers/admin/chapter.controller');
+const { validate } = require('../../middlewares/validate.middleware');
+const { pagination } = require('../../middlewares/pagination.middleware');
+const {
+  chapterIdParamsSchema,
+  adminListChaptersQuerySchema,
+  createChapterBodySchema,
+  updateChapterBodySchema
+} = require('../../validators/chapter.validator');
 
 const router = Router();
 
-router.get('/', listChapters);
-router.post('/', createChapter);
-router.get('/:id', getChapter);
-router.put('/:id', updateChapter);
-router.delete('/:id', deleteChapter);
+router.get(
+  '/',
+  pagination(),
+  validate({ query: adminListChaptersQuerySchema }),
+  listChapters
+);
+router.post('/', validate({ body: createChapterBodySchema }), createChapter);
+router.get('/:id', validate({ params: chapterIdParamsSchema }), getChapter);
+router.put(
+  '/:id',
+  validate({ params: chapterIdParamsSchema, body: updateChapterBodySchema }),
+  updateChapter
+);
+router.delete('/:id', validate({ params: chapterIdParamsSchema }), deleteChapter);
 
 module.exports = router;

@@ -52,10 +52,10 @@ async function login({ account, password }) {
 
 /**
  * 分页查询系统用户列表
- * @param {{ page: number, pageSize: number, keyword?: string, sex?: string, role?: string }} options
+ * @param {{ offset: number, limit: number, keyword?: string, sex?: string, role?: string }} options
  * @returns {Promise<{ list: object[], total: number }>}
  */
-async function listUsers({ page, pageSize, keyword, sex, role }) {
+async function listUsers({ offset, limit, keyword, sex, role }) {
   const where = {};
   if (SEXES.includes(sex)) {
     where.sex = sex;
@@ -78,8 +78,8 @@ async function listUsers({ page, pageSize, keyword, sex, role }) {
       ['createdAt', 'DESC'],
       ['id', 'DESC']
     ],
-    offset: (page - 1) * pageSize,
-    limit: pageSize
+    offset,
+    limit
   });
 
   return { list: rows, total: count };

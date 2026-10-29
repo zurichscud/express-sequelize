@@ -26,10 +26,10 @@ const UPLOADER_INCLUDE = {
 
 /**
  * 分页查询附件列表，按上传时间倒序
- * @param {{ page: number, pageSize: number, keyword?: string, type?: string }} options
+ * @param {{ offset: number, limit: number, keyword?: string, type?: string }} options
  * @returns {Promise<{ list: object[], total: number }>}
  */
-async function listAttachments({ page, pageSize, keyword, type }) {
+async function listAttachments({ offset, limit, keyword, type }) {
   const where = {};
   if (TYPES.includes(type)) {
     where.type = type;
@@ -50,8 +50,8 @@ async function listAttachments({ page, pageSize, keyword, type }) {
       ['createdAt', 'DESC'],
       ['id', 'DESC']
     ],
-    offset: (page - 1) * pageSize,
-    limit: pageSize
+    offset,
+    limit
   });
 
   return { list: rows, total: count };

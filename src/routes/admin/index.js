@@ -11,11 +11,13 @@ const uploadRouter = require('./upload.routes');
 const attachmentRouter = require('./attachment.routes');
 const { login } = require('../../controllers/admin/sysUser.controller');
 const { authenticate } = require('../../middlewares/auth.middleware');
+const { validate } = require('../../middlewares/validate.middleware');
+const { loginBodySchema } = require('../../validators/user.validator');
 
 const router = Router();
 
 // 后台登录接口公开；其余后台接口统一要求携带 JWT
-router.post('/users/login', login);
+router.post('/users/login', validate({ body: loginBodySchema }), login);
 router.use(authenticate);
 
 router.use('/articles', articleRouter);

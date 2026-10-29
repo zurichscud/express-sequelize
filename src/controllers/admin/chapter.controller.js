@@ -1,58 +1,23 @@
-const { success, fail } = require('../../utils/response');
+const { success, successPage, fail } = require('../../utils/response');
 const chapterService = require('../../services/chapter.service');
-
-// 字段白名单，字段级校验统一交给模型
-const CREATE_FIELDS = ['course_id', 'title', 'content', 'video_url', 'rank'];
-const UPDATE_FIELDS = ['course_id', 'title', 'content', 'video_url', 'rank'];
-
-function toPositiveInt(value, fallback) {
-  const parsed = Number.parseInt(value, 10);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
-}
-
-// 只允许客户端提交可编辑字段
-function pickChapterFields(body, fields) {
-  const source = body && typeof body === 'object' && !Array.isArray(body) ? body : {};
-  const payload = {};
-  for (const field of fields) {
-    if (source[field] !== undefined) {
-      payload[field] = source[field];
-    }
-  }
-  return payload;
-}
 
 /**
  * GET /api/admin/chapters
- * 查询参数：
- *   page       页码，默认 1
- *   pageSize   每页条数，默认 10，最大 100
+ * 分页参数由 pagination.middleware.js 处理，其余查询参数由 chapter.validator.js 校验
  *   course_id  按所属课程筛选
  *   keyword    章节标题模糊搜索
  */
 async function listChapters(req, res, next) {
   try {
-    const page = toPositiveInt(req.query.page, 1);
-    const pageSize = Math.min(toPositiveInt(req.query.pageSize, 10), 100);
-    const courseId = toPositiveInt(req.query.course_id, null);
-    const keyword = String(req.query.keyword || '').trim();
+    const { course_id, keyword } = req.validated.query;
 
     const { list, total } = await chapterService.listChapters({
-      page,
-      pageSize,
-      courseId,
+      ...req.pagination,
+      courseId: course_id,
       keyword
     });
 
-    success(res, {
-      list,
-      pagination: {
-        page,
-        pageSize,
-        total,
-        totalPages: Math.ceil(total / pageSize)
-      }
-    });
+    successPage(res, { list, total }, req.pagination);
   } catch (err) {
     next(err);
   }
@@ -60,7 +25,7 @@ async function listChapters(req, res, next) {
 
 /**
  * POST /api/admin/chapters
- * 请求体：
+ * 创建章节（请求体字段与格式由 chapter.validator.js 校验）
  *   course_id  必填，所属课程 ID
  *   title      必填，章节标题，最长 200 字
  *   content    选填，章节内容
@@ -69,7 +34,7 @@ async function listChapters(req, res, next) {
  */
 async function createChapter(req, res, next) {
   try {
-    const chapter = await chapterService.createChapter(pickChapterFields(req.body, CREATE_FIELDS));
+    const chapter = await chapterService.createChapter(req.validated.body);
 
     success(res, chapter, { status: 201 });
   } catch (err) {
@@ -83,10 +48,7 @@ async function createChapter(req, res, next) {
  */
 async function getChapter(req, res, next) {
   try {
-    const id = String(req.params.id || '').trim();
-    if (!/^\d+$/.test(id) || Number(id) <= 0) {
-      return fail(res, 400, '章节 ID 无效');
-    }
+    const { id } = req.validated.params;
 
     const chapter = await chapterService.getChapterById(id);
     if (!chapter) {
@@ -102,7 +64,6 @@ async function getChapter(req, res, next) {
 /**
  * PUT /api/admin/chapters/:id
  * 更新章节（仅更新请求体中提供的字段）
- * 请求体：
  *   course_id  选填，所属课程 ID
  *   title      选填，章节标题
  *   content    选填，章节内容
@@ -111,17 +72,9 @@ async function getChapter(req, res, next) {
  */
 async function updateChapter(req, res, next) {
   try {
-    const id = String(req.params.id || '').trim();
-    if (!/^\d+$/.test(id) || Number(id) <= 0) {
-      return fail(res, 400, '章节 ID 无效');
-    }
+    const { id } = req.validated.params;
 
-    const payload = pickChapterFields(req.body, UPDATE_FIELDS);
-    if (!Object.keys(payload).length) {
-      return fail(res, 400, '没有需要更新的字段');
-    }
-
-    const chapter = await chapterService.updateChapterById(id, payload);
+    const chapter = await chapterService.updateChapterById(id, req.validated.body);
     if (!chapter) {
       return fail(res, 404, '章节不存在');
     }
@@ -138,10 +91,7 @@ async function updateChapter(req, res, next) {
  */
 async function deleteChapter(req, res, next) {
   try {
-    const id = String(req.params.id || '').trim();
-    if (!/^\d+$/.test(id) || Number(id) <= 0) {
-      return fail(res, 400, '章节 ID 无效');
-    }
+    const { id } = req.validated.params;
 
     const deleted = await chapterService.deleteChapterById(id);
     if (!deleted) {

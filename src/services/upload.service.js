@@ -1,6 +1,6 @@
 const { randomUUID } = require('node:crypto');
-const { getOssClient, getObjectUrl } = require('../config/oss');
-const { getUploadSizeLimits, resolveMediaType } = require('../config/upload');
+const { getOssClient, getObjectUrl, getUploadSizeLimits } = require('../config/oss');
+const { resolveMediaType } = require('../utils/media');
 const { signToken, verifyToken } = require('../utils/jwt');
 const { Attachment } = require('../models');
 

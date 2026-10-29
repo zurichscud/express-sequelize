@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { ValidationError } = require('sequelize');
+const { ZodError } = require('zod');
 const apiRouter = require('./routes');
 const { fail } = require('./utils/response');
 
@@ -39,6 +40,12 @@ app.use((req, res) => {
 
 // 统一错误处理
 app.use((err, req, res, next) => {
+  // zod 校验通常由 validate 中间件处理，这里兜底 schema.parse 抛出的异常
+  if (err instanceof ZodError) {
+    const issue = err.issues[0];
+    return fail(res, 400, issue ? issue.message : '参数校验失败');
+  }
+
   // Sequelize 模型校验失败统一转成 400，接口层无需重复校验
   if (err instanceof ValidationError) {
     const errors = err.errors || [];

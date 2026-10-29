@@ -39,12 +39,12 @@ async function assertRefsExist(categoryId, userId) {
 
 /**
  * 分页查询课程列表
- * @param {{ page: number, pageSize: number, categoryId?: number, userId?: number, isRecommended?: string, keyword?: string, withContent?: boolean }} options
+ * @param {{ offset: number, limit: number, categoryId?: number, userId?: number, isRecommended?: string, keyword?: string, withContent?: boolean }} options
  * @returns {Promise<{ list: object[], total: number }>}
  */
 async function listCourses({
-  page,
-  pageSize,
+  offset,
+  limit,
   categoryId,
   userId,
   isRecommended,
@@ -76,8 +76,8 @@ async function listCourses({
       ['createdAt', 'DESC'],
       ['id', 'DESC']
     ],
-    offset: (page - 1) * pageSize,
-    limit: pageSize
+    offset,
+    limit
   });
 
   return { list: rows, total: count };

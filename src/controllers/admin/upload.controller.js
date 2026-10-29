@@ -1,21 +1,19 @@
-const { success, fail } = require('../../utils/response');
+const { success } = require('../../utils/response');
 const uploadService = require('../../services/upload.service');
 
 /**
  * POST /api/admin/uploads/presign
  * 申请 OSS 直传预签名地址，客户端拿到后用 PUT 直接把文件传到 OSS
- * 请求体：
+ * 请求体由 upload.validator.js 校验：
  *   name  必填，原始文件名（用于识别扩展名）
  *   mime  必填，文件 MIME 类型
  *   size  必填，文件大小（字节），服务端按类型校验上限
  */
 function presignUpload(req, res, next) {
   try {
-    const { name, mime, size } = req.body || {};
-    const data = uploadService.createPresignedUpload(
-      { name, mime, size },
-      { userId: req.user && req.user.id }
-    );
+    const data = uploadService.createPresignedUpload(req.validated.body, {
+      userId: req.user && req.user.id
+    });
     success(res, data);
   } catch (err) {
     next(err);
@@ -30,12 +28,7 @@ function presignUpload(req, res, next) {
  */
 async function completeUpload(req, res, next) {
   try {
-    const uploadToken = String((req.body && req.body.upload_token) || '').trim();
-    if (!uploadToken) {
-      return fail(res, 400, '缺少上传凭证');
-    }
-
-    const data = await uploadService.completeUpload(uploadToken, {
+    const data = await uploadService.completeUpload(req.validated.body.upload_token, {
       userId: req.user && req.user.id
     });
     success(res, data, { status: 201, message: '上传成功' });

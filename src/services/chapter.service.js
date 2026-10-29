@@ -52,10 +52,10 @@ async function syncCourseChapterCount(courseId, transaction) {
 
 /**
  * 分页查询章节列表，按 rank 升序、id 升序
- * @param {{ page: number, pageSize: number, courseId?: number, keyword?: string }} options
+ * @param {{ offset: number, limit: number, courseId?: number, keyword?: string }} options
  * @returns {Promise<{ list: object[], total: number }>}
  */
-async function listChapters({ page, pageSize, courseId, keyword }) {
+async function listChapters({ offset, limit, courseId, keyword }) {
   const where = {};
   if (courseId) {
     where.course_id = courseId;
@@ -72,8 +72,8 @@ async function listChapters({ page, pageSize, courseId, keyword }) {
       ['rank', 'ASC'],
       ['id', 'ASC']
     ],
-    offset: (page - 1) * pageSize,
-    limit: pageSize
+    offset,
+    limit
   });
 
   return { list: rows, total: count };

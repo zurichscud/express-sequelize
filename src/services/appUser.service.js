@@ -112,10 +112,10 @@ async function changePassword(id, { oldPassword, newPassword }) {
 
 /**
  * 分页查询前台用户列表（后台课程归属选择使用）
- * @param {{ page: number, pageSize: number, keyword?: string, sex?: string }} options
+ * @param {{ offset: number, limit: number, keyword?: string, sex?: string }} options
  * @returns {Promise<{ list: object[], total: number }>}
  */
-async function listUsers({ page, pageSize, keyword, sex }) {
+async function listUsers({ offset, limit, keyword, sex }) {
   const where = {};
   if (SEXES.includes(sex)) {
     where.sex = sex;
@@ -135,8 +135,8 @@ async function listUsers({ page, pageSize, keyword, sex }) {
       ['createdAt', 'DESC'],
       ['id', 'DESC']
     ],
-    offset: (page - 1) * pageSize,
-    limit: pageSize
+    offset,
+    limit
   });
 
   return { list: rows, total: count };

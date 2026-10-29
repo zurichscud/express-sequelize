@@ -1,43 +1,24 @@
-const { success, fail } = require('../../utils/response');
+const { success, successPage, fail } = require('../../utils/response');
 const chapterService = require('../../services/chapter.service');
-
-function toPositiveInt(value, fallback) {
-  const parsed = Number.parseInt(value, 10);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
-}
 
 /**
  * GET /api/chapters
  * 前台章节列表，按 rank 升序、id 升序，列表不返回 content 正文
- * 查询参数：
- *   page      页码，默认 1
- *   pageSize  每页条数，默认 20，最大 100
+ * 分页参数由 pagination.middleware.js 处理，其余查询参数由 chapter.validator.js 校验
  *   course_id 按所属课程筛选
  *   keyword   章节标题模糊搜索
  */
 async function listChapters(req, res, next) {
   try {
-    const page = toPositiveInt(req.query.page, 1);
-    const pageSize = Math.min(toPositiveInt(req.query.pageSize, 20), 100);
-    const courseId = toPositiveInt(req.query.course_id, null);
-    const keyword = String(req.query.keyword || '').trim();
+    const { course_id, keyword } = req.validated.query;
 
     const { list, total } = await chapterService.listChapters({
-      page,
-      pageSize,
-      courseId,
+      ...req.pagination,
+      courseId: course_id,
       keyword
     });
 
-    success(res, {
-      list,
-      pagination: {
-        page,
-        pageSize,
-        total,
-        totalPages: Math.ceil(total / pageSize)
-      }
-    });
+    successPage(res, { list, total }, req.pagination);
   } catch (err) {
     next(err);
   }
@@ -49,10 +30,7 @@ async function listChapters(req, res, next) {
  */
 async function getChapter(req, res, next) {
   try {
-    const id = String(req.params.id || '').trim();
-    if (!/^\d+$/.test(id) || Number(id) <= 0) {
-      return fail(res, 400, '章节 ID 无效');
-    }
+    const { id } = req.validated.params;
 
     const chapter = await chapterService.getChapterById(id);
     if (!chapter) {

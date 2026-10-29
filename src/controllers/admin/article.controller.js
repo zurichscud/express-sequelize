@@ -1,60 +1,25 @@
-const { success, fail } = require('../../utils/response');
+const { success, successPage, fail } = require('../../utils/response');
 const articleService = require('../../services/article.service');
-
-//字段白名单
-const EDITABLE_FIELDS = ['title', 'content', 'summary', 'author', 'status'];
-
-function toPositiveInt(value, fallback) {
-  const parsed = Number.parseInt(value, 10);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
-}
-
-// 只允许客户端提交可编辑字段，字段级校验统一交给模型
-function pickArticleFields(body) {
-  const source = body && typeof body === 'object' && !Array.isArray(body) ? body : {};
-  const payload = {};
-  for (const field of EDITABLE_FIELDS) {
-    if (source[field] !== undefined) {
-      payload[field] = source[field];
-    }
-  }
-  return payload;
-}
 
 /**
  * GET /api/admin/articles
- * 查询参数：
- *   page     页码，默认 1
- *   pageSize 每页条数，默认 10，最大 100
+ * 分页参数由 pagination.middleware.js 处理，其余查询参数由 article.validator.js 校验
  *   title    标题模糊搜索
  *   keyword  标题/摘要模糊搜索
  *   status   draft | published
  */
 async function listArticles(req, res, next) {
   try {
-    const page = toPositiveInt(req.query.page, 1);
-    const pageSize = Math.min(toPositiveInt(req.query.pageSize, 10), 100);
-    const title = String(req.query.title || '').trim();
-    const keyword = String(req.query.keyword || '').trim();
-    const status = String(req.query.status || '').trim();
+    const { title, keyword, status } = req.validated.query;
 
     const { list, total } = await articleService.listArticles({
-      page,
-      pageSize,
+      ...req.pagination,
       title,
       keyword,
       status
     });
 
-    success(res, {
-      list,
-      pagination: {
-        page,
-        pageSize,
-        total,
-        totalPages: Math.ceil(total / pageSize)
-      }
-    });
+    successPage(res, { list, total }, req.pagination);
   } catch (err) {
     next(err);
   }
@@ -71,7 +36,7 @@ async function listArticles(req, res, next) {
  */
 async function createArticle(req, res, next) {
   try {
-    const article = await articleService.createArticle(pickArticleFields(req.body));
+    const article = await articleService.createArticle(req.validated.body);
 
     success(res, article, { status: 201 });
   } catch (err) {
@@ -85,10 +50,7 @@ async function createArticle(req, res, next) {
  */
 async function getArticle(req, res, next) {
   try {
-    const id = String(req.params.id || '').trim();
-    if (!/^\d+$/.test(id) || Number(id) <= 0) {
-      return fail(res, 400, '文章 ID 无效');
-    }
+    const { id } = req.validated.params;
 
     const article = await articleService.getArticleById(id);
     if (!article) {
@@ -103,7 +65,7 @@ async function getArticle(req, res, next) {
 
 /**
  * PUT /api/admin/articles/:id
- * 更新单篇文章（仅更新请求体中提供的字段）
+ * 更新单篇文章（仅更新请求体中提供的字段，空请求体由 schema 拦截）
  * 请求体：
  *   title    选填，标题，最长 200 字
  *   content  选填，正文
@@ -113,17 +75,9 @@ async function getArticle(req, res, next) {
  */
 async function updateArticle(req, res, next) {
   try {
-    const id = String(req.params.id || '').trim();
-    if (!/^\d+$/.test(id) || Number(id) <= 0) {
-      return fail(res, 400, '文章 ID 无效');
-    }
+    const { id } = req.validated.params;
 
-    const payload = pickArticleFields(req.body);
-    if (!Object.keys(payload).length) {
-      return fail(res, 400, '没有需要更新的字段');
-    }
-
-    const article = await articleService.updateArticleById(id, payload);
+    const article = await articleService.updateArticleById(id, req.validated.body);
     if (!article) {
       return fail(res, 404, '文章不存在');
     }
@@ -140,10 +94,7 @@ async function updateArticle(req, res, next) {
  */
 async function deleteArticle(req, res, next) {
   try {
-    const id = String(req.params.id || '').trim();
-    if (!/^\d+$/.test(id) || Number(id) <= 0) {
-      return fail(res, 400, '文章 ID 无效');
-    }
+    const { id } = req.validated.params;
 
     const deleted = await articleService.deleteArticleById(id);
     if (!deleted) {

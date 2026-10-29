@@ -1,4 +1,4 @@
-const { success, fail } = require('../../utils/response');
+const { success } = require('../../utils/response');
 const chartService = require('../../services/chart.service');
 
 /**
@@ -16,19 +16,12 @@ async function getGenderChart(req, res, next) {
 
 /**
  * GET /api/admin/charts/monthly-users
- * 查询参数：
- *   year 选填，四位年份，只统计该年 1-12 月；不传则统计有数据以来的所有月份
+ * 查询参数由 chart.validator.js 校验：
+ *   year 选填，四位年份（1970-2100），只统计该年 1-12 月；不传则统计有数据以来的所有月份
  */
 async function getMonthlyUsersChart(req, res, next) {
   try {
-    let year;
-    const raw = String(req.query.year || '').trim();
-    if (raw) {
-      if (!/^\d{4}$/.test(raw) || Number(raw) < 1970 || Number(raw) > 2100) {
-        return fail(res, 400, 'year 参数无效，需为 1970-2100 之间的四位年份');
-      }
-      year = Number(raw);
-    }
+    const { year } = req.validated.query;
 
     const data = await chartService.getMonthlyUserCount({ year });
     success(res, data);

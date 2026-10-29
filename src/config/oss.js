@@ -6,6 +6,17 @@ const REQUIRED_KEYS = ['OSS_REGION', 'OSS_BUCKET', 'OSS_ACCESS_KEY_ID', 'OSS_ACC
 let client = null;
 
 /**
+ * 解析正整数环境变量，非法值回退到默认值
+ * @param {*} value
+ * @param {number} fallback
+ * @returns {number}
+ */
+function toPositiveInt(value, fallback) {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+/**
  * 读取并校验 OSS 配置
  * @returns {{ region: string, bucket: string, accessKeyId: string, accessKeySecret: string, endpoint?: string }}
  */
@@ -47,6 +58,17 @@ function getOssClient() {
 }
 
 /**
+ * 上传大小限制（MB），可通过环境变量覆盖
+ * @returns {{ image: number, video: number }}
+ */
+function getUploadSizeLimits() {
+  return {
+    image: toPositiveInt(process.env.OSS_IMAGE_MAX_SIZE_MB, 10),
+    video: toPositiveInt(process.env.OSS_VIDEO_MAX_SIZE_MB, 500)
+  };
+}
+
+/**
  * 生成对象的公开访问地址
  * 配置了 OSS_PUBLIC_URL（如 CDN 域名）时优先使用，否则使用 bucket 默认域名
  * @param {string} objectKey
@@ -59,5 +81,6 @@ function getObjectUrl(objectKey) {
 
 module.exports = {
   getOssClient,
-  getObjectUrl
+  getObjectUrl,
+  getUploadSizeLimits
 };

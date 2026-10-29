@@ -1,7 +1,5 @@
 const path = require('node:path');
 
-const MB = 1024 * 1024;
-
 /**
  * 支持的媒体类型：MIME 与扩展名映射
  * 图片不包含 svg（可能携带脚本，存在 XSS 风险）
@@ -40,22 +38,6 @@ EXTENSION_TYPES['.jpeg'] = EXTENSION_TYPES['.jpg'];
 EXTENSION_TYPES['.mpg'] = EXTENSION_TYPES['.mpeg'];
 EXTENSION_TYPES['.mpe'] = EXTENSION_TYPES['.mpeg'];
 
-function toPositiveInt(value, fallback) {
-  const parsed = Number.parseInt(value, 10);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
-}
-
-/**
- * 上传大小限制（MB），可通过环境变量覆盖
- * @returns {{ image: number, video: number }}
- */
-function getUploadSizeLimits() {
-  return {
-    image: toPositiveInt(process.env.OSS_IMAGE_MAX_SIZE_MB, 10),
-    video: toPositiveInt(process.env.OSS_VIDEO_MAX_SIZE_MB, 500)
-  };
-}
-
 /**
  * 解析并校验上传文件类型
  * @param {{ mimetype?: string, originalname?: string }} file
@@ -83,6 +65,5 @@ function resolveMediaType(file) {
 }
 
 module.exports = {
-  getUploadSizeLimits,
   resolveMediaType
 };

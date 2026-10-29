@@ -106,10 +106,10 @@ async function getLikeStatus(userId, courseId) {
 
 /**
  * 分页查询当前用户点赞过的课程，按点赞时间倒序
- * @param {{ userId: number|string, page: number, pageSize: number }} options
+ * @param {{ userId: number|string, offset: number, limit: number }} options
  * @returns {Promise<{ list: object[], total: number }>}
  */
-async function listLikedCourses({ userId, page, pageSize }) {
+async function listLikedCourses({ userId, offset, limit }) {
   const { count, rows } = await Like.findAndCountAll({
     where: { user_id: userId },
     attributes: ['id', 'course_id', 'createdAt'],
@@ -125,8 +125,8 @@ async function listLikedCourses({ userId, page, pageSize }) {
       ['createdAt', 'DESC'],
       ['id', 'DESC']
     ],
-    offset: (page - 1) * pageSize,
-    limit: pageSize,
+    offset,
+    limit,
     distinct: true
   });
 

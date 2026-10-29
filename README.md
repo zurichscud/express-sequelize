@@ -22,8 +22,7 @@
 │  ├─ config/
 │  │  ├─ config.js               # 数据库配置（CLI 与运行时共用）
 │  │  ├─ database.js             # Sequelize 实例
-│  │  ├─ oss.js                  # 阿里云 OSS 客户端、直传签名与访问地址
-│  │  └─ upload.js               # 上传类型与大小限制
+│  │  └─ oss.js                  # 阿里云 OSS 客户端、直传签名、访问地址与上传大小限制
 │  ├─ migrations/
 │  │  ├─ 20261026000000-create-articles.js
 │  │  ├─ 20261027000000-create-settings.js
@@ -112,11 +111,26 @@
 │  │     ├─ like.routes.js       # 前台点赞路由
 │  │     └─ setting.routes.js    # 前台系统信息路由
 │  ├─ middlewares/
-│  │  └─ auth.middleware.js      # JWT 认证中间件
+│  │  ├─ auth.middleware.js       # JWT 认证中间件
+│  │  ├─ pagination.middleware.js # 分页参数解析中间件
+│  │  └─ validate.middleware.js   # zod 参数校验中间件
+│  ├─ validators/
+│  │  ├─ common.js               # 通用校验片段与查询参数辅助函数
+│  │  ├─ article.validator.js    # 文章参数校验
+│  │  ├─ attachment.validator.js # 附件参数校验
+│  │  ├─ category.validator.js   # 分类参数校验
+│  │  ├─ chapter.validator.js    # 章节参数校验
+│  │  ├─ chart.validator.js      # 图表参数校验
+│  │  ├─ course.validator.js     # 课程参数校验
+│  │  ├─ like.validator.js       # 点赞参数校验
+│  │  ├─ setting.validator.js    # 站点设置参数校验
+│  │  ├─ upload.validator.js     # OSS 上传参数校验
+│  │  └─ user.validator.js       # 系统用户 / 前台用户 / 登录参数校验
 │  └─ utils/
 │     ├─ jwt.js                  # JWT 签发与校验
+│     ├─ media.js                # 上传文件的媒体类型识别
 │     ├─ password.js             # 密码 bcrypt 哈希与校验
-│     └─ response.js             # 统一成功/失败响应
+│     └─ response.js             # 统一成功/失败响应与分页响应
 ├─ .sequelizerc                  # sequelize-cli 路径配置
 ├─ .env                          # 本地环境变量（已被 git 忽略）
 ├─ .env.example                  # 环境变量模板
@@ -183,6 +197,41 @@ npm start
 | `frontend/web/` | Vite + React（无组件库） | <http://localhost:5174> | 前台展示站点，登录校验 `app_users`，对接 `/api` 前台接口，详见 [frontend/web/README.md](frontend/web/README.md) |
 
 两个前端均通过 Vite 代理把 `/api` 转发到 Express 服务（默认 `http://localhost:3000`，可用 `VITE_PROXY_TARGET` 覆盖），开发时先启动后端再启动前端。
+
+## 参数校验（Zod）
+
+接口的路径参数、查询参数与请求体统一在路由层用 [zod](https://zod.dev/) 校验，schema 放在 `src/validators/`，通过 `src/middlewares/validate.middleware.js` 挂载：
+
+```js
+// src/routes/admin/article.routes.js
+router.post('/', validate({ body: createArticleBodySchema }), createArticle);
+```
+
+- 校验通过后，解析结果挂在 `req.validated`（如 `req.validated.body`、`req.validated.query`），控制器只读取校验后的值。
+- zod 默认丢弃 schema 中未声明的字段，因此字段白名单也由 schema 维护，无需在控制器里手写 `pickFields`。
+- 查询参数会自动完成类型转换与默认值处理；分页参数 `page` / `pageSize` 不在 schema 中声明，由分页中间件统一处理，见下一节。
+- 校验失败统一返回 400，`message` 为 schema 中定义的中文提示，如 `{ "code": 400, "message": "标题不能为空" }`。
+- 更新接口使用 `requireAtLeastOneField`，请求体为空或只提交只读字段时返回 400「没有需要更新的字段」。
+
+新增接口时，在对应 `*.validator.js` 中补充 schema，并在路由上挂 `validate({ params, query, body })` 即可。
+
+## 分页（pagination 中间件）
+
+列表接口的分页参数由 `src/middlewares/pagination.middleware.js` 统一解析，路由按接口配置默认值与上限：
+
+```js
+// src/routes/web/course.routes.js
+router.get(
+  '/',
+  pagination({ defaultPageSize: 12, maxPageSize: 60 }),
+  validate({ query: webListCoursesQuerySchema }),
+  listCourses
+);
+```
+
+- `page` 默认 1；`pageSize` 默认 10、上限 100，两者必须是正整数，非法值返回 400。
+- 解析结果挂在 `req.pagination`，包含 `page`、`pageSize`、`offset`、`limit`，控制器把 `offset` / `limit` 传给 service。
+- 响应统一用 `successPage(res, { list, total }, req.pagination)` 生成 `list` 与 `pagination`，其中 `totalPages` 由 `total / pageSize` 向上取整得到。
 
 ## 数据库迁移
 

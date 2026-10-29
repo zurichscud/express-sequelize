@@ -6,13 +6,30 @@ const {
   updateUser,
   deleteUser
 } = require('../../controllers/admin/sysUser.controller');
+const { validate } = require('../../middlewares/validate.middleware');
+const { pagination } = require('../../middlewares/pagination.middleware');
+const {
+  userIdParamsSchema,
+  sysUserListQuerySchema,
+  sysUserCreateBodySchema,
+  sysUserUpdateBodySchema
+} = require('../../validators/user.validator');
 
 const router = Router();
 
-router.get('/', listUsers);
-router.post('/', createUser);
-router.get('/:id', getUser);
-router.put('/:id', updateUser);
-router.delete('/:id', deleteUser);
+router.get(
+  '/',
+  pagination(),
+  validate({ query: sysUserListQuerySchema }),
+  listUsers
+);
+router.post('/', validate({ body: sysUserCreateBodySchema }), createUser);
+router.get('/:id', validate({ params: userIdParamsSchema }), getUser);
+router.put(
+  '/:id',
+  validate({ params: userIdParamsSchema, body: sysUserUpdateBodySchema }),
+  updateUser
+);
+router.delete('/:id', validate({ params: userIdParamsSchema }), deleteUser);
 
 module.exports = router;

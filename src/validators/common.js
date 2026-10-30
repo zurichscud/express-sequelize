@@ -1,7 +1,8 @@
-const { z } = require('zod');
+const { z } = require("zod");
 
-// 查询字符串里的空值统一按“未传”处理，避免 ?course_id= 被当成 0
-const emptyToUndefined = (value) => (value === '' || value === null ? undefined : value);
+// 查询字符串里的空值统一按“未传”处理，避免 ?courseId= 被当成 0
+const emptyToUndefined = (value) =>
+  value === "" || value === null ? undefined : value;
 
 /**
  * 请求体必须是 JSON 对象；未传请求体时按空对象处理，
@@ -11,7 +12,7 @@ const emptyToUndefined = (value) => (value === '' || value === null ? undefined 
 function bodyObject(shape) {
   return z.preprocess(
     (value) => (value === undefined || value === null ? {} : value),
-    z.object(shape, { error: '请求体格式不正确' })
+    z.object(shape, { error: "请求体格式不正确" }),
   );
 }
 
@@ -21,10 +22,13 @@ function bodyObject(shape) {
  * @param {import('zod').ZodType} schema
  * @param {string} [message]
  */
-function requireAtLeastOneField(schema, message = '没有需要更新的字段') {
-  return schema.refine((data) => Object.values(data).some((value) => value !== undefined), {
-    message
-  });
+function requireAtLeastOneField(schema, message = "没有需要更新的字段") {
+  return schema.refine(
+    (data) => Object.values(data).some((value) => value !== undefined),
+    {
+      message,
+    },
+  );
 }
 
 /**
@@ -37,7 +41,7 @@ function idParam(label) {
     z.coerce
       .number({ error: `${label} ID 无效` })
       .int(`${label} ID 无效`)
-      .positive(`${label} ID 无效`)
+      .positive(`${label} ID 无效`),
   );
 }
 
@@ -57,15 +61,10 @@ function idValue(label) {
  * @param {string} label
  */
 function optionalIdValue(label) {
-  return z.preprocess((value) => (value === null ? undefined : value), idValue(label).optional());
-}
-
-/**
- * 查询参数中的正整数 ID（选填）
- * @param {string} label
- */
-function queryId(label) {
-  return z.preprocess(emptyToUndefined, idValue(label).optional());
+  return z.preprocess(
+    (value) => (value === null ? undefined : value),
+    idValue(label).optional(),
+  );
 }
 
 /**
@@ -88,17 +87,21 @@ function queryText(label, max = 100) {
       .string({ error: `${label}格式不正确` })
       .trim()
       .max(max, `${label}长度不能超过 ${max} 个字符`)
-      .optional()
+      .optional(),
   );
 }
 
 /**
  * 查询参数中的枚举值，空串视为未传
+ * 解决的是 ?status=&title=xxx ===> status: "" 的问题，避免被当成默认值
  * @param {string[]} values
  * @param {string} message
  */
 function queryEnum(values, message) {
-  return z.preprocess(emptyToUndefined, z.enum(values, { error: message }).optional());
+  return z.preprocess(
+    emptyToUndefined,
+    z.enum(values, { error: message }).optional(),
+  );
 }
 
 /**
@@ -113,8 +116,8 @@ function requiredString(label, max) {
     .min(1, `${label}不能为空`);
 
   return z.preprocess(
-    (value) => (value === undefined || value === null ? '' : value),
-    max ? schema.max(max, `${label}长度不能超过 ${max} 个字符`) : schema
+    (value) => (value === undefined || value === null ? "" : value),
+    max ? schema.max(max, `${label}长度不能超过 ${max} 个字符`) : schema,
   );
 }
 
@@ -127,7 +130,10 @@ function optionalString(label, max) {
   const schema = z.string({ error: `${label}格式不正确` }).trim();
   return z.preprocess(
     (value) => (value === null ? undefined : value),
-    (max ? schema.max(max, `${label}长度不能超过 ${max} 个字符`) : schema).optional()
+    (max
+      ? schema.max(max, `${label}长度不能超过 ${max} 个字符`)
+      : schema
+    ).optional(),
   );
 }
 
@@ -144,7 +150,10 @@ function optionalNonEmptyString(label, max) {
 
   return z.preprocess(
     (value) => (value === null ? undefined : value),
-    (max ? schema.max(max, `${label}长度不能超过 ${max} 个字符`) : schema).optional()
+    (max
+      ? schema.max(max, `${label}长度不能超过 ${max} 个字符`)
+      : schema
+    ).optional(),
   );
 }
 
@@ -154,16 +163,24 @@ function optionalNonEmptyString(label, max) {
  * @param {{ min?: number, max?: number }} [options]
  */
 function optionalInt(label, { min, max } = {}) {
-  let schema = z.coerce.number({ error: `${label}必须是整数` }).int(`${label}必须是整数`);
+  let schema = z.coerce
+    .number({ error: `${label}必须是整数` })
+    .int(`${label}必须是整数`);
 
   if (min !== undefined) {
-    schema = schema.min(min, min === 0 ? `${label}必须是不小于 0 的整数` : `${label}不能小于 ${min}`);
+    schema = schema.min(
+      min,
+      min === 0 ? `${label}必须是不小于 0 的整数` : `${label}不能小于 ${min}`,
+    );
   }
   if (max !== undefined) {
     schema = schema.max(max, `${label}不能大于 ${max}`);
   }
 
-  return z.preprocess((value) => (value === null ? undefined : value), schema.optional());
+  return z.preprocess(
+    (value) => (value === null ? undefined : value),
+    schema.optional(),
+  );
 }
 
 /**
@@ -171,12 +188,17 @@ function optionalInt(label, { min, max } = {}) {
  * @param {string} label
  */
 function optionalBoolean(label) {
-  return z.preprocess((value) => {
-    if (value === null) return undefined;
-    if (value === true || value === 'true' || value === 1 || value === '1') return true;
-    if (value === false || value === 'false' || value === 0 || value === '0') return false;
-    return value;
-  }, z.boolean({ error: `${label}格式不正确` }).optional());
+  return z.preprocess(
+    (value) => {
+      if (value === null) return undefined;
+      if (value === true || value === "true" || value === 1 || value === "1")
+        return true;
+      if (value === false || value === "false" || value === 0 || value === "0")
+        return false;
+      return value;
+    },
+    z.boolean({ error: `${label}格式不正确` }).optional(),
+  );
 }
 
 module.exports = {
@@ -192,5 +214,5 @@ module.exports = {
   optionalString,
   optionalNonEmptyString,
   optionalInt,
-  optionalBoolean
+  optionalBoolean,
 };

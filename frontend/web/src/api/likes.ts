@@ -11,7 +11,7 @@ export function getLikeStatus(courseId: number | string) {
 }
 
 export function likeCourse(courseId: number | string) {
-  return http.post<LikeStatus>('/likes', { course_id: courseId })
+  return http.post<LikeStatus>('/likes', { courseId })
 }
 
 export function unlikeCourse(courseId: number | string) {

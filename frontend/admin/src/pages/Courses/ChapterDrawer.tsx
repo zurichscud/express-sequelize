@@ -46,7 +46,7 @@ export default function ChapterDrawer({ course, onClose, onChanged }: ChapterDra
     async function load() {
       setLoading(true)
       try {
-        const result = await getChapters({ page, pageSize, course_id: course.id, keyword })
+        const result = await getChapters({ page, pageSize, courseId: course.id, keyword })
         if (!cancelled) setData(result)
       } catch {
         // 请求层已统一提示
@@ -143,8 +143,8 @@ export default function ChapterDrawer({ course, onClose, onChanged }: ChapterDra
     },
     {
       title: '视频',
-      dataIndex: 'video_url',
-      key: 'video_url',
+      dataIndex: 'videoUrl',
+      key: 'videoUrl',
       width: 96,
       align: 'center',
       render: (videoUrl: string | null) =>

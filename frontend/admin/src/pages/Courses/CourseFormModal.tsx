@@ -15,11 +15,11 @@ interface CourseFormModalProps {
 
 interface CourseFormValues {
   name: string
-  category_id?: number
-  user_id?: number
+  categoryId?: number
+  userId?: number
   image?: string
-  is_recommended: boolean
-  like_count: number
+  isRecommended: boolean
+  likeCount: number
   content?: string
 }
 
@@ -46,10 +46,10 @@ export default function CourseFormModal({
     try {
       const payload: CoursePayload = {
         name: values.name.trim(),
-        category_id: values.category_id!,
+        categoryId: values.categoryId!,
         image: values.image?.trim() || '',
-        is_recommended: values.is_recommended,
-        like_count: values.like_count,
+        isRecommended: values.isRecommended,
+        likeCount: values.likeCount,
         content: values.content ?? '',
       }
 
@@ -57,7 +57,7 @@ export default function CourseFormModal({
         await updateCourse(course.id, payload)
         message.success('课程已更新')
       } else {
-        await createCourse({ ...payload, user_id: values.user_id! })
+        await createCourse({ ...payload, userId: values.userId! })
         message.success('课程已创建')
       }
       onSaved()
@@ -89,17 +89,17 @@ export default function CourseFormModal({
           course
             ? {
                 name: course.name,
-                category_id: course.category_id,
-                user_id: course.user_id,
+                categoryId: course.categoryId,
+                userId: course.userId,
                 image: course.image ?? '',
-                is_recommended: course.is_recommended,
-                like_count: course.like_count,
+                isRecommended: course.isRecommended,
+                likeCount: course.likeCount,
                 content: course.content ?? '',
               }
             : {
                 name: '',
-                is_recommended: false,
-                like_count: 0,
+                isRecommended: false,
+                likeCount: 0,
                 content: '',
               }
         }
@@ -119,7 +119,7 @@ export default function CourseFormModal({
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              name="category_id"
+              name="categoryId"
               label="所属分类"
               rules={[{ required: true, message: '请选择所属分类' }]}
             >
@@ -134,7 +134,7 @@ export default function CourseFormModal({
           </Col>
           <Col span={12}>
             <Form.Item
-              name="user_id"
+              name="userId"
               label="所属用户"
               extra={isEdit ? '课程创建后不支持变更所属用户' : undefined}
               rules={[{ required: !isEdit, message: '请选择所属用户' }]}
@@ -161,12 +161,12 @@ export default function CourseFormModal({
 
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item name="like_count" label="点赞数" rules={[{ required: true }]}>
+            <Form.Item name="likeCount" label="点赞数" rules={[{ required: true }]}>
               <InputNumber min={0} precision={0} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item name="is_recommended" label="推荐课程" valuePropName="checked">
+            <Form.Item name="isRecommended" label="推荐课程" valuePropName="checked">
               <Switch />
             </Form.Item>
           </Col>

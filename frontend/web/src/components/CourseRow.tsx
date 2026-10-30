@@ -31,15 +31,15 @@ export default function CourseRow({ course, index }: CourseRowProps) {
 
       <div className="course-row__body">
         <div className="course-row__meta">
-          {course.is_recommended && <span className="course-row__flag">推荐</span>}
+          {course.isRecommended && <span className="course-row__flag">推荐</span>}
           <span>{course.category?.name || '课程'}</span>
           <span className="course-row__dot" aria-hidden="true" />
-          <span>{course.chapter_count} 章</span>
+          <span>{course.chapterCount} 章</span>
           <span className="course-row__dot course-row__dot--author" aria-hidden="true" />
           <span className="course-row__author">{author}</span>
           <span className="course-row__likes course-row__likes--inline">
             <HeartIcon size={11} />
-            {formatCount(course.like_count)}
+            {formatCount(course.likeCount)}
           </span>
         </div>
 
@@ -52,7 +52,7 @@ export default function CourseRow({ course, index }: CourseRowProps) {
       <div className="course-row__aside">
         <span className="course-row__likes">
           <HeartIcon size={13} />
-          {formatCount(course.like_count)}
+          {formatCount(course.likeCount)}
         </span>
         <span className="course-row__go" aria-hidden="true">
           <ArrowUpRightIcon size={17} />

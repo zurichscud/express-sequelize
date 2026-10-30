@@ -21,10 +21,10 @@ test.describe('课程章节', () => {
     const courseName = uniqueName('章节课程')
     const courseResponse = await request.post(`${API_ORIGIN}/api/admin/courses`, {
       headers,
-      data: { category_id: category.id, user_id: users[0].id, name: courseName },
+      data: { categoryId: category.id, userId: users[0].id, name: courseName },
     })
     expect(courseResponse.ok()).toBeTruthy()
-    expect((await courseResponse.json()).data.chapter_count).toBe(0)
+    expect((await courseResponse.json()).data.chapterCount).toBe(0)
 
     await page.goto('/courses')
     await page.getByLabel('搜索课程').fill(courseName)
@@ -45,7 +45,7 @@ test.describe('课程章节', () => {
     const dialog = page.locator('.ant-modal')
     await expect(dialog).toBeVisible()
     await dialog.locator('#title').fill(title)
-    await dialog.locator('#video_url').fill('https://example.com/e2e-chapter.mp4')
+    await dialog.locator('#videoUrl').fill('https://example.com/e2e-chapter.mp4')
     await dialog.locator('#content').fill('E2E 自动测试章节内容')
     await dialog.getByRole('button', { name: /创\s*建/ }).click()
 

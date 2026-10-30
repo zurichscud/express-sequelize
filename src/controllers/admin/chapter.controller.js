@@ -4,16 +4,16 @@ const chapterService = require('../../services/chapter.service');
 /**
  * GET /api/admin/chapters
  * 分页参数由 pagination.middleware.js 处理，其余查询参数由 chapter.validator.js 校验
- *   course_id  按所属课程筛选
+ *   courseId  按所属课程筛选
  *   keyword    章节标题模糊搜索
  */
 async function listChapters(req, res, next) {
   try {
-    const { course_id, keyword } = req.validated.query;
+    const { courseId, keyword } = req.validated.query;
 
     const { list, total } = await chapterService.listChapters({
       ...req.pagination,
-      courseId: course_id,
+      courseId,
       keyword
     });
 
@@ -26,10 +26,10 @@ async function listChapters(req, res, next) {
 /**
  * POST /api/admin/chapters
  * 创建章节（请求体字段与格式由 chapter.validator.js 校验）
- *   course_id  必填，所属课程 ID
+ *   courseId  必填，所属课程 ID
  *   title      必填，章节标题，最长 200 字
  *   content    选填，章节内容
- *   video_url  选填，视频地址，最长 500 字
+ *   videoUrl  选填，视频地址，最长 500 字
  *   rank       选填，排序序号，默认 0，越小越靠前
  */
 async function createChapter(req, res, next) {
@@ -64,10 +64,10 @@ async function getChapter(req, res, next) {
 /**
  * PUT /api/admin/chapters/:id
  * 更新章节（仅更新请求体中提供的字段）
- *   course_id  选填，所属课程 ID
+ *   courseId  选填，所属课程 ID
  *   title      选填，章节标题
  *   content    选填，章节内容
- *   video_url  选填，视频地址，传空字符串可清空
+ *   videoUrl  选填，视频地址，传空字符串可清空
  *   rank       选填，排序序号
  */
 async function updateChapter(req, res, next) {

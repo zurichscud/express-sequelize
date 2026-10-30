@@ -12,7 +12,7 @@ const uploadService = require('../../services/upload.service');
 function presignUpload(req, res, next) {
   try {
     const data = uploadService.createPresignedUpload(req.validated.body, {
-      userId: req.user && req.user.id
+      userId: req.user.id
     });
     success(res, data);
   } catch (err) {
@@ -24,12 +24,12 @@ function presignUpload(req, res, next) {
  * POST /api/admin/uploads/complete
  * 客户端直传完成后调用，服务端校验 OSS 对象并写入附件表
  * 请求体：
- *   upload_token  必填，预签名接口返回的直传凭证
+ *   uploadToken  必填，预签名接口返回的直传凭证
  */
 async function completeUpload(req, res, next) {
   try {
-    const data = await uploadService.completeUpload(req.validated.body.upload_token, {
-      userId: req.user && req.user.id
+    const data = await uploadService.completeUpload(req.validated.body.uploadToken, {
+      userId: req.user.id
     });
     success(res, data, { status: 201, message: '上传成功' });
   } catch (err) {

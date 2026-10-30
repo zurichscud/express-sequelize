@@ -10,7 +10,7 @@ const Chapter = sequelize.define(
       autoIncrement: true,
       comment: '主键'
     },
-    course_id: {
+    courseId: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
       comment: '所属课程 ID',
@@ -57,16 +57,16 @@ const Chapter = sequelize.define(
         }
       }
     },
-    video_url: {
+    videoUrl: {
       type: DataTypes.STRING(500),
       allowNull: true,
       comment: '视频地址',
       set(value) {
         if (typeof value === 'string') {
           const trimmed = value.trim();
-          this.setDataValue('video_url', trimmed || null);
+          this.setDataValue('videoUrl', trimmed || null);
         } else {
-          this.setDataValue('video_url', value);
+          this.setDataValue('videoUrl', value);
         }
       },
       validate: {

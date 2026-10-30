@@ -43,7 +43,7 @@ export default function CoursesPage() {
 
   const [searchParams, setSearchParams] = useSearchParams()
   const page = Math.max(1, Number(searchParams.get('page')) || 1)
-  const categoryId = Math.max(0, Number(searchParams.get('category_id')) || 0) || undefined
+  const categoryId = Math.max(0, Number(searchParams.get('categoryId')) || 0) || undefined
   const keyword = (searchParams.get('keyword') || '').trim()
   const onlyRecommended = searchParams.get('recommended') === '1'
   const [searchText, setSearchText] = useState(keyword)
@@ -55,11 +55,11 @@ export default function CoursesPage() {
   const { data: overview } = useAsync(async () => {
     const [all, recommended, categories] = await Promise.all([
       getCourses({ pageSize: 1 }),
-      getCourses({ pageSize: 1, is_recommended: true }),
+      getCourses({ pageSize: 1, isRecommended: true }),
       getCategories(),
     ])
     const counts = await Promise.all(
-      categories.map((category) => getCourses({ pageSize: 1, category_id: category.id })),
+      categories.map((category) => getCourses({ pageSize: 1, categoryId: category.id })),
     )
     return {
       total: all.pagination.total,
@@ -76,9 +76,9 @@ export default function CoursesPage() {
       getCourses({
         page,
         pageSize: PAGE_SIZE,
-        category_id: categoryId,
+        categoryId,
         keyword,
-        is_recommended: onlyRecommended || undefined,
+        isRecommended: onlyRecommended || undefined,
       }),
     [page, categoryId, keyword, onlyRecommended],
   )
@@ -87,15 +87,15 @@ export default function CoursesPage() {
   const activeCategory = categories.find((category) => category.id === categoryId)
   const activeCategoryName =
     activeCategory?.name ||
-    data?.list.find((course) => course.category_id === categoryId)?.category?.name
+    data?.list.find((course) => course.categoryId === categoryId)?.category?.name
   const total = data?.pagination.total ?? 0
 
   const isDefaultView = page === 1 && !categoryId && !keyword && !onlyRecommended
   const feature: Course | undefined =
     !loading && !error && data && isDefaultView
       ? data.list
-          .filter((course) => course.is_recommended)
-          .sort((a, b) => b.like_count - a.like_count)[0]
+          .filter((course) => course.isRecommended)
+          .sort((a, b) => b.likeCount - a.likeCount)[0]
       : undefined
   const rows = (data?.list ?? []).filter((course) => course.id !== feature?.id)
   const rowOffset = feature ? 2 : (page - 1) * PAGE_SIZE + 1
@@ -115,8 +115,8 @@ export default function CoursesPage() {
 
   function selectCategory(id?: number) {
     updateParams((next) => {
-      if (id) next.set('category_id', String(id))
-      else next.delete('category_id')
+      if (id) next.set('categoryId', String(id))
+      else next.delete('categoryId')
     })
   }
 
@@ -357,13 +357,13 @@ export default function CoursesPage() {
                         </div>
                         <div>
                           <dt>章节</dt>
-                          <dd>{feature.chapter_count} 章</dd>
+                          <dd>{feature.chapterCount} 章</dd>
                         </div>
                         <div>
                           <dt>喜欢</dt>
                           <dd>
                             <HeartIcon size={12} />
-                            {formatCount(feature.like_count)}
+                            {formatCount(feature.likeCount)}
                           </dd>
                         </div>
                       </dl>

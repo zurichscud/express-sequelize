@@ -4,20 +4,20 @@ const courseService = require('../../services/course.service');
 /**
  * GET /api/admin/courses
  * 分页参数由 pagination.middleware.js 处理，其余查询参数由 course.validator.js 校验
- *   category_id    按分类筛选
- *   user_id        按所属用户筛选
- *   is_recommended true/false，是否推荐
+ *   categoryId    按分类筛选
+ *   userId        按所属用户筛选
+ *   isRecommended true/false，是否推荐
  *   keyword        课程名称模糊搜索
  */
 async function listCourses(req, res, next) {
   try {
-    const { category_id, user_id, is_recommended, keyword } = req.validated.query;
+    const { categoryId, userId, isRecommended, keyword } = req.validated.query;
 
     const { list, total } = await courseService.listCourses({
       ...req.pagination,
-      categoryId: category_id,
-      userId: user_id,
-      isRecommended: is_recommended,
+      categoryId,
+      userId,
+      isRecommended,
       keyword
     });
 
@@ -30,14 +30,14 @@ async function listCourses(req, res, next) {
 /**
  * POST /api/admin/courses
  * 创建课程（请求体字段与格式由 course.validator.js 校验）
- *   category_id    必填，分类 ID
- *   user_id        必填，所属前台用户 ID（创建者，来自 app_users）
+ *   categoryId    必填，分类 ID
+ *   userId        必填，所属前台用户 ID（创建者，来自 app_users）
  *   name           必填，课程名称，最长 128 字
  *   image          选填，封面图片地址，最长 500 字
- *   is_recommended 选填，是否推荐，默认 false
+ *   isRecommended 选填，是否推荐，默认 false
  *   content        选填，课程内容
- *   like_count     选填，点赞数，默认 0
- *   chapter_count  只读，由章节接口自动维护
+ *   likeCount     选填，点赞数，默认 0
+ *   chapterCount  只读，由章节接口自动维护
  */
 async function createCourse(req, res, next) {
   try {
@@ -70,14 +70,14 @@ async function getCourse(req, res, next) {
 
 /**
  * PUT /api/admin/courses/:id
- * 更新课程（仅更新请求体中提供的字段；user_id 创建后不可变更）
- *   category_id    选填，分类 ID
+ * 更新课程（仅更新请求体中提供的字段；userId 创建后不可变更）
+ *   categoryId    选填，分类 ID
  *   name           选填，课程名称，最长 128 字
  *   image          选填，封面图片地址，传空字符串可清空
- *   is_recommended 选填，是否推荐
+ *   isRecommended 选填，是否推荐
  *   content        选填，课程内容
- *   like_count     选填，点赞数
- *   chapter_count  只读，由章节接口自动维护
+ *   likeCount     选填，点赞数
+ *   chapterCount  只读，由章节接口自动维护
  */
 async function updateCourse(req, res, next) {
   try {

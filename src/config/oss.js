@@ -69,6 +69,15 @@ function getUploadSizeLimits() {
 }
 
 /**
+ * 预签名地址有效期（秒），可通过 OSS_PRESIGN_EXPIRES 覆盖
+ * 默认 1 小时，大视频在慢网络下也能传完
+ * @returns {number}
+ */
+function getPresignExpires() {
+  return toPositiveInt(process.env.OSS_PRESIGN_EXPIRES, 3600);
+}
+
+/**
  * 生成对象的公开访问地址
  * 配置了 OSS_PUBLIC_URL（如 CDN 域名）时优先使用，否则使用 bucket 默认域名
  * @param {string} objectKey
@@ -82,5 +91,6 @@ function getObjectUrl(objectKey) {
 module.exports = {
   getOssClient,
   getObjectUrl,
-  getUploadSizeLimits
+  getUploadSizeLimits,
+  getPresignExpires
 };

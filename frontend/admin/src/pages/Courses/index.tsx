@@ -27,8 +27,8 @@ import { formatDateTime } from '@/utils/format'
 
 interface SearchValues {
   keyword?: string
-  category_id?: number
-  is_recommended?: 'true' | 'false'
+  categoryId?: number
+  isRecommended?: 'true' | 'false'
 }
 
 export default function CoursesPage() {
@@ -101,8 +101,8 @@ export default function CoursesPage() {
     setPage(1)
     setQuery({
       keyword: values.keyword?.trim() || undefined,
-      category_id: values.category_id,
-      is_recommended: values.is_recommended || undefined,
+      categoryId: values.categoryId,
+      isRecommended: values.isRecommended || undefined,
     })
   }
 
@@ -142,7 +142,7 @@ export default function CoursesPage() {
   async function handleToggleRecommended(record: Course, checked: boolean) {
     setTogglingId(record.id)
     try {
-      await updateCourse(record.id, { is_recommended: checked })
+      await updateCourse(record.id, { isRecommended: checked })
       message.success(checked ? '已设为推荐课程' : '已取消推荐')
       setRefreshKey((key) => key + 1)
     } catch {
@@ -190,8 +190,8 @@ export default function CoursesPage() {
     },
     {
       title: '推荐',
-      dataIndex: 'is_recommended',
-      key: 'is_recommended',
+      dataIndex: 'isRecommended',
+      key: 'isRecommended',
       width: 90,
       align: 'center',
       render: (checked: boolean, record) => (
@@ -210,7 +210,7 @@ export default function CoursesPage() {
       width: 130,
       render: (_, record) => (
         <Typography.Text type="secondary">
-          {record.like_count} / {record.chapter_count}
+          {record.likeCount} / {record.chapterCount}
         </Typography.Text>
       ),
     },
@@ -289,7 +289,7 @@ export default function CoursesPage() {
               style={{ width: 240 }}
             />
           </Form.Item>
-          <Form.Item name="category_id">
+          <Form.Item name="categoryId">
             <Select
               allowClear
               showSearch
@@ -300,7 +300,7 @@ export default function CoursesPage() {
               style={{ width: 160 }}
             />
           </Form.Item>
-          <Form.Item name="is_recommended">
+          <Form.Item name="isRecommended">
             <Select
               allowClear
               placeholder="推荐状态"

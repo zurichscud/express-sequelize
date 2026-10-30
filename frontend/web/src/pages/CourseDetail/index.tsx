@@ -78,8 +78,8 @@ export default function CourseDetailPage() {
     const course = await getCourse(courseId)
     let related: Course[] = []
 
-    if (course.category_id) {
-      const result = await getCourses({ category_id: course.category_id, pageSize: 4 })
+    if (course.categoryId) {
+      const result = await getCourses({ categoryId: course.categoryId, pageSize: 4 })
       related = result.list.filter((item) => item.id !== course.id).slice(0, 3)
     }
 
@@ -253,7 +253,7 @@ export default function CourseDetailPage() {
   // 登录用户读取点赞状态；未登录时回到课程自身的点赞数
   useEffect(() => {
     if (!course) return
-    setLikeCount(course.like_count)
+    setLikeCount(course.likeCount)
     setLiked(false)
     setLikeError(null)
 
@@ -264,7 +264,7 @@ export default function CourseDetailPage() {
       .then((status) => {
         if (!active) return
         setLiked(status.liked)
-        setLikeCount(status.like_count)
+        setLikeCount(status.likeCount)
       })
       .catch(() => {
         // 状态读取失败不阻塞课程内容展示
@@ -293,7 +293,7 @@ export default function CourseDetailPage() {
 
   const author = course.user?.nickname || course.user?.username || '课程团队'
   const authorInitial = author.trim().charAt(0) || '课'
-  const chapterTotal = chapters.length || course.chapter_count
+  const chapterTotal = chapters.length || course.chapterCount
   const hasRelated = Boolean(data?.related.length)
   const closingIndex = hasRelated ? '04' : '03'
   const progress = chapters.length ? ((activeIndex + 1) / chapters.length) * 100 : 0
@@ -318,7 +318,7 @@ export default function CourseDetailPage() {
     try {
       const status = nextLiked ? await likeCourse(course.id) : await unlikeCourse(course.id)
       setLiked(status.liked)
-      setLikeCount(status.like_count)
+      setLikeCount(status.likeCount)
     } catch (err) {
       setLiked(previousLiked)
       setLikeCount(previousCount)
@@ -352,7 +352,7 @@ export default function CourseDetailPage() {
 
           <div className="course-hero__main">
             <p className="course-hero__kicker">
-              {course.is_recommended && <span className="course-hero__flag">推荐</span>}
+              {course.isRecommended && <span className="course-hero__flag">推荐</span>}
               <span>{course.category?.name || '课程'}</span>
               <span className="course-hero__sep" aria-hidden="true">
                 /
@@ -504,7 +504,7 @@ export default function CourseDetailPage() {
                       >
                         <span className="syllabus__no">{pad(index + 1)}</span>
                         <span className="syllabus__name">{chapter.title}</span>
-                        {chapter.video_url && <VideoIcon size={14} />}
+                        {chapter.videoUrl && <VideoIcon size={14} />}
                       </button>
                     </li>
                   ))}
@@ -532,7 +532,7 @@ export default function CourseDetailPage() {
                       </p>
                       <h3>{activeChapter.title}</h3>
                     </div>
-                    {activeChapter.video_url && (
+                    {activeChapter.videoUrl && (
                       <span className="syllabus__badge">
                         <VideoIcon size={13} />
                         含视频
@@ -561,14 +561,14 @@ export default function CourseDetailPage() {
 
                   {chapterData && (
                     <>
-                      {chapterData.video_url && (
+                      {chapterData.videoUrl && (
                         <video
                           className="syllabus__video"
                           controls
                           preload="metadata"
                           playsInline
                           poster={course.image ?? undefined}
-                          src={chapterData.video_url}
+                          src={chapterData.videoUrl}
                         >
                           你的浏览器不支持视频播放。
                         </video>
@@ -580,7 +580,7 @@ export default function CourseDetailPage() {
                           className="prose syllabus__prose"
                         />
                       ) : (
-                        !chapterData.video_url && (
+                        !chapterData.videoUrl && (
                           <p className="syllabus__empty">本章正文正在整理中。</p>
                         )
                       )}

@@ -5,7 +5,7 @@ GET {{baseUrl}}/courses
 Authorization: Bearer {{token}}
 
 ### 课程列表（推荐课程 + 分类筛选）
-GET {{baseUrl}}/courses?category_id=1&is_recommended=true
+GET {{baseUrl}}/courses?categoryId=1&isRecommended=true
 Authorization: Bearer {{token}}
 
 ### 课程列表（关键词搜索）
@@ -22,14 +22,14 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "category_id": 1,
-  "user_id": 1,
+  "categoryId": 1,
+  "userId": 1,
   "name": "TypeScript 类型体操实战",
   "image": "https://picsum.photos/seed/course-ts/640/360",
-  "is_recommended": false,
+  "isRecommended": false,
   "content": "从基础类型到条件类型、映射类型，玩转 TypeScript 类型系统。",
-  "like_count": 0,
-  "chapter_count": 16
+  "likeCount": 0,
+  "chapterCount": 16
 }
 
 ### 更新课程（仅传需要修改的字段）
@@ -38,8 +38,8 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "is_recommended": true,
-  "like_count": 60
+  "isRecommended": true,
+  "likeCount": 60
 }
 
 ### 删除课程

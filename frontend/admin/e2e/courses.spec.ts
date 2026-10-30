@@ -43,8 +43,8 @@ test.describe('课程管理', () => {
     await expect(dialog).toBeVisible()
 
     await dialog.locator('#name').fill(courseName)
-    await selectOption(page, dialog.locator('#category_id'), categoryName)
-    await selectFirstOption(page, dialog.locator('#user_id'))
+    await selectOption(page, dialog.locator('#categoryId'), categoryName)
+    await selectFirstOption(page, dialog.locator('#userId'))
 
     await dialog.getByRole('button', { name: /创\s*建/ }).click()
 

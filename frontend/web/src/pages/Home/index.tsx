@@ -15,7 +15,7 @@ export default function HomePage() {
 
   const { data, loading, error, reload } = useAsync(async () => {
     const [featured, latest, articles, categories] = await Promise.all([
-      getCourses({ pageSize: 4, is_recommended: true }),
+      getCourses({ pageSize: 4, isRecommended: true }),
       getCourses({ pageSize: 3 }),
       getArticles({ pageSize: 4 }),
       getCategories(),
@@ -114,7 +114,7 @@ export default function HomePage() {
         <div className="ticker__track">
           {[...tickerItems, ...tickerItems].map((category, index) =>
             category.id ? (
-              <Link key={`${category.id}-${index}`} to={`/courses?category_id=${category.id}`} tabIndex={-1}>
+              <Link key={`${category.id}-${index}`} to={`/courses?categoryId=${category.id}`} tabIndex={-1}>
                 {category.name}
                 <span>✦</span>
               </Link>
@@ -182,7 +182,7 @@ export default function HomePage() {
               {(data?.categories ?? []).map((category, index) => (
                 <Link
                   key={category.id}
-                  to={`/courses?category_id=${category.id}`}
+                  to={`/courses?categoryId=${category.id}`}
                   className="category-index__item"
                 >
                   <span className="category-index__no">{String(index + 1).padStart(2, '0')}</span>

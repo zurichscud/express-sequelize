@@ -82,7 +82,7 @@ async function deleteCategoryById(id) {
     return false;
   }
 
-  const courseCount = await Course.count({ where: { category_id: id } });
+  const courseCount = await Course.count({ where: { categoryId: id } });
   if (courseCount > 0) {
     const businessError = new Error(`该分类下还有 ${courseCount} 门课程，无法删除`);
     businessError.status = 400;

@@ -27,9 +27,9 @@ export interface CourseUser {
 
 export interface Chapter {
   id: number
-  course_id: number
+  courseId: number
   title: string
-  video_url: string | null
+  videoUrl: string | null
   rank: number
   content?: string | null
   course?: {
@@ -42,14 +42,14 @@ export interface Chapter {
 
 export interface Course {
   id: number
-  category_id: number
-  user_id: number
+  categoryId: number
+  userId: number
   name: string
   image: string | null
-  is_recommended: boolean
+  isRecommended: boolean
   content?: string | null
-  like_count: number
-  chapter_count: number
+  likeCount: number
+  chapterCount: number
   category?: Category | null
   user?: CourseUser | null
   chapters?: Chapter[]

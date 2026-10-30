@@ -60,7 +60,7 @@ GET {{origin}}/api/articles?sort=hot
 GET {{origin}}/api/articles/1
 
 ### 章节列表（按课程筛选）
-GET {{origin}}/api/chapters?course_id=1
+GET {{origin}}/api/chapters?courseId=1
 
 ### 章节详情
 GET {{origin}}/api/chapters/1
@@ -86,7 +86,7 @@ Authorization: Bearer {{webLogin.response.body.$.data.token}}
 Content-Type: application/json
 
 {
-  "course_id": 1
+  "courseId": 1
 }
 
 ### 查询点赞状态

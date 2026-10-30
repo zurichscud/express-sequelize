@@ -4,9 +4,9 @@ const { Chapter, Course, sequelize } = require('../models');
 // 列表不返回 content 正文，减少传输体积
 const LIST_ATTRIBUTES = [
   'id',
-  'course_id',
+  'courseId',
   'title',
-  'video_url',
+  'videoUrl',
   'rank',
   'createdAt',
   'updatedAt'
@@ -16,7 +16,7 @@ const LIST_ATTRIBUTES = [
 const COURSE_INCLUDE = { model: Course, as: 'course', attributes: ['id', 'name'] };
 
 /**
- * 锁定课程行，确保章节增删与课程 chapter_count 更新串行执行
+ * 锁定课程行，确保章节增删与课程 chapterCount 更新串行执行
  * 课程不存在时抛出 400 业务错误
  * @param {number|string} courseId
  * @param {import('sequelize').Transaction} transaction
@@ -35,17 +35,17 @@ async function lockCourse(courseId, transaction) {
 }
 
 /**
- * 按 chapters 实际数量回写课程 chapter_count
+ * 按 chapters 实际数量回写课程 chapterCount
  * @param {number|string} courseId
  * @param {import('sequelize').Transaction} transaction
  */
 async function syncCourseChapterCount(courseId, transaction) {
   const chapterCount = await Chapter.count({
-    where: { course_id: courseId },
+    where: { courseId },
     transaction
   });
   await Course.update(
-    { chapter_count: chapterCount },
+    { chapterCount },
     { where: { id: courseId }, transaction }
   );
 }
@@ -58,7 +58,7 @@ async function syncCourseChapterCount(courseId, transaction) {
 async function listChapters({ offset, limit, courseId, keyword }) {
   const where = {};
   if (courseId) {
-    where.course_id = courseId;
+    where.courseId = courseId;
   }
   if (keyword) {
     where.title = { [Op.like]: `%${keyword}%` };
@@ -95,8 +95,8 @@ async function getChapterById(id) {
  */
 async function listCourseChapters(courseId) {
   return Chapter.findAll({
-    where: { course_id: courseId },
-    attributes: ['id', 'course_id', 'title', 'video_url', 'rank', 'createdAt', 'updatedAt'],
+    where: { courseId },
+    attributes: ['id', 'courseId', 'title', 'videoUrl', 'rank', 'createdAt', 'updatedAt'],
     order: [
       ['rank', 'ASC'],
       ['id', 'ASC']
@@ -105,26 +105,26 @@ async function listCourseChapters(courseId) {
 }
 
 /**
- * 创建章节（校验课程存在，并在同一事务内同步课程 chapter_count）
+ * 创建章节（校验课程存在，并在同一事务内同步课程 chapterCount）
  * @param {object} data
  */
 async function createChapter(data) {
   return sequelize.transaction(async (transaction) => {
-    if (data.course_id !== undefined) {
-      await lockCourse(data.course_id, transaction);
+    if (data.courseId !== undefined) {
+      await lockCourse(data.courseId, transaction);
     }
 
     const chapter = await Chapter.create(data, { transaction });
 
-    if (data.course_id !== undefined) {
-      await syncCourseChapterCount(data.course_id, transaction);
+    if (data.courseId !== undefined) {
+      await syncCourseChapterCount(data.courseId, transaction);
     }
     return chapter;
   });
 }
 
 /**
- * 按 ID 更新章节（仅更新传入字段；变更课程时同时同步两门课程的 chapter_count）
+ * 按 ID 更新章节（仅更新传入字段；变更课程时同时同步两门课程的 chapterCount）
  * @param {number|string} id
  * @param {object} data
  * @returns {Promise<object|null>} 章节不存在时返回 null
@@ -139,8 +139,8 @@ async function updateChapterById(id, data) {
       return null;
     }
 
-    const oldCourseId = chapter.course_id;
-    const newCourseId = data.course_id !== undefined ? data.course_id : oldCourseId;
+    const oldCourseId = chapter.courseId;
+    const newCourseId = data.courseId !== undefined ? data.courseId : oldCourseId;
 
     // 涉及两门课程时按 ID 升序加锁，避免并发迁移章节时互相死锁
     const courseIds = [...new Set([String(oldCourseId), String(newCourseId)])].sort(
@@ -162,7 +162,7 @@ async function updateChapterById(id, data) {
 }
 
 /**
- * 按 ID 删除章节（在同一事务内同步课程 chapter_count）
+ * 按 ID 删除章节（在同一事务内同步课程 chapterCount）
  * @param {number|string} id
  * @returns {Promise<boolean>} 章节不存在时返回 false
  */
@@ -176,9 +176,9 @@ async function deleteChapterById(id) {
       return false;
     }
 
-    await lockCourse(chapter.course_id, transaction);
+    await lockCourse(chapter.courseId, transaction);
     await chapter.destroy({ transaction });
-    await syncCourseChapterCount(chapter.course_id, transaction);
+    await syncCourseChapterCount(chapter.courseId, transaction);
     return true;
   });
 }

@@ -12,7 +12,7 @@ const presignUploadBodySchema = bodyObject({
 });
 
 const completeUploadBodySchema = bodyObject({
-  upload_token: z.preprocess(
+  uploadToken: z.preprocess(
     (value) => (value === undefined || value === null ? '' : value),
     z.string({ error: '缺少上传凭证' }).trim().min(1, '缺少上传凭证')
   )

@@ -19,7 +19,7 @@ export interface AuthResult {
 
 export interface LikeStatus {
   liked: boolean
-  like_count: number
+  likeCount: number
 }
 
 export interface LoginPayload {

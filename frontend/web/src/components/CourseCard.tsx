@@ -23,7 +23,7 @@ export default function CourseCard({ course, index = 1, variant = 'default', eag
     >
       <div className="course-card__media">
         <CourseCover course={course} index={index} eager={eager} />
-        {course.is_recommended && <span className="course-card__flag">推荐</span>}
+        {course.isRecommended && <span className="course-card__flag">推荐</span>}
         <span className="course-card__index">{String(index).padStart(2, '0')}</span>
       </div>
 
@@ -31,7 +31,7 @@ export default function CourseCard({ course, index = 1, variant = 'default', eag
         <div className="course-card__meta">
           <span>{course.category?.name || '课程'}</span>
           <span className="course-card__dot" aria-hidden="true" />
-          <span>{course.chapter_count} 章</span>
+          <span>{course.chapterCount} 章</span>
         </div>
 
         <h3 className="course-card__title">{course.name}</h3>
@@ -43,7 +43,7 @@ export default function CourseCard({ course, index = 1, variant = 'default', eag
           <span className="course-card__author">{author}</span>
           <span className="course-card__stat">
             <HeartIcon size={15} />
-            {formatCount(course.like_count)}
+            {formatCount(course.likeCount)}
           </span>
         </div>
 

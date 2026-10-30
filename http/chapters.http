@@ -5,7 +5,7 @@ GET {{baseUrl}}/chapters
 Authorization: Bearer {{token}}
 
 ### 章节列表（按课程筛选）
-GET {{baseUrl}}/chapters?course_id=1
+GET {{baseUrl}}/chapters?courseId=1
 Authorization: Bearer {{token}}
 
 ### 章节列表（关键词搜索）
@@ -22,10 +22,10 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "course_id": 1,
+  "courseId": 1,
   "title": "第 1 章：环境搭建与项目初始化",
   "content": "安装 Node.js 与编辑器，使用 Vite 初始化项目。",
-  "video_url": "https://example.com/videos/chapter-1.mp4",
+  "videoUrl": "https://example.com/videos/chapter-1.mp4",
   "rank": 1
 }
 

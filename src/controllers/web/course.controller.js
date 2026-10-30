@@ -6,18 +6,18 @@ const chapterService = require('../../services/chapter.service');
  * GET /api/courses
  * 前台课程列表
  * 分页参数由 pagination.middleware.js 处理，其余查询参数由 course.validator.js 校验
- *   category_id    按分类筛选
- *   is_recommended true/false，是否推荐
+ *   categoryId    按分类筛选
+ *   isRecommended true/false，是否推荐
  *   keyword        课程名称模糊搜索
  */
 async function listCourses(req, res, next) {
   try {
-    const { category_id, is_recommended, keyword } = req.validated.query;
+    const { categoryId, isRecommended, keyword } = req.validated.query;
 
     const { list, total } = await courseService.listCourses({
       ...req.pagination,
-      categoryId: category_id,
-      isRecommended: is_recommended,
+      categoryId,
+      isRecommended,
       keyword,
       withContent: true
     });

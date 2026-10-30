@@ -10,7 +10,7 @@ const Course = sequelize.define(
       autoIncrement: true,
       comment: '主键'
     },
-    category_id: {
+    categoryId: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
       comment: '分类 ID',
@@ -23,7 +23,7 @@ const Course = sequelize.define(
         }
       }
     },
-    user_id: {
+    userId: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
       comment: '所属前台用户 ID（创建者）',
@@ -83,7 +83,7 @@ const Course = sequelize.define(
         }
       }
     },
-    is_recommended: {
+    isRecommended: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
@@ -95,7 +95,7 @@ const Course = sequelize.define(
         } else if (value === 'false' || value === 0 || value === '0') {
           value = false;
         }
-        this.setDataValue('is_recommended', value);
+        this.setDataValue('isRecommended', value);
       },
       validate: {
         notNull: { msg: '是否推荐不能为空' },
@@ -118,7 +118,7 @@ const Course = sequelize.define(
         }
       }
     },
-    like_count: {
+    likeCount: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
       defaultValue: 0,
@@ -132,7 +132,7 @@ const Course = sequelize.define(
         }
       }
     },
-    chapter_count: {
+    chapterCount: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
       defaultValue: 0,

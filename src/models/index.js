@@ -10,26 +10,26 @@ const Chapter = require('./chapter');
 const Attachment = require('./attachment');
 
 // 分类与课程
-Category.hasMany(Course, { foreignKey: 'category_id', as: 'courses' });
-Course.belongsTo(Category, { foreignKey: 'category_id', as: 'category' });
+Category.hasMany(Course, { foreignKey: 'categoryId', as: 'courses' });
+Course.belongsTo(Category, { foreignKey: 'categoryId', as: 'category' });
 
 // 课程与点赞归属前台用户（app_users）
-AppUser.hasMany(Course, { foreignKey: 'user_id', as: 'courses' });
-Course.belongsTo(AppUser, { foreignKey: 'user_id', as: 'user' });
+AppUser.hasMany(Course, { foreignKey: 'userId', as: 'courses' });
+Course.belongsTo(AppUser, { foreignKey: 'userId', as: 'user' });
 
 // 点赞关系
-Course.hasMany(Like, { foreignKey: 'course_id', as: 'likes' });
-Like.belongsTo(Course, { foreignKey: 'course_id', as: 'course' });
-AppUser.hasMany(Like, { foreignKey: 'user_id', as: 'likes' });
-Like.belongsTo(AppUser, { foreignKey: 'user_id', as: 'user' });
+Course.hasMany(Like, { foreignKey: 'courseId', as: 'likes' });
+Like.belongsTo(Course, { foreignKey: 'courseId', as: 'course' });
+AppUser.hasMany(Like, { foreignKey: 'userId', as: 'likes' });
+Like.belongsTo(AppUser, { foreignKey: 'userId', as: 'user' });
 
 // 课程章节
-Course.hasMany(Chapter, { foreignKey: 'course_id', as: 'chapters' });
-Chapter.belongsTo(Course, { foreignKey: 'course_id', as: 'course' });
+Course.hasMany(Chapter, { foreignKey: 'courseId', as: 'chapters' });
+Chapter.belongsTo(Course, { foreignKey: 'courseId', as: 'course' });
 
-// 附件由后台上传，归属系统用户（系统用户删除后 user_id 置空，附件记录保留）
-SysUser.hasMany(Attachment, { foreignKey: 'user_id', as: 'attachments' });
-Attachment.belongsTo(SysUser, { foreignKey: 'user_id', as: 'user' });
+// 附件由后台上传，归属系统用户（系统用户删除后 userId 置空，附件记录保留）
+SysUser.hasMany(Attachment, { foreignKey: 'userId', as: 'attachments' });
+Attachment.belongsTo(SysUser, { foreignKey: 'userId', as: 'user' });
 
 module.exports = {
   sequelize,

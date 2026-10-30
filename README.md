@@ -166,7 +166,7 @@ npm start
 - 健康检查：<http://localhost:3000/health>
 - 前台文章列表：<http://localhost:3000/api/articles>
 - 前台文章详情：<http://localhost:3000/api/articles/1>
-- 前台章节列表：<http://localhost:3000/api/chapters?course_id=1>
+- 前台章节列表：<http://localhost:3000/api/chapters?courseId=1>
 - 前台课程列表：<http://localhost:3000/api/courses>
 - 前台系统信息：<http://localhost:3000/api/settings>
 - 前台注册：`POST http://localhost:3000/api/auth/register`

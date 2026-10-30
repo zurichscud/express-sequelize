@@ -3,20 +3,20 @@ const likeService = require('../../services/like.service');
 
 /**
  * 从已校验的请求数据中解析课程 ID
- * 兼容路径参数 courseId / id、请求体 course_id 与查询参数 course_id
+ * 兼容路径参数 courseId / id、请求体 courseId 与查询参数 courseId
  * @param {import('express').Request} req
  * @returns {number|null}
  */
 function resolveCourseId(req) {
   const { params = {}, body = {}, query = {} } = req.validated || {};
-  const courseId = params.courseId ?? params.id ?? body.course_id ?? query.course_id;
+  const courseId = params.courseId ?? params.id ?? body.courseId ?? query.courseId;
   return Number.isInteger(courseId) && courseId > 0 ? courseId : null;
 }
 
 /**
  * POST /api/likes
  * 请求体：
- *   course_id 必填，课程 ID
+ *   courseId 必填，课程 ID
  * 已经点过赞时幂等返回当前状态
  */
 async function likeCourse(req, res, next) {

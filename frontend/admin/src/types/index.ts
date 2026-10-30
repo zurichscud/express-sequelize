@@ -125,13 +125,13 @@ export interface CourseUserRef {
 
 export interface Course {
   id: number
-  category_id: number
-  user_id: number
+  categoryId: number
+  userId: number
   name: string
   image: string | null
-  is_recommended: boolean
-  like_count: number
-  chapter_count: number
+  isRecommended: boolean
+  likeCount: number
+  chapterCount: number
   createdAt: string
   updatedAt: string
   content?: string
@@ -143,18 +143,18 @@ export interface CourseQuery {
   page?: number
   pageSize?: number
   keyword?: string
-  category_id?: number
-  user_id?: number
-  is_recommended?: 'true' | 'false' | ''
+  categoryId?: number
+  userId?: number
+  isRecommended?: 'true' | 'false' | ''
 }
 
 export interface CoursePayload {
   name: string
-  category_id: number
-  user_id?: number
+  categoryId: number
+  userId?: number
   image?: string
-  is_recommended: boolean
-  like_count: number
+  isRecommended: boolean
+  likeCount: number
   content?: string
 }
 
@@ -165,9 +165,9 @@ export interface ChapterCourseRef {
 
 export interface Chapter {
   id: number
-  course_id: number
+  courseId: number
   title: string
-  video_url: string | null
+  videoUrl: string | null
   rank: number
   createdAt: string
   updatedAt: string
@@ -178,15 +178,15 @@ export interface Chapter {
 export interface ChapterQuery {
   page?: number
   pageSize?: number
-  course_id?: number
+  courseId?: number
   keyword?: string
 }
 
 export interface ChapterPayload {
-  course_id: number
+  courseId: number
   title: string
   content?: string
-  video_url?: string
+  videoUrl?: string
   rank: number
 }
 
@@ -201,26 +201,27 @@ export type UploadMediaType = 'image' | 'video'
 
 /** 服务端签发的 OSS 直传凭证 */
 export interface UploadPresign {
-  object_key: string
-  name: string
-  type: UploadMediaType
-  mime_type: string
-  size: number
-  upload_url: string
+  uploadUrl: string
   method: 'PUT'
   headers: Record<string, string>
-  expires_at: string
-  upload_token: string
+  uploadToken: string
+  meta: {
+    objectKey: string
+    name: string
+    type: UploadMediaType
+    mimeType: string
+    size: number
+  }
 }
 
 export interface UploadResult {
   id: number
-  user_id: number | null
+  userId: number | null
   name: string
-  object_key: string
+  objectKey: string
   url: string
   type: UploadMediaType
-  mime_type: string
+  mimeType: string
   size: number
   createdAt: string
   updatedAt: string
@@ -234,12 +235,12 @@ export interface AttachmentUploader {
 
 export interface Attachment {
   id: number
-  user_id: number | null
+  userId: number | null
   name: string
-  object_key: string
+  objectKey: string
   url: string
   type: UploadMediaType
-  mime_type: string
+  mimeType: string
   size: number
   createdAt: string
   updatedAt: string

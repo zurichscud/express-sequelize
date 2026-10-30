@@ -17,7 +17,7 @@ interface ChapterFormModalProps {
 interface ChapterFormValues {
   title: string
   rank: number
-  video_url?: string
+  videoUrl?: string
   content?: string
 }
 
@@ -38,9 +38,9 @@ export default function ChapterFormModal({
     setSaving(true)
     try {
       const payload: ChapterPayload = {
-        course_id: courseId,
+        courseId,
         title: values.title.trim(),
-        video_url: values.video_url?.trim() || '',
+        videoUrl: values.videoUrl?.trim() || '',
         content: values.content ?? '',
         rank: values.rank,
       }
@@ -82,13 +82,13 @@ export default function ChapterFormModal({
             ? {
                 title: chapter.title,
                 rank: chapter.rank,
-                video_url: chapter.video_url ?? '',
+                videoUrl: chapter.videoUrl ?? '',
                 content: chapter.content ?? '',
               }
             : {
                 title: '',
                 rank: defaultRank,
-                video_url: '',
+                videoUrl: '',
                 content: '',
               }
         }
@@ -123,7 +123,7 @@ export default function ChapterFormModal({
         </Row>
 
         <Form.Item
-          name="video_url"
+          name="videoUrl"
           label="章节视频"
           rules={[{ max: 500, message: '视频地址不能超过 500 个字符' }]}
         >

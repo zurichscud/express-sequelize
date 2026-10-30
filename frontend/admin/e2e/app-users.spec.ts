@@ -90,7 +90,7 @@ test.describe('前台用户管理', () => {
 
     const courseResponse = await request.post(`${API_ORIGIN}/api/admin/courses`, {
       headers,
-      data: { category_id: category.id, user_id: user.id, name: uniqueName('归属课程') },
+      data: { categoryId: category.id, userId: user.id, name: uniqueName('归属课程') },
     })
     expect(courseResponse.ok()).toBeTruthy()
 

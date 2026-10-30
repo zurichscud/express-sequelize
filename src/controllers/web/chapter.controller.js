@@ -5,16 +5,16 @@ const chapterService = require('../../services/chapter.service');
  * GET /api/chapters
  * 前台章节列表，按 rank 升序、id 升序，列表不返回 content 正文
  * 分页参数由 pagination.middleware.js 处理，其余查询参数由 chapter.validator.js 校验
- *   course_id 按所属课程筛选
+ *   courseId 按所属课程筛选
  *   keyword   章节标题模糊搜索
  */
 async function listChapters(req, res, next) {
   try {
-    const { course_id, keyword } = req.validated.query;
+    const { courseId, keyword } = req.validated.query;
 
     const { list, total } = await chapterService.listChapters({
       ...req.pagination,
-      courseId: course_id,
+      courseId,
       keyword
     });
 

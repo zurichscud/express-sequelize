@@ -296,14 +296,14 @@ curl -X POST "http://localhost:3000/api/admin/users/login" \
 | -------------- | ------ | ---- | ------ | ---------------- |
 | page           | number | 否   | 1      | 页码，最小 1     |
 | pageSize       | number | 否   | 10     | 每页条数，1~100  |
-| category_id    | number | 否   | —      | 按分类筛选       |
-| user_id        | number | 否   | —      | 按所属用户筛选   |
-| is_recommended | string | 否   | —      | `true` / `false` |
+| categoryId    | number | 否   | —      | 按分类筛选       |
+| userId        | number | 否   | —      | 按所属用户筛选   |
+| isRecommended | string | 否   | —      | `true` / `false` |
 | keyword        | string | 否   | —      | 课程名称模糊搜索 |
 
 ### POST /api/admin/courses
 
-创建课程。`category_id`、`user_id` 必填且必须存在（`user_id` 对应 `app_users` 中的前台用户，不存在返回 400「分类不存在 / 用户不存在」）；`name` 必填；`is_recommended` 默认 `false`；`like_count` 默认 0；`chapter_count` 由章节接口自动维护，创建/更新课程时传入会被忽略。
+创建课程。`categoryId`、`userId` 必填且必须存在（`userId` 对应 `app_users` 中的前台用户，不存在返回 400「分类不存在 / 用户不存在」）；`name` 必填；`isRecommended` 默认 `false`；`likeCount` 默认 0；`chapterCount` 由章节接口自动维护，创建/更新课程时传入会被忽略。
 
 ### GET /api/admin/courses/:id
 
@@ -311,7 +311,7 @@ curl -X POST "http://localhost:3000/api/admin/users/login" \
 
 ### PUT /api/admin/courses/:id
 
-更新课程，仅更新请求体中提供的字段。可变更 `category_id`（需存在）；`user_id` 创建后不可变更；`chapter_count` 由章节接口自动维护，传入会被忽略（若只提交该字段，返回 400「没有需要更新的字段」）。
+更新课程，仅更新请求体中提供的字段。可变更 `categoryId`（需存在）；`userId` 创建后不可变更；`chapterCount` 由章节接口自动维护，传入会被忽略（若只提交该字段，返回 400「没有需要更新的字段」）。
 
 ### DELETE /api/admin/courses/:id
 
@@ -319,7 +319,7 @@ curl -X POST "http://localhost:3000/api/admin/users/login" \
 
 ## 章节
 
-章节属于课程，`course_id` 必须对应已存在的课程；删除课程时其下章节会级联删除。章节新增、删除或变更所属课程后，会自动把对应课程的 `chapter_count` 回写为实际章节数。
+章节属于课程，`courseId` 必须对应已存在的课程；删除课程时其下章节会级联删除。章节新增、删除或变更所属课程后，会自动把对应课程的 `chapterCount` 回写为实际章节数。
 
 ### GET /api/admin/chapters
 
@@ -329,12 +329,12 @@ curl -X POST "http://localhost:3000/api/admin/users/login" \
 | --------- | ------ | ---- | ------ | ----------------- |
 | page      | number | 否   | 1      | 页码，最小 1      |
 | pageSize  | number | 否   | 10     | 每页条数，1~100   |
-| course_id | number | 否   | —      | 按所属课程筛选    |
+| courseId | number | 否   | —      | 按所属课程筛选    |
 | keyword   | string | 否   | —      | 章节标题模糊搜索  |
 
 ### POST /api/admin/chapters
 
-创建章节。`course_id`、`title` 必填，`course_id` 必须存在（不存在返回 400「课程不存在」）；`content`、`video_url` 选填；`rank` 默认 0，越小越靠前。
+创建章节。`courseId`、`title` 必填，`courseId` 必须存在（不存在返回 400「课程不存在」）；`content`、`videoUrl` 选填；`rank` 默认 0，越小越靠前。
 
 ### GET /api/admin/chapters/:id
 
@@ -342,7 +342,7 @@ curl -X POST "http://localhost:3000/api/admin/users/login" \
 
 ### PUT /api/admin/chapters/:id
 
-更新章节，仅更新请求体中提供的字段。可变更 `course_id`（需存在）；`video_url` 传空字符串可清空。
+更新章节，仅更新请求体中提供的字段。可变更 `courseId`（需存在）；`videoUrl` 传空字符串可清空。
 
 ### DELETE /api/admin/chapters/:id
 
@@ -353,7 +353,7 @@ curl -X POST "http://localhost:3000/api/admin/users/login" \
 后台的课程封面上传、章节视频上传都走这套接口。上传分为三步，文件内容不经过 Express：
 
 1. `POST /api/admin/uploads/presign`：服务端校验文件类型和大小，签发 OSS 预签名地址（AccessKey 不出服务端）。
-2. 客户端用返回的 `upload_url` 以 `PUT` 方式把文件直传到 OSS，请求头必须与返回的 `headers` 完全一致。
+2. 客户端用返回的 `uploadUrl` 以 `PUT` 方式把文件直传到 OSS，请求头必须与返回的 `headers` 完全一致。
 3. `POST /api/admin/uploads/complete`：直传完成后调用，服务端校验 OSS 对象并写入 `attachments` 附件表。
 
 每次确认成功都会写入附件记录，包含上传用户、原始文件名、OSS Key、访问地址、类型、MIME 和实际大小，可在「附件管理」中统一查看和删除。
@@ -393,16 +393,17 @@ curl -X POST "http://localhost:3000/api/admin/uploads/presign" \
   "code": 0,
   "message": "ok",
   "data": {
-    "object_key": "uploads/image/2026/10/6f1c0f0e-3f0f-4f3a-9a4e-8f0d1c2b3a4e.png",
-    "name": "cover.png",
-    "type": "image",
-    "mime_type": "image/png",
-    "size": 20480,
-    "upload_url": "https://my-bucket.oss-cn-shenzhen.aliyuncs.com/uploads/image/2026/10/6f1c0f0e-3f0f-4f3a-9a4e-8f0d1c2b3a4e.png?OSSAccessKeyId=...&Expires=...&Signature=...",
+    "uploadUrl": "https://my-bucket.oss-cn-shenzhen.aliyuncs.com/uploads/image/2026/10/6f1c0f0e-3f0f-4f3a-9a4e-8f0d1c2b3a4e.png?OSSAccessKeyId=...&Expires=...&Signature=...",
     "method": "PUT",
     "headers": { "Content-Type": "image/png" },
-    "expires_at": "2026-10-27T10:00:00.000Z",
-    "upload_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    "uploadToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "meta": {
+      "objectKey": "uploads/image/2026/10/6f1c0f0e-3f0f-4f3a-9a4e-8f0d1c2b3a4e.png",
+      "name": "cover.png",
+      "type": "image",
+      "mimeType": "image/png",
+      "size": 20480
+    }
   }
 }
 ```
@@ -410,7 +411,7 @@ curl -X POST "http://localhost:3000/api/admin/uploads/presign" \
 客户端随后执行（`Content-Type` 必须与签名时一致）：
 
 ```bash
-curl -X PUT "<upload_url>" -H "Content-Type: image/png" --data-binary @./cover.png
+curl -X PUT "<uploadUrl>" -H "Content-Type: image/png" --data-binary @./cover.png
 ```
 
 对象路径为 `<OSS_DIR>/<image|video>/<年>/<月>/<uuid>.<ext>`，`OSS_DIR` 默认 `uploads`。预签名地址有效期由 `OSS_PRESIGN_EXPIRES` 控制，默认 3600 秒。
@@ -433,7 +434,7 @@ curl -X PUT "<upload_url>" -H "Content-Type: image/png" --data-binary @./cover.p
 
 | 字段         | 类型   | 必填 | 说明                               |
 | ------------ | ------ | ---- | ---------------------------------- |
-| upload_token | string | 是   | 预签名接口返回的 `upload_token`    |
+| uploadToken | string | 是   | 预签名接口返回的 `uploadToken`    |
 
 请求示例：
 
@@ -441,7 +442,7 @@ curl -X PUT "<upload_url>" -H "Content-Type: image/png" --data-binary @./cover.p
 curl -X POST "http://localhost:3000/api/admin/uploads/complete" \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
-  -d '{"upload_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}'
+  -d '{"uploadToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}'
 ```
 
 响应示例（HTTP 201）：
@@ -452,12 +453,12 @@ curl -X POST "http://localhost:3000/api/admin/uploads/complete" \
   "message": "上传成功",
   "data": {
     "id": 1,
-    "user_id": 1,
+    "userId": 1,
     "name": "cover.png",
-    "object_key": "uploads/image/2026/10/6f1c0f0e-3f0f-4f3a-9a4e-8f0d1c2b3a4e.png",
+    "objectKey": "uploads/image/2026/10/6f1c0f0e-3f0f-4f3a-9a4e-8f0d1c2b3a4e.png",
     "url": "https://my-bucket.oss-cn-shenzhen.aliyuncs.com/uploads/image/2026/10/6f1c0f0e-3f0f-4f3a-9a4e-8f0d1c2b3a4e.png",
     "type": "image",
-    "mime_type": "image/png",
+    "mimeType": "image/png",
     "size": 20480,
     "createdAt": "2026-10-27T09:00:00.000Z",
     "updatedAt": "2026-10-27T09:00:00.000Z"
@@ -465,13 +466,13 @@ curl -X POST "http://localhost:3000/api/admin/uploads/complete" \
 }
 ```
 
-`url` 可直接作为课程 `image` 或章节 `video_url` 使用。
+`url` 可直接作为课程 `image` 或章节 `videoUrl` 使用。
 
 错误响应：
 
 | 状态码 | 场景                     | 响应体                                                     |
 | ------ | ------------------------ | ---------------------------------------------------------- |
-| 400    | 未传 upload_token        | `{ "code": 400, "message": "缺少上传凭证" }`               |
+| 400    | 未传 uploadToken        | `{ "code": 400, "message": "缺少上传凭证" }`               |
 | 400    | 凭证无效 / 已过期        | `{ "code": 400, "message": "上传凭证无效或已过期，请重新上传" }` |
 | 400    | 对象不存在               | `{ "code": 400, "message": "文件尚未上传完成，请重新上传" }` |
 | 400    | 对象大小为 0 / 内容无效  | `{ "code": 400, "message": "上传的文件内容无效，请重新上传" }` |
@@ -523,12 +524,12 @@ curl -X POST "http://localhost:3000/api/admin/uploads/complete" \
     "list": [
       {
         "id": 1,
-        "user_id": 1,
+        "userId": 1,
         "name": "cover.png",
-        "object_key": "uploads/image/2026/10/6f1c0f0e-3f0f-4f3a-9a4e-8f0d1c2b3a4e.png",
+        "objectKey": "uploads/image/2026/10/6f1c0f0e-3f0f-4f3a-9a4e-8f0d1c2b3a4e.png",
         "url": "https://my-bucket.oss-cn-shenzhen.aliyuncs.com/uploads/image/2026/10/6f1c0f0e-3f0f-4f3a-9a4e-8f0d1c2b3a4e.png",
         "type": "image",
-        "mime_type": "image/png",
+        "mimeType": "image/png",
         "size": 20480,
         "createdAt": "2026-10-27T09:00:00.000Z",
         "updatedAt": "2026-10-27T09:00:00.000Z",
@@ -551,7 +552,7 @@ curl -X POST "http://localhost:3000/api/admin/uploads/complete" \
 | 502    | OSS 删除失败（权限/网络等）    | `{ "code": 502, "message": "删除 OSS 文件失败：..." }`     |
 | 503    | OSS 配置缺失                   | `{ "code": 503, "message": "OSS 配置缺失：..." }`          |
 
-> 删除附件不会自动清理课程 `image` 或章节 `video_url` 中的引用，删除前请在附件管理页面确认该文件没有被使用。
+> 删除附件不会自动清理课程 `image` 或章节 `videoUrl` 中的引用，删除前请在附件管理页面确认该文件没有被使用。
 
 ## 图表
 
@@ -775,11 +776,11 @@ curl "http://localhost:3000/api/articles/1"
 | --------- | ------ | ---- | ------ | ---------------- |
 | page      | number | 否   | 1      | 页码，最小 1     |
 | pageSize  | number | 否   | 20     | 每页条数，1~100  |
-| course_id | number | 否   | —      | 按所属课程筛选   |
+| courseId | number | 否   | —      | 按所属课程筛选   |
 | keyword   | string | 否   | —      | 章节标题模糊搜索 |
 
 ```bash
-curl "http://localhost:3000/api/chapters?course_id=1"
+curl "http://localhost:3000/api/chapters?courseId=1"
 ```
 
 ### GET /api/chapters/:id
@@ -806,8 +807,8 @@ curl "http://localhost:3000/api/chapters/1"
 | -------------- | ------ | ---- | ------ | -------------------- |
 | page           | number | 否   | 1      | 页码，最小 1         |
 | pageSize       | number | 否   | 12     | 每页条数，1~60       |
-| category_id    | number | 否   | —      | 按分类筛选           |
-| is_recommended | string | 否   | —      | `true` / `false`     |
+| categoryId    | number | 否   | —      | 按分类筛选           |
+| isRecommended | string | 否   | —      | `true` / `false`     |
 | keyword        | string | 否   | —      | 课程名称模糊搜索     |
 
 ### GET /api/courses/:id
@@ -840,28 +841,28 @@ Authorization: Bearer <token>
 
 | 字段      | 类型   | 必填 | 说明    |
 | --------- | ------ | ---- | ------- |
-| course_id | number | 是   | 课程 ID |
+| courseId | number | 是   | 课程 ID |
 
 ```bash
 curl -X POST "http://localhost:3000/api/likes" \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
-  -d '{ "course_id": 1 }'
+  -d '{ "courseId": 1 }'
 ```
 
 响应示例：
 
 ```json
-{ "code": 0, "message": "ok", "data": { "liked": true, "like_count": 129 } }
+{ "code": 0, "message": "ok", "data": { "liked": true, "likeCount": 129 } }
 ```
 
 ### DELETE /api/likes/:courseId
 
-取消点赞，响应 `{ "liked": false, "like_count": 128 }`。也支持 `DELETE /api/likes` 并在请求体中传 `{ "course_id": 1 }`。
+取消点赞，响应 `{ "liked": false, "likeCount": 128 }`。也支持 `DELETE /api/likes` 并在请求体中传 `{ "courseId": 1 }`。
 
 ### GET /api/likes/:courseId
 
-查询当前用户对该课程的点赞状态与课程总点赞数，响应 `{ "liked": true, "like_count": 129 }`。也支持 `GET /api/likes/status?course_id=1`。
+查询当前用户对该课程的点赞状态与课程总点赞数，响应 `{ "liked": true, "likeCount": 129 }`。也支持 `GET /api/likes/status?courseId=1`。
 
 ### GET /api/likes
 

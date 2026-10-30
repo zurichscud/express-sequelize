@@ -7,12 +7,12 @@ const TYPES = ['image', 'video'];
 // 列表只返回展示所需字段，上传者仅暴露安全信息
 const LIST_ATTRIBUTES = [
   'id',
-  'user_id',
+  'userId',
   'name',
-  'object_key',
+  'objectKey',
   'url',
   'type',
-  'mime_type',
+  'mimeType',
   'size',
   'createdAt',
   'updatedAt'
@@ -37,7 +37,7 @@ async function listAttachments({ offset, limit, keyword, type }) {
   if (keyword) {
     where[Op.or] = [
       { name: { [Op.like]: `%${keyword}%` } },
-      { object_key: { [Op.like]: `%${keyword}%` } },
+      { objectKey: { [Op.like]: `%${keyword}%` } },
       { url: { [Op.like]: `%${keyword}%` } }
     ];
   }
@@ -69,7 +69,7 @@ async function deleteAttachmentById(id) {
     return false;
   }
 
-  await removeObject(attachment.object_key);
+  await removeObject(attachment.objectKey);
   await attachment.destroy();
   return true;
 }

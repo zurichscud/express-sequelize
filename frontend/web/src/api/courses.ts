@@ -4,8 +4,8 @@ import type { Category, Course, ListResult } from '@/types'
 export interface CourseQuery {
   page?: number
   pageSize?: number
-  category_id?: number
-  is_recommended?: boolean | string
+  categoryId?: number
+  isRecommended?: boolean | string
   keyword?: string
 }
 

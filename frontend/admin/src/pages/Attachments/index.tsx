@@ -136,7 +136,7 @@ export default function AttachmentsPage() {
             <Typography.Text strong ellipsis={{ tooltip: name }}>
               {name}
             </Typography.Text>
-            <span className="cell-title__sub">{record.object_key}</span>
+            <span className="cell-title__sub">{record.objectKey}</span>
           </div>
         </div>
       ),

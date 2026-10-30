@@ -191,7 +191,7 @@ async function deleteUserById(id) {
     return false;
   }
 
-  const courseCount = await Course.count({ where: { user_id: id } });
+  const courseCount = await Course.count({ where: { userId: id } });
   if (courseCount > 0) {
     const businessError = new Error(`该用户名下还有 ${courseCount} 门课程，无法删除`);
     businessError.status = 400;

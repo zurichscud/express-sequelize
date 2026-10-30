@@ -23,7 +23,7 @@ async function presignUpload(file: File) {
  */
 async function putToOss(presign: UploadPresign, file: File, onProgress?: (percent: number) => void) {
   try {
-    await axios.put(presign.upload_url, file, {
+    await axios.put(presign.uploadUrl, file, {
       headers: presign.headers,
       // 视频文件较大，交给 OSS 和浏览器处理，这里不做超时中断
       timeout: 0,
@@ -52,7 +52,7 @@ export async function uploadMedia(file: File, onProgress?: (percent: number) => 
   await putToOss(presign, file, onProgress)
 
   const response = await request.post<ApiEnvelope<UploadResult>>('/uploads/complete', {
-    upload_token: presign.upload_token,
+    uploadToken: presign.uploadToken,
   })
   return response.data.data
 }

@@ -10,7 +10,7 @@ const Like = sequelize.define(
       autoIncrement: true,
       comment: '主键'
     },
-    course_id: {
+    courseId: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
       comment: '课程 ID',
@@ -23,7 +23,7 @@ const Like = sequelize.define(
         }
       }
     },
-    user_id: {
+    userId: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
       comment: '点赞前台用户 ID',

@@ -4,13 +4,13 @@ const { Category, Course, AppUser } = require('../models');
 // 列表不返回 content 正文，减少传输体积
 const LIST_ATTRIBUTES = [
   'id',
-  'category_id',
-  'user_id',
+  'categoryId',
+  'userId',
   'name',
   'image',
-  'is_recommended',
-  'like_count',
-  'chapter_count',
+  'isRecommended',
+  'likeCount',
+  'chapterCount',
   'createdAt',
   'updatedAt'
 ];
@@ -53,15 +53,15 @@ async function listCourses({
 }) {
   const where = {};
   if (categoryId) {
-    where.category_id = categoryId;
+    where.categoryId = categoryId;
   }
   if (userId) {
-    where.user_id = userId;
+    where.userId = userId;
   }
   if (isRecommended === 'true' || isRecommended === '1') {
-    where.is_recommended = true;
+    where.isRecommended = true;
   } else if (isRecommended === 'false' || isRecommended === '0') {
-    where.is_recommended = false;
+    where.isRecommended = false;
   }
   if (keyword) {
     where.name = { [Op.like]: `%${keyword}%` };
@@ -96,12 +96,12 @@ async function getCourseById(id) {
  * @param {object} data
  */
 async function createCourse(data) {
-  await assertRefsExist(data.category_id, data.user_id);
+  await assertRefsExist(data.categoryId, data.userId);
   return Course.create(data);
 }
 
 /**
- * 按 ID 更新课程（仅更新传入字段；user_id 创建后不可变更）
+ * 按 ID 更新课程（仅更新传入字段；userId 创建后不可变更）
  * @param {number|string} id
  * @param {object} data
  * @returns {Promise<object|null>} 课程不存在时返回 null
@@ -112,8 +112,8 @@ async function updateCourseById(id, data) {
     return null;
   }
 
-  if (data.category_id !== undefined) {
-    await assertRefsExist(data.category_id);
+  if (data.categoryId !== undefined) {
+    await assertRefsExist(data.categoryId);
   }
   await course.update(data);
   return getCourseById(id);

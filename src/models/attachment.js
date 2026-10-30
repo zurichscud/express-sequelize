@@ -12,7 +12,7 @@ const Attachment = sequelize.define(
       autoIncrement: true,
       comment: '主键'
     },
-    user_id: {
+    userId: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: true,
       comment: '上传系统用户 ID（用户删除后置空）',
@@ -46,13 +46,13 @@ const Attachment = sequelize.define(
         }
       }
     },
-    object_key: {
+    objectKey: {
       type: DataTypes.STRING(500),
       allowNull: false,
       unique: true,
       comment: 'OSS 对象 Key',
       set(value) {
-        this.setDataValue('object_key', typeof value === 'string' ? value.trim() : value);
+        this.setDataValue('objectKey', typeof value === 'string' ? value.trim() : value);
       },
       validate: {
         notNull: { msg: 'OSS 对象 Key 不能为空' },
@@ -103,12 +103,12 @@ const Attachment = sequelize.define(
         }
       }
     },
-    mime_type: {
+    mimeType: {
       type: DataTypes.STRING(100),
       allowNull: false,
       comment: 'MIME 类型',
       set(value) {
-        this.setDataValue('mime_type', typeof value === 'string' ? value.trim() : value);
+        this.setDataValue('mimeType', typeof value === 'string' ? value.trim() : value);
       },
       validate: {
         notNull: { msg: 'MIME 类型不能为空' },

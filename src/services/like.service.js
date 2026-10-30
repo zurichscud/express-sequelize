@@ -4,14 +4,14 @@ const { Category, Course, Like, AppUser } = require('../models');
 // 返回给前台的课程字段，与前台课程列表保持一致（含 content 供简介展示）
 const COURSE_ATTRIBUTES = [
   'id',
-  'category_id',
-  'user_id',
+  'categoryId',
+  'userId',
   'name',
   'image',
-  'is_recommended',
+  'isRecommended',
   'content',
-  'like_count',
-  'chapter_count',
+  'likeCount',
+  'chapterCount',
   'createdAt',
   'updatedAt'
 ];
@@ -37,7 +37,7 @@ async function getCourseOrThrow(courseId) {
  * 点赞课程（幂等：已经点过赞不会重复累加）
  * @param {number|string} userId
  * @param {number|string} courseId
- * @returns {Promise<{ liked: boolean, like_count: number }>}
+ * @returns {Promise<{ liked: boolean, likeCount: number }>}
  */
 async function likeCourse(userId, courseId) {
   const course = await getCourseOrThrow(courseId);
@@ -45,7 +45,7 @@ async function likeCourse(userId, courseId) {
   let created = false;
   try {
     const [, isCreated] = await Like.findOrCreate({
-      where: { user_id: userId, course_id: courseId }
+      where: { userId, courseId }
     });
     created = isCreated;
   } catch (err) {
@@ -57,51 +57,51 @@ async function likeCourse(userId, courseId) {
 
   if (created) {
     // silent 避免点赞数变化刷新课程 updatedAt
-    await course.increment('like_count', { silent: true });
+    await course.increment('likeCount', { silent: true });
     await course.reload();
   }
 
-  return { liked: true, like_count: Number(course.like_count) };
+  return { liked: true, likeCount: Number(course.likeCount) };
 }
 
 /**
  * 取消点赞（幂等：未点赞时直接返回当前状态）
  * @param {number|string} userId
  * @param {number|string} courseId
- * @returns {Promise<{ liked: boolean, like_count: number }>}
+ * @returns {Promise<{ liked: boolean, likeCount: number }>}
  */
 async function unlikeCourse(userId, courseId) {
   const course = await getCourseOrThrow(courseId);
 
-  const like = await Like.findOne({ where: { user_id: userId, course_id: courseId } });
+  const like = await Like.findOne({ where: { userId, courseId } });
   if (like) {
     await like.destroy();
-    // 加上 like_count > 0 条件，避免历史脏数据导致无符号字段减成负数
-    await Course.decrement('like_count', {
+    // 加上 likeCount > 0 条件，避免历史脏数据导致无符号字段减成负数
+    await Course.decrement('likeCount', {
       by: 1,
-      where: { id: courseId, like_count: { [Op.gt]: 0 } },
+      where: { id: courseId, likeCount: { [Op.gt]: 0 } },
       silent: true
     });
     await course.reload();
   }
 
-  return { liked: false, like_count: Number(course.like_count) };
+  return { liked: false, likeCount: Number(course.likeCount) };
 }
 
 /**
  * 查询当前用户对某门课程的点赞状态
  * @param {number|string} userId
  * @param {number|string} courseId
- * @returns {Promise<{ liked: boolean, like_count: number }>}
+ * @returns {Promise<{ liked: boolean, likeCount: number }>}
  */
 async function getLikeStatus(userId, courseId) {
   const course = await getCourseOrThrow(courseId);
   const like = await Like.findOne({
-    where: { user_id: userId, course_id: courseId },
+    where: { userId, courseId },
     attributes: ['id']
   });
 
-  return { liked: Boolean(like), like_count: Number(course.like_count) };
+  return { liked: Boolean(like), likeCount: Number(course.likeCount) };
 }
 
 /**
@@ -111,8 +111,8 @@ async function getLikeStatus(userId, courseId) {
  */
 async function listLikedCourses({ userId, offset, limit }) {
   const { count, rows } = await Like.findAndCountAll({
-    where: { user_id: userId },
-    attributes: ['id', 'course_id', 'createdAt'],
+    where: { userId },
+    attributes: ['id', 'courseId', 'createdAt'],
     include: [
       {
         model: Course,

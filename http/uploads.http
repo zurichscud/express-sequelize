@@ -12,8 +12,8 @@ Content-Type: application/json
   "size": 20480
 }
 
-### 用返回的 upload_url 直传图片到 OSS（示例文件放到 http/fixtures/ 下）
-PUT {{presignImage.response.body.$.data.upload_url}}
+### 用返回的 uploadUrl 直传图片到 OSS（示例文件放到 http/fixtures/ 下）
+PUT {{presignImage.response.body.$.data.uploadUrl}}
 Content-Type: image/png
 
 < ./fixtures/cover.png
@@ -24,7 +24,7 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "upload_token": "{{presignImage.response.body.$.data.upload_token}}"
+  "uploadToken": "{{presignImage.response.body.$.data.uploadToken}}"
 }
 
 ### 申请视频直传地址
@@ -40,7 +40,7 @@ Content-Type: application/json
 }
 
 ### 直传视频到 OSS
-PUT {{presignVideo.response.body.$.data.upload_url}}
+PUT {{presignVideo.response.body.$.data.uploadUrl}}
 Content-Type: video/mp4
 
 < ./fixtures/chapter.mp4
@@ -51,5 +51,5 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "upload_token": "{{presignVideo.response.body.$.data.upload_token}}"
+  "uploadToken": "{{presignVideo.response.body.$.data.uploadToken}}"
 }

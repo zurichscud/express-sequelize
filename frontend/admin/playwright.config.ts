@@ -42,9 +42,9 @@ export default defineConfig({
   ],
   webServer: [
     {
-      // 后端未启动时自动拉起（依赖根目录的 .env 与 MySQL）
+      // 后端未启动时自动拉起（依赖仓库根目录的 .env 与 MySQL）
       command: 'npm run dev',
-      cwd: '..',
+      cwd: '../..',
       url: `${API_URL}/health`,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,

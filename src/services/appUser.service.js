@@ -1,5 +1,6 @@
 const { Op, UniqueConstraintError } = require('sequelize');
 const { AppUser, Course } = require('../models');
+const { USER_SEXES, USER_ROLE } = require('../constants/enums');
 const { verifyPassword } = require('../utils/password');
 const {
   assertPasswordStrength,
@@ -9,9 +10,7 @@ const {
   verifyCredentials
 } = require('./user.helpers');
 
-const SEXES = ['unknown', 'male', 'female'];
-
-// app_users 不存储角色，对外仍保留 role=user 以兼容前台登录态结构
+// app_users 不存储角色，对外仍保留 role=0 以兼容前台登录态结构
 const SAFE_ATTRIBUTES = ['id', 'email', 'username', 'nickname', 'sex', 'createdAt', 'updatedAt'];
 
 /**
@@ -21,7 +20,7 @@ const SAFE_ATTRIBUTES = ['id', 'email', 'username', 'nickname', 'sex', 'createdA
  * @returns {object}
  */
 function toSafeAppUser(user, { withRole = false } = {}) {
-  return toSafeUser(user, SAFE_ATTRIBUTES, withRole ? { role: 'user' } : {});
+  return toSafeUser(user, SAFE_ATTRIBUTES, withRole ? { role: USER_ROLE.USER } : {});
 }
 
 /**
@@ -60,7 +59,7 @@ async function createUser(data) {
 
 /**
  * 前台注册并直接签发登录态（注册用户固定为普通用户，不接受 role 入参）
- * @param {{ email: string, password: string, username: string, nickname?: string, sex?: string }} data
+ * @param {{ email: string, password: string, username: string, nickname?: string, sex?: number }} data
  * @returns {Promise<object>}
  */
 async function register(data) {
@@ -71,7 +70,7 @@ async function register(data) {
 /**
  * 更新当前登录用户的资料（仅昵称、性别）
  * @param {number|string} id
- * @param {{ nickname?: string, sex?: string }} data
+ * @param {{ nickname?: string, sex?: number }} data
  * @returns {Promise<object|null>} 用户不存在时返回 null
  */
 async function updateUserProfile(id, data) {
@@ -112,12 +111,12 @@ async function changePassword(id, { oldPassword, newPassword }) {
 
 /**
  * 分页查询前台用户列表（后台课程归属选择使用）
- * @param {{ offset: number, limit: number, keyword?: string, sex?: string }} options
+ * @param {{ offset: number, limit: number, keyword?: string, sex?: number }} options
  * @returns {Promise<{ list: object[], total: number }>}
  */
 async function listUsers({ offset, limit, keyword, sex }) {
   const where = {};
-  if (SEXES.includes(sex)) {
+  if (USER_SEXES.includes(sex)) {
     where.sex = sex;
   }
   if (keyword) {

@@ -105,6 +105,39 @@ function queryEnum(values, message) {
 }
 
 /**
+ * 请求体 / 查询参数中的整数枚举值，兼容数字与数字字符串
+ * @param {number[]} values
+ * @param {string} message
+ */
+function intEnum(values, message) {
+  return z.coerce
+    .number({ error: message })
+    .int(message)
+    .refine((value) => values.includes(value), { message });
+}
+
+/**
+ * 请求体选填整数枚举值，null 与空串视为未传
+ * @param {number[]} values
+ * @param {string} message
+ */
+function optionalIntEnum(values, message) {
+  return z.preprocess(
+    (value) => (value === null || value === "" ? undefined : value),
+    intEnum(values, message).optional(),
+  );
+}
+
+/**
+ * 查询参数中的整数枚举值，空串视为未传
+ * @param {number[]} values
+ * @param {string} message
+ */
+function queryIntEnum(values, message) {
+  return z.preprocess(emptyToUndefined, intEnum(values, message).optional());
+}
+
+/**
  * 请求体必填字符串：去首尾空格后不能为空
  * @param {string} label
  * @param {number} [max]
@@ -210,6 +243,9 @@ module.exports = {
   queryId,
   queryText,
   queryEnum,
+  intEnum,
+  optionalIntEnum,
+  queryIntEnum,
   requiredString,
   optionalString,
   optionalNonEmptyString,

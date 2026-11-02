@@ -26,8 +26,8 @@ interface SearchValues {
 }
 
 const STATUS_OPTIONS = [
-  { value: 'published', label: '已发布' },
-  { value: 'draft', label: '草稿' },
+  { value: 1, label: '已发布' },
+  { value: 0, label: '草稿' },
 ]
 
 export default function ArticlesPage() {
@@ -71,7 +71,7 @@ export default function ArticlesPage() {
     setPage(1)
     setQuery({
       keyword: values.keyword?.trim() || undefined,
-      status: values.status || undefined,
+      status: values.status ?? undefined,
     })
   }
 
@@ -147,7 +147,7 @@ export default function ArticlesPage() {
       key: 'status',
       width: 100,
       render: (status: ArticleStatus) =>
-        status === 'published' ? <Tag color="success">已发布</Tag> : <Tag>草稿</Tag>,
+        status === 1 ? <Tag color="success">已发布</Tag> : <Tag>草稿</Tag>,
     },
     {
       title: '浏览量',

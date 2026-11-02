@@ -19,6 +19,8 @@
 ├─ src/
 │  ├─ app.js                     # Express 应用与错误处理
 │  ├─ server.js                  # 启动入口：连接数据库、监听端口
+│  ├─ constants/
+│  │  └─ enums.js                # 枚举字段的 TINYINT 数字编码
 │  ├─ config/
 │  │  ├─ config.js               # 数据库配置（CLI 与运行时共用）
 │  │  ├─ database.js             # Sequelize 实例
@@ -34,7 +36,8 @@
 │  │  ├─ 20261027060000-sync-course-chapter-count.js
 │  │  ├─ 20261027070000-create-attachments.js
 │  │  ├─ 20261028000000-split-users-into-sys-and-app.js
-│  │  └─ 20261028010000-remove-admin-from-app-users.js
+│  │  ├─ 20261028010000-remove-admin-from-app-users.js
+│  │  └─ 20261102000000-change-enum-columns-to-tinyint.js
 │  ├─ seeders/
 │  │  ├─ 20261026000001-demo-articles.js
 │  │  ├─ 20261027000001-default-settings.js
@@ -261,6 +264,8 @@ npm run db:seed:undo
 ## 数据表
 
 各表字段、索引与外键说明见参考 SQL：[sql/schema.sql](sql/schema.sql)（实际建表以迁移为准）。
+
+枚举字段（文章状态、用户性别 / 角色、附件类型）统一使用 `TINYINT` 数字编码，编码约定见 [docs/api.md](docs/api.md#枚举字段编码)。
 
 ## 常用命令
 

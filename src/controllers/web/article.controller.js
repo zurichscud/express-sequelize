@@ -1,5 +1,6 @@
 const { success, successPage, fail } = require('../../utils/response');
 const articleService = require('../../services/article.service');
+const { ARTICLE_STATUS } = require('../../constants/enums');
 
 /**
  * GET /api/articles
@@ -16,7 +17,7 @@ async function listArticles(req, res, next) {
       ...req.pagination,
       keyword,
       sort,
-      status: 'published'
+      status: ARTICLE_STATUS.PUBLISHED
     });
 
     successPage(res, { list, total }, req.pagination);

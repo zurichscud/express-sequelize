@@ -10,7 +10,7 @@ export interface PageResult<T> {
   pagination: Pagination
 }
 
-export type ArticleStatus = 'draft' | 'published'
+export type ArticleStatus = 0 | 1
 
 export interface Article {
   id: number
@@ -53,8 +53,8 @@ export interface CategoryPayload {
   rank: number
 }
 
-export type Sex = 'unknown' | 'male' | 'female'
-export type Role = 'user' | 'admin'
+export type Sex = 0 | 1 | 2
+export type Role = 0 | 1
 
 /** 系统用户（sys_users），后台登录账号 */
 export interface User {
@@ -197,7 +197,10 @@ export interface SiteSetting {
   copyright: string | null
 }
 
-export type UploadMediaType = 'image' | 'video'
+export type MediaKind = 'image' | 'video'
+
+/** 附件类型：0 图片 / 1 视频 */
+export type UploadMediaType = 0 | 1
 
 /** 服务端签发的 OSS 直传凭证 */
 export interface UploadPresign {

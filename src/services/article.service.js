@@ -1,17 +1,16 @@
 const { Op } = require('sequelize');
 const { Article } = require('../models');
-
-const STATUSES = ['draft', 'published'];
+const { ARTICLE_STATUS, ARTICLE_STATUSES } = require('../constants/enums');
 
 /**
  * 分页查询文章列表
- * @param {{ offset: number, limit: number, title?: string, keyword?: string, status?: string, sort?: string }} options
+ * @param {{ offset: number, limit: number, title?: string, keyword?: string, status?: number, sort?: string }} options
  *   sort 为 hot/views 时按浏览量倒序，其余按创建时间倒序
  * @returns {Promise<{ list: object[], total: number }>}
  */
 async function listArticles({ offset, limit, title, keyword, status, sort }) {
   const where = {};
-  if (STATUSES.includes(status)) {
+  if (ARTICLE_STATUSES.includes(status)) {
     where.status = status;
   }
   if (title) {
@@ -64,7 +63,7 @@ async function getArticleById(id) {
  */
 async function getPublishedArticleDetail(id) {
   const article = await Article.findByPk(id);
-  if (!article || article.status !== 'published') {
+  if (!article || article.status !== ARTICLE_STATUS.PUBLISHED) {
     return null;
   }
 

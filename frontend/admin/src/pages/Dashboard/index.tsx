@@ -42,15 +42,15 @@ interface DashboardData {
 }
 
 const SEX_LABELS: Record<Sex, string> = {
-  male: '男',
-  female: '女',
-  unknown: '未知',
+  1: '男',
+  2: '女',
+  0: '未知',
 }
 
 const SEX_COLORS: Record<Sex, string> = {
-  male: '#4f46e5',
-  female: '#0ea5e9',
-  unknown: '#94a3b8',
+  1: '#4f46e5',
+  2: '#0ea5e9',
+  0: '#94a3b8',
 }
 
 const recentColumns: TableProps<Article>['columns'] = [
@@ -74,7 +74,7 @@ const recentColumns: TableProps<Article>['columns'] = [
     key: 'status',
     width: 100,
     render: (status: Article['status']) =>
-      status === 'published' ? <Tag color="success">已发布</Tag> : <Tag>草稿</Tag>,
+      status === 1 ? <Tag color="success">已发布</Tag> : <Tag>草稿</Tag>,
   },
   {
     title: '浏览',

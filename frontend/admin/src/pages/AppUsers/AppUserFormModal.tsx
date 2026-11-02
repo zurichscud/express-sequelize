@@ -84,7 +84,7 @@ export default function AppUserFormModal({ user, onClose, onSaved }: AppUserForm
                 username: '',
                 nickname: '',
                 password: '',
-                sex: 'unknown',
+                sex: 0,
               }
         }
         onFinish={handleFinish}
@@ -163,9 +163,9 @@ export default function AppUserFormModal({ user, onClose, onSaved }: AppUserForm
             >
               <Select
                 options={[
-                  { value: 'male', label: '男' },
-                  { value: 'female', label: '女' },
-                  { value: 'unknown', label: '未知' },
+                  { value: 1, label: '男' },
+                  { value: 2, label: '女' },
+                  { value: 0, label: '未知' },
                 ]}
               />
             </Form.Item>

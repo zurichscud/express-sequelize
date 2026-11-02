@@ -7,7 +7,7 @@ const articles = [
     content:
       'Express 应用本质上是一条中间件流水线。每个中间件都能访问 req、res 和 next，通过调用 next() 将控制权交给下一个中间件。理解注册顺序、挂载路径以及错误中间件的四个参数，是写出可维护服务端代码的第一步。',
     author: '张三',
-    status: 'published',
+    status: 1,
     views: 128
   },
   {
@@ -16,7 +16,7 @@ const articles = [
     content:
       'Sequelize 通过 define 或 Model.init 描述表结构。hasMany / belongsTo 建立一对多关系，belongsToMany 通过中间表建立多对多关系。配合 underscored 和 freezeTableName，可以让模型命名与数据库规范保持一致。',
     author: '李四',
-    status: 'published',
+    status: 1,
     views: 96
   },
   {
@@ -25,7 +25,7 @@ const articles = [
     content:
       'WSL2 默认开启 localhostForwarding，Windows 访问 127.0.0.1:3306 会转发到 WSL 内监听的端口。若不通，可在 WSL 中执行 hostname -I 获取虚拟网卡地址，并检查 MySQL 的 bind-address 与防火墙配置。',
     author: '王五',
-    status: 'published',
+    status: 1,
     views: 210
   },
   {
@@ -34,7 +34,7 @@ const articles = [
     content:
       '设计 RESTful API 时，先约定资源路径和响应格式；对分页参数做上限保护；把数据库错误转换为稳定的业务错误码；记录请求日志与慢查询；最后用自动化测试覆盖关键路径。这些习惯能显著降低后期维护成本。',
     author: '赵六',
-    status: 'published',
+    status: 1,
     views: 305
   },
   {
@@ -43,7 +43,7 @@ const articles = [
     content:
       '分页查询需要同时返回当前页数据和总数。Sequelize 的 findAndCountAll 会在一次调用中执行 count 和 select。注意为排序字段建立索引，并对 pageSize 设置上限，避免一次性拉取过多数据。',
     author: '张三',
-    status: 'draft',
+    status: 0,
     views: 0
   },
   {
@@ -52,7 +52,7 @@ const articles = [
     content:
       'MySQL 中的 utf8 实际是 utf8mb3，最多三个字节，无法完整存储四字节的 Emoji。建库、建表和连接字符集都应设置为 utf8mb4，并搭配 utf8mb4_unicode_ci 或 utf8mb4_0900_ai_ci 排序规则。',
     author: '李四',
-    status: 'published',
+    status: 1,
     views: 57
   }
 ];

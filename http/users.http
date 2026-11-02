@@ -13,7 +13,7 @@ GET {{baseUrl}}/users
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### 系统用户列表（关键词搜索 + 角色筛选）
-GET {{baseUrl}}/users?keyword=admin&role=admin
+GET {{baseUrl}}/users?keyword=admin&role=1
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### 创建系统用户
@@ -26,8 +26,8 @@ Content-Type: application/json
   "password": "123456",
   "username": "operator",
   "nickname": "运营",
-  "sex": "male",
-  "role": "admin"
+  "sex": 1,
+  "role": 1
 }
 
 ### 系统用户详情（响应中不包含密码）
@@ -41,7 +41,7 @@ Content-Type: application/json
 
 {
   "nickname": "超级管理员",
-  "sex": "unknown"
+  "sex": 0
 }
 
 ### 更新系统用户（修改密码，存储时自动哈希）
@@ -62,7 +62,7 @@ GET {{baseUrl}}/app-users?page=1&pageSize=100
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### 前台用户列表（关键词 + 性别筛选）
-GET {{baseUrl}}/app-users?keyword=demo&sex=female
+GET {{baseUrl}}/app-users?keyword=demo&sex=2
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### 创建前台用户
@@ -75,7 +75,7 @@ Content-Type: application/json
   "password": "123456",
   "username": "webuser",
   "nickname": "前台用户",
-  "sex": "female"
+  "sex": 2
 }
 
 ### 前台用户详情（响应中不包含密码）
@@ -89,7 +89,7 @@ Content-Type: application/json
 
 {
   "nickname": "前台用户改名",
-  "sex": "unknown"
+  "sex": 0
 }
 
 ### 重置前台用户密码（存储时自动哈希）

@@ -10,7 +10,7 @@ Content-Type: application/json
   "password": "123456",
   "username": "user01",
   "nickname": "前台用户",
-  "sex": "unknown"
+  "sex": 0
 }
 
 ### 前台登录
@@ -34,7 +34,7 @@ Content-Type: application/json
 
 {
   "nickname": "新的昵称",
-  "sex": "female"
+  "sex": 2
 }
 
 ### 修改密码

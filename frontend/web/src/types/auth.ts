@@ -3,8 +3,8 @@ export interface AuthUser {
   email: string
   username: string
   nickname: string | null
-  sex: 'unknown' | 'male' | 'female'
-  role: 'user' | 'admin'
+  sex: 0 | 1 | 2
+  role: 0 | 1
   createdAt?: string
   updatedAt?: string
 }
@@ -32,5 +32,5 @@ export interface RegisterPayload {
   username: string
   password: string
   nickname?: string
-  sex?: 'unknown' | 'male' | 'female'
+  sex?: 0 | 1 | 2
 }

@@ -63,7 +63,7 @@ export interface Article {
   summary: string | null
   content?: string
   author: string
-  status: 'draft' | 'published'
+  status: 0 | 1
   views: number
   createdAt: string
   updatedAt: string

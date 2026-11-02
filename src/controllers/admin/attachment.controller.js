@@ -5,7 +5,7 @@ const attachmentService = require('../../services/attachment.service');
  * GET /api/admin/attachments
  * 分页参数由 pagination.middleware.js 处理，其余查询参数由 attachment.validator.js 校验
  *   keyword  文件名 / OSS Key / 地址模糊搜索
- *   type     image | video
+ *   type     0 图片 | 1 视频
  */
 async function listAttachments(req, res, next) {
   try {

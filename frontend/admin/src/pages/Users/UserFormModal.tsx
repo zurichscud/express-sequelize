@@ -87,8 +87,8 @@ export default function UserFormModal({ user, onClose, onSaved }: UserFormModalP
                 username: '',
                 nickname: '',
                 password: '',
-                sex: 'unknown',
-                role: 'user',
+                sex: 0,
+                role: 0,
               }
         }
         onFinish={handleFinish}
@@ -167,9 +167,9 @@ export default function UserFormModal({ user, onClose, onSaved }: UserFormModalP
             >
               <Select
                 options={[
-                  { value: 'male', label: '男' },
-                  { value: 'female', label: '女' },
-                  { value: 'unknown', label: '未知' },
+                  { value: 1, label: '男' },
+                  { value: 2, label: '女' },
+                  { value: 0, label: '未知' },
                 ]}
               />
             </Form.Item>
@@ -182,8 +182,8 @@ export default function UserFormModal({ user, onClose, onSaved }: UserFormModalP
             >
               <Select
                 options={[
-                  { value: 'admin', label: '管理员' },
-                  { value: 'user', label: '普通用户' },
+                  { value: 1, label: '管理员' },
+                  { value: 0, label: '普通用户' },
                 ]}
               />
             </Form.Item>

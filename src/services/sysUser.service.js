@@ -1,5 +1,6 @@
 const { Op, UniqueConstraintError } = require('sequelize');
 const { SysUser } = require('../models');
+const { USER_SEXES, USER_ROLES } = require('../constants/enums');
 const {
   assertPasswordStrength,
   toUniqueError,
@@ -7,9 +8,6 @@ const {
   issueAuthResult,
   verifyCredentials
 } = require('./user.helpers');
-
-const SEXES = ['unknown', 'male', 'female'];
-const ROLES = ['user', 'admin'];
 
 // 系统用户 1 号为超级管理员，禁止编辑和删除
 const SUPER_ADMIN_ID = 1;
@@ -52,15 +50,15 @@ async function login({ account, password }) {
 
 /**
  * 分页查询系统用户列表
- * @param {{ offset: number, limit: number, keyword?: string, sex?: string, role?: string }} options
+ * @param {{ offset: number, limit: number, keyword?: string, sex?: number, role?: number }} options
  * @returns {Promise<{ list: object[], total: number }>}
  */
 async function listUsers({ offset, limit, keyword, sex, role }) {
   const where = {};
-  if (SEXES.includes(sex)) {
+  if (USER_SEXES.includes(sex)) {
     where.sex = sex;
   }
-  if (ROLES.includes(role)) {
+  if (USER_ROLES.includes(role)) {
     where.role = role;
   }
   if (keyword) {

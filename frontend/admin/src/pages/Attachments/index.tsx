@@ -32,8 +32,8 @@ interface SearchValues {
 }
 
 const TYPE_OPTIONS = [
-  { value: 'image', label: '图片' },
-  { value: 'video', label: '视频' },
+  { value: 0, label: '图片' },
+  { value: 1, label: '视频' },
 ]
 
 export default function AttachmentsPage() {
@@ -74,7 +74,7 @@ export default function AttachmentsPage() {
     setPage(1)
     setQuery({
       keyword: values.keyword?.trim() || undefined,
-      type: values.type || undefined,
+      type: values.type ?? undefined,
     })
   }
 
@@ -128,8 +128,8 @@ export default function AttachmentsPage() {
           <Avatar
             shape="square"
             size={44}
-            src={record.type === 'image' ? record.url : undefined}
-            icon={record.type === 'video' ? <VideoCameraOutlined /> : undefined}
+            src={record.type === 0 ? record.url : undefined}
+            icon={record.type === 1 ? <VideoCameraOutlined /> : undefined}
             style={{ flexShrink: 0, background: 'var(--ant-color-fill-tertiary, rgba(0, 0, 0, 0.04))' }}
           />
           <div className="cell-title">
@@ -147,7 +147,7 @@ export default function AttachmentsPage() {
       key: 'type',
       width: 90,
       render: (type: UploadMediaType) =>
-        type === 'video' ? <Tag color="purple">视频</Tag> : <Tag color="blue">图片</Tag>,
+        type === 1 ? <Tag color="purple">视频</Tag> : <Tag color="blue">图片</Tag>,
     },
     {
       title: '大小',
@@ -279,7 +279,7 @@ export default function AttachmentsPage() {
       >
         {preview ? (
           <div>
-            {preview.type === 'image' ? (
+            {preview.type === 0 ? (
               <img
                 src={preview.url}
                 alt={preview.name}

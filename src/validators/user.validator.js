@@ -2,14 +2,16 @@ const { z } = require('zod');
 const {
   idParam,
   queryText,
-  queryEnum,
+  queryIntEnum,
+  optionalIntEnum,
   optionalString,
   bodyObject,
   requireAtLeastOneField
 } = require('./common');
+const { USER_SEXES, USER_ROLES } = require('../constants/enums');
 
-const SEXES = ['unknown', 'male', 'female'];
-const ROLES = ['user', 'admin'];
+const SEX_MESSAGE = '性别只能是 0（未知）、1（男）或 2（女）';
+const ROLE_MESSAGE = '角色只能是 0（普通用户）或 1（管理员）';
 
 const PASSWORD_MESSAGE = '密码长度需在 6-72 位之间';
 
@@ -94,17 +96,11 @@ function optionalUsernameField() {
 }
 
 function sexField() {
-  return z.preprocess(
-    (value) => (value === null ? undefined : value),
-    z.enum(SEXES, { error: '性别只能是 unknown、male 或 female' }).optional()
-  );
+  return optionalIntEnum(USER_SEXES, SEX_MESSAGE);
 }
 
 function roleField() {
-  return z.preprocess(
-    (value) => (value === null ? undefined : value),
-    z.enum(ROLES, { error: '角色只能是 user 或 admin' }).optional()
-  );
+  return optionalIntEnum(USER_ROLES, ROLE_MESSAGE);
 }
 
 // 前台用户没有角色字段，zod 会自动丢弃 role 等白名单之外的字段
@@ -128,13 +124,13 @@ const userIdParamsSchema = z.object({ id: idParam('用户') });
 
 const appUserListQuerySchema = z.object({
   keyword: queryText('搜索关键词', 200),
-  sex: queryEnum(SEXES, '性别只能是 unknown、male 或 female')
+  sex: queryIntEnum(USER_SEXES, SEX_MESSAGE)
 });
 
 const sysUserListQuerySchema = z.object({
   keyword: queryText('搜索关键词', 200),
-  sex: queryEnum(SEXES, '性别只能是 unknown、male 或 female'),
-  role: queryEnum(ROLES, '角色只能是 user 或 admin')
+  sex: queryIntEnum(USER_SEXES, SEX_MESSAGE),
+  role: queryIntEnum(USER_ROLES, ROLE_MESSAGE)
 });
 
 const appUserCreateBodySchema = bodyObject(createUserShape);
@@ -188,8 +184,8 @@ const changePasswordBodySchema = bodyObject({
 });
 
 module.exports = {
-  SEXES,
-  ROLES,
+  SEXES: USER_SEXES,
+  ROLES: USER_ROLES,
   loginBodySchema,
   registerBodySchema,
   profileUpdateBodySchema,

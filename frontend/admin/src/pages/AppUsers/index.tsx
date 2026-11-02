@@ -26,9 +26,9 @@ interface SearchValues {
 }
 
 const SEX_LABELS: Record<Sex, string> = {
-  male: '男',
-  female: '女',
-  unknown: '未知',
+  1: '男',
+  2: '女',
+  0: '未知',
 }
 
 export default function AppUsersPage() {
@@ -71,7 +71,7 @@ export default function AppUsersPage() {
     setPage(1)
     setQuery({
       keyword: values.keyword?.trim() || undefined,
-      sex: values.sex || undefined,
+      sex: values.sex ?? undefined,
     })
   }
 
@@ -204,9 +204,9 @@ export default function AppUsersPage() {
               placeholder="全部性别"
               aria-label="前台用户性别"
               options={[
-                { value: 'male', label: '男' },
-                { value: 'female', label: '女' },
-                { value: 'unknown', label: '未知' },
+                { value: 1, label: '男' },
+                { value: 2, label: '女' },
+                { value: 0, label: '未知' },
               ]}
               style={{ width: 120 }}
             />

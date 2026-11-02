@@ -3,7 +3,7 @@ import { App as AntdApp, Button, Input, Space, Typography, Upload } from 'antd'
 import type { UploadProps } from 'antd'
 import { DeleteOutlined, UploadOutlined } from '@ant-design/icons'
 import { uploadMedia } from '@/api/upload'
-import type { UploadMediaType } from '@/types'
+import type { MediaKind } from '@/types'
 
 interface MediaUploadProps {
   /** 由 Form.Item 注入的控件 id，用于关联 label */
@@ -12,11 +12,11 @@ interface MediaUploadProps {
   value?: string | null
   /** 由 Form.Item 注入的变更回调 */
   onChange?: (value: string) => void
-  type: UploadMediaType
+  type: MediaKind
   disabled?: boolean
 }
 
-const ACCEPT: Record<UploadMediaType, string> = {
+const ACCEPT: Record<MediaKind, string> = {
   image: '.jpg,.jpeg,.png,.gif,.webp,.bmp,.avif,image/*',
   video: '.mp4,.webm,.mov,.avi,.mkv,.mpeg,video/*',
 }

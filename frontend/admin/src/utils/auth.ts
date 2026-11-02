@@ -1,5 +1,5 @@
-export type UserRole = 'user' | 'admin'
-export type UserSex = 'unknown' | 'male' | 'female'
+export type UserRole = 0 | 1
+export type UserSex = 0 | 1 | 2
 
 export interface AuthUser {
   id: number

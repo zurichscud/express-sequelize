@@ -75,7 +75,7 @@ test.describe('前台用户管理', () => {
         password: '123456',
         username: `E2E_AppUserCourse_${suffix}`,
         nickname: 'E2E 课程归属用户',
-        sex: 'unknown',
+        sex: 0,
       },
     })
     expect(userResponse.ok()).toBeTruthy()

@@ -5,7 +5,7 @@ GET {{baseUrl}}/attachments?page=1&pageSize=10
 Authorization: Bearer {{token}}
 
 ### 附件列表（只看图片 + 关键词搜索）
-GET {{baseUrl}}/attachments?type=image&keyword=cover
+GET {{baseUrl}}/attachments?type=0&keyword=cover
 Authorization: Bearer {{token}}
 
 ### 删除附件（同时删除 OSS 文件）

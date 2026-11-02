@@ -45,8 +45,8 @@ async function listUsers(req, res, next) {
  *   password 必填，明文密码，6-72 位（存储时自动哈希）
  *   username 必填，用户名，唯一，仅限字母/数字/下划线/短横线
  *   nickname 选填，昵称，最长 64 字
- *   sex      选填，unknown | male | female，默认 unknown
- *   role     选填，user | admin，默认 user
+ *   sex      选填，0 未知 | 1 男 | 2 女，默认 0 未知
+ *   role     选填，0 普通用户 | 1 管理员，默认 0 普通用户
  */
 async function createUser(req, res, next) {
   try {
@@ -84,8 +84,8 @@ async function getUser(req, res, next) {
  *   password 选填，明文密码，6-72 位（存储时自动哈希）
  *   username 选填，用户名，唯一
  *   nickname 选填，昵称，传空字符串可清空
- *   sex      选填，unknown | male | female
- *   role     选填，user | admin
+ *   sex      选填，0 未知 | 1 男 | 2 女
+ *   role     选填，0 普通用户 | 1 管理员
  */
 async function updateUser(req, res, next) {
   try {

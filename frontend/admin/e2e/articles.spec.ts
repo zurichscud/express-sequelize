@@ -24,7 +24,7 @@ test.describe('文章管理', () => {
     const draftResponse = page.waitForResponse(
       (response) =>
         response.url().includes('/api/admin/articles') &&
-        response.url().includes('status=draft') &&
+        response.url().includes('status=0') &&
         response.status() === 200,
     )
     await selectOption(page, page.locator('.filter-card #status'), '草稿')

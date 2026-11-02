@@ -25,7 +25,7 @@ Content-Type: application/json
   "summary": "从零搭建文章接口",
   "content": "这里是文章正文内容。",
   "author": "张三",
-  "status": "published"
+  "status": 1
 }
 
 ### 删除文章
@@ -40,5 +40,5 @@ Content-Type: application/json
 {
   "title": "更新后的标题",
   "summary": "更新后的摘要",
-  "status": "draft"
+  "status": 0
 }

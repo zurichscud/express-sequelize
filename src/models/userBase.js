@@ -1,8 +1,11 @@
 const { DataTypes } = require('sequelize');
 const { hashPassword } = require('../utils/password');
-
-const SEXES = ['unknown', 'male', 'female'];
-const ROLES = ['user', 'admin'];
+const {
+  USER_SEX,
+  USER_SEXES,
+  USER_ROLE,
+  USER_ROLES
+} = require('../constants/enums');
 
 /**
  * 构造系统用户 / 前台用户共用的字段定义
@@ -106,23 +109,15 @@ function buildUserAttributes({ withRole = false } = {}) {
       }
     },
     sex: {
-      type: DataTypes.ENUM('unknown', 'male', 'female'),
+      type: DataTypes.TINYINT,
       allowNull: false,
-      defaultValue: 'unknown',
-      comment: '性别：unknown 未知 / male 男 / female 女',
-      set(value) {
-        this.setDataValue('sex', typeof value === 'string' ? value.trim() : value);
-      },
+      defaultValue: USER_SEX.UNKNOWN,
+      comment: '性别：0 未知 / 1 男 / 2 女',
       validate: {
         notNull: { msg: '性别不能为空' },
-        isString(value) {
-          if (typeof value !== 'string') {
-            throw new Error('性别格式不正确');
-          }
-        },
         isIn: {
-          args: [SEXES],
-          msg: '性别只能是 unknown、male 或 female'
+          args: [USER_SEXES],
+          msg: '性别只能是 0（未知）、1（男）或 2（女）'
         }
       }
     }
@@ -130,23 +125,15 @@ function buildUserAttributes({ withRole = false } = {}) {
 
   if (withRole) {
     attributes.role = {
-      type: DataTypes.ENUM('user', 'admin'),
+      type: DataTypes.TINYINT,
       allowNull: false,
-      defaultValue: 'user',
-      comment: '角色：user 普通用户 / admin 管理员',
-      set(value) {
-        this.setDataValue('role', typeof value === 'string' ? value.trim() : value);
-      },
+      defaultValue: USER_ROLE.USER,
+      comment: '角色：0 普通用户 / 1 管理员',
       validate: {
         notNull: { msg: '角色不能为空' },
-        isString(value) {
-          if (typeof value !== 'string') {
-            throw new Error('角色格式不正确');
-          }
-        },
         isIn: {
-          args: [ROLES],
-          msg: '角色只能是 user 或 admin'
+          args: [USER_ROLES],
+          msg: '角色只能是 0（普通用户）或 1（管理员）'
         }
       }
     };
@@ -168,8 +155,8 @@ const userHooks = {
 };
 
 module.exports = {
-  SEXES,
-  ROLES,
+  SEXES: USER_SEXES,
+  ROLES: USER_ROLES,
   buildUserAttributes,
   userHooks
 };

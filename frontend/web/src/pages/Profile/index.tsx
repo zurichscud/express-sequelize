@@ -11,9 +11,9 @@ import { cx } from '@/utils/cx'
 import type { AuthUser } from '@/types/auth'
 
 const SEX_OPTIONS: Array<{ value: AuthUser['sex']; label: string }> = [
-  { value: 'unknown', label: '不公开' },
-  { value: 'male', label: '男' },
-  { value: 'female', label: '女' },
+  { value: 0, label: '不公开' },
+  { value: 1, label: '男' },
+  { value: 2, label: '女' },
 ]
 
 export default function ProfilePage() {
@@ -30,7 +30,7 @@ function ProfileContent() {
   const { user, updateProfile, changePassword } = useAuth()
 
   const [nickname, setNickname] = useState(user?.nickname ?? '')
-  const [sex, setSex] = useState<AuthUser['sex']>(user?.sex ?? 'unknown')
+  const [sex, setSex] = useState<AuthUser['sex']>(user?.sex ?? 0)
   const [profileSaving, setProfileSaving] = useState(false)
   const [profileNote, setProfileNote] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
@@ -126,7 +126,7 @@ function ProfileContent() {
               </div>
               <div>
                 <dt>角色</dt>
-                <dd>{user.role === 'admin' ? '管理员' : '学习者'}</dd>
+                <dd>{user.role === 1 ? '管理员' : '学习者'}</dd>
               </div>
               <div>
                 <dt>注册时间</dt>

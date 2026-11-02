@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-
-const TYPES = ['image', 'video'];
+const { ATTACHMENT_TYPES } = require('../constants/enums');
 
 const Attachment = sequelize.define(
   'Attachment',
@@ -92,14 +91,14 @@ const Attachment = sequelize.define(
       }
     },
     type: {
-      type: DataTypes.ENUM('image', 'video'),
+      type: DataTypes.TINYINT,
       allowNull: false,
-      comment: '附件类型：image 图片 / video 视频',
+      comment: '附件类型：0 图片 / 1 视频',
       validate: {
         notNull: { msg: '附件类型不能为空' },
         isIn: {
-          args: [TYPES],
-          msg: '附件类型只能是 image 或 video'
+          args: [ATTACHMENT_TYPES],
+          msg: '附件类型只能是 0（图片）或 1（视频）'
         }
       }
     },

@@ -8,11 +8,21 @@ const {
 const { resolveMediaType } = require("../utils/media");
 const { signToken, verifyToken } = require("../utils/jwt");
 const { Attachment } = require("../models");
+const { ATTACHMENT_TYPE } = require("../constants/enums");
 
 const MB = 1024 * 1024;
 
 // 直传凭证的 JWT purpose，避免与登录 token 混用
 const UPLOAD_TOKEN_SCOPE = "oss-upload";
+
+/**
+ * 把内部媒体类型（用于 OSS 目录）转换为附件表使用的数字编码
+ * @param {'image'|'video'} mediaType
+ * @returns {number}
+ */
+function toAttachmentType(mediaType) {
+  return mediaType === "image" ? ATTACHMENT_TYPE.IMAGE : ATTACHMENT_TYPE.VIDEO;
+}
 
 /**
  * 规范原始文件名，避免超长文件名导致附件记录写入失败
@@ -61,7 +71,7 @@ function buildObjectKey(media) {
  * @param {{ name?: string, mime?: string, size?: number|string }} payload
  * @param {{ userId?: number|string|null }} [options]
  * @returns {{ uploadUrl: string, method: 'PUT', headers: Record<string, string>,
- *   uploadToken: string, meta: { objectKey: string, name: string, type: 'image'|'video',
+ *   uploadToken: string, meta: { objectKey: string, name: string, type: number,
  *   mimeType: string, size: number } }}
  */
 function createPresignedUpload({ name, mime, size }, { userId = null } = {}) {
@@ -125,7 +135,7 @@ function createPresignedUpload({ name, mime, size }, { userId = null } = {}) {
     meta: {
       objectKey,
       name: fileName,
-      type: media.type,
+      type: toAttachmentType(media.type),
       mimeType: media.mime,
       size: fileSize,
     },
@@ -221,7 +231,7 @@ async function completeUpload(uploadToken, { userId = null } = {}) {
       name: payload.name,
       objectKey: payload.objectKey,
       url,
-      type: payload.type,
+      type: toAttachmentType(payload.type),
       mimeType: payload.mimeType,
       size: actualSize,
     });

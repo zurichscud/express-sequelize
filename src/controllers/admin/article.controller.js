@@ -6,7 +6,7 @@ const articleService = require('../../services/article.service');
  * 分页参数由 pagination.middleware.js 处理，其余查询参数由 article.validator.js 校验
  *   title    标题模糊搜索
  *   keyword  标题/摘要模糊搜索
- *   status   draft | published
+ *   status   0 草稿 | 1 已发布
  */
 async function listArticles(req, res, next) {
   try {
@@ -32,7 +32,7 @@ async function listArticles(req, res, next) {
  *   content  必填，正文
  *   summary  选填，摘要，最长 500 字
  *   author   选填，作者，最长 64 字，默认“匿名”
- *   status   选填，draft | published，默认 published
+ *   status   选填，0 草稿 | 1 已发布，默认 1 已发布
  */
 async function createArticle(req, res, next) {
   try {
@@ -71,7 +71,7 @@ async function getArticle(req, res, next) {
  *   content  选填，正文
  *   summary  选填，摘要，最长 500 字，传空字符串可清空
  *   author   选填，作者，最长 64 字，传空字符串恢复默认“匿名”
- *   status   选填，draft | published
+ *   status   选填，0 草稿 | 1 已发布
  */
 async function updateArticle(req, res, next) {
   try {

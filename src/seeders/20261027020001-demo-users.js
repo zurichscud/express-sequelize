@@ -25,8 +25,8 @@ module.exports = {
         password: demoPassword(),
         username: 'admin',
         nickname: '管理员',
-        sex: 'male',
-        role: 'admin',
+        sex: 1,
+        role: 1,
         created_at: now,
         updated_at: now
       }
@@ -40,7 +40,7 @@ module.exports = {
         password: demoPassword(),
         username: 'zhangsan',
         nickname: '张三',
-        sex: 'male',
+        sex: 1,
         created_at: now,
         updated_at: now
       },
@@ -50,7 +50,7 @@ module.exports = {
         password: demoPassword(),
         username: 'lisi',
         nickname: '李四',
-        sex: 'female',
+        sex: 2,
         created_at: now,
         updated_at: now
       }

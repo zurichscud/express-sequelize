@@ -81,7 +81,7 @@ export default function ArticleFormModal({ article, onClose, onSaved }: ArticleF
                 title: '',
                 summary: '',
                 author: '匿名',
-                status: 'published',
+                status: 1,
                 content: '',
               }
         }
@@ -108,8 +108,8 @@ export default function ArticleFormModal({ article, onClose, onSaved }: ArticleF
             <Form.Item name="status" label="状态" rules={[{ required: true, message: '请选择状态' }]}>
               <Select
                 options={[
-                  { value: 'published', label: '已发布' },
-                  { value: 'draft', label: '草稿' },
+                  { value: 1, label: '已发布' },
+                  { value: 0, label: '草稿' },
                 ]}
               />
             </Form.Item>

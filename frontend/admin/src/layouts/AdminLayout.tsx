@@ -74,7 +74,7 @@ export default function AdminLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const user = getAuthUser()
-  const roleLabel = user?.role === 'admin' ? '管理员' : '普通用户'
+  const roleLabel = user?.role === 1 ? '管理员' : '普通用户'
 
   const selectedKey = useMemo(() => {
     const first = location.pathname.split('/')[1]

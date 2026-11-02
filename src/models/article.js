@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const { ARTICLE_STATUS, ARTICLE_STATUSES } = require('../constants/enums');
 
 const Article = sequelize.define(
   'Article',
@@ -103,23 +104,15 @@ const Article = sequelize.define(
       }
     },
     status: {
-      type: DataTypes.ENUM('draft', 'published'),
+      type: DataTypes.TINYINT,
       allowNull: false,
-      defaultValue: 'published',
-      comment: '状态：draft 草稿 / published 已发布',
-      set(value) {
-        this.setDataValue('status', typeof value === 'string' ? value.trim() : value);
-      },
+      defaultValue: ARTICLE_STATUS.PUBLISHED,
+      comment: '状态：0 草稿 / 1 已发布',
       validate: {
         notNull: { msg: '状态不能为空' },
-        isString(value) {
-          if (typeof value !== 'string') {
-            throw new Error('状态格式不正确');
-          }
-        },
         isIn: {
-          args: [['draft', 'published']],
-          msg: '状态只能是 draft 或 published'
+          args: [ARTICLE_STATUSES],
+          msg: '状态只能是 0（草稿）或 1（已发布）'
         }
       }
     },

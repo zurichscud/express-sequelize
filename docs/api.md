@@ -24,6 +24,17 @@ Authorization: Bearer <token>
 | token 已过期     | `{ "code": 401, "message": "登录已过期，请重新登录" }` |
 | token 签名不合法 | `{ "code": 401, "message": "登录状态无效，请重新登录" }` |
 
+## 枚举字段编码
+
+数据库中的枚举字段统一使用 `TINYINT` 存储，接口的请求参数与响应字段同样使用数字编码：
+
+| 字段                              | 0        | 1      | 2  |
+| --------------------------------- | -------- | ------ | -- |
+| `articles.status`                 | 草稿     | 已发布 | —  |
+| `sys_users.sex` / `app_users.sex` | 未知     | 男     | 女 |
+| `sys_users.role`                  | 普通用户 | 管理员 | —  |
+| `attachments.type`                | 图片     | 视频   | —  |
+
 ## 文章
 
 ### GET /api/admin/articles
@@ -35,7 +46,7 @@ Authorization: Bearer <token>
 | page     | number | 否   | 1      | 页码，最小 1           |
 | pageSize | number | 否   | 10     | 每页条数，1~100        |
 | keyword  | string | 否   | —      | 标题 / 摘要模糊搜索    |
-| status   | string | 否   | —      | `draft` 或 `published` |
+| status   | number | 否   | —      | `0` 草稿 / `1` 已发布  |
 
 请求示例：
 
@@ -56,7 +67,7 @@ curl "http://localhost:3000/api/admin/articles?page=1&pageSize=2&keyword=Sequeli
         "title": "Sequelize 模型定义与关联关系入门",
         "summary": "用数据模型描述表结构，并处理一对多、多对多关联。",
         "author": "李四",
-        "status": "published",
+        "status": 1,
         "views": 96,
         "createdAt": "2026-10-26T14:00:00.000Z",
         "updatedAt": "2026-10-26T14:00:00.000Z"
@@ -100,7 +111,7 @@ curl "http://localhost:3000/api/admin/articles/1"
     "summary": "中间件是 Express 的核心，本文从执行顺序讲到错误处理。",
     "content": "Express 应用本质上是一条中间件流水线……",
     "author": "张三",
-    "status": "published",
+    "status": 1,
     "views": 128,
     "createdAt": "2026-10-26T14:00:00.000Z",
     "updatedAt": "2026-10-26T14:00:00.000Z"
@@ -174,8 +185,8 @@ curl -X POST "http://localhost:3000/api/admin/users/login" \
       "email": "admin@example.com",
       "username": "admin",
       "nickname": "管理员",
-      "sex": "male",
-      "role": "admin",
+      "sex": 1,
+      "role": 1,
       "createdAt": "2026-10-27T05:00:00.000Z",
       "updatedAt": "2026-10-27T05:00:00.000Z"
     }
@@ -201,8 +212,8 @@ curl -X POST "http://localhost:3000/api/admin/users/login" \
 | page     | number | 否   | 1      | 页码，最小 1                  |
 | pageSize | number | 否   | 10     | 每页条数，1~100               |
 | keyword  | string | 否   | —      | 邮箱 / 用户名 / 昵称模糊搜索  |
-| sex      | string | 否   | —      | `unknown` / `male` / `female` |
-| role     | string | 否   | —      | `user` 或 `admin`             |
+| sex      | number | 否   | —      | `0` 未知 / `1` 男 / `2` 女 |
+| role     | number | 否   | —      | `0` 普通用户 / `1` 管理员  |
 
 ### POST /api/admin/users
 
@@ -214,8 +225,8 @@ curl -X POST "http://localhost:3000/api/admin/users/login" \
 | password | string | 是   | —       | 明文密码，6-72 位                         |
 | username | string | 是   | —       | 用户名，唯一，仅限字母/数字/下划线/短横线 |
 | nickname | string | 否   | null    | 昵称，最长 64 字                          |
-| sex      | string | 否   | unknown | `unknown` / `male` / `female`             |
-| role     | string | 否   | user    | `user` / `admin`                          |
+| sex      | number | 否   | 0       | `0` 未知 / `1` 男 / `2` 女   |
+| role     | number | 否   | 0       | `0` 普通用户 / `1` 管理员    |
 
 ### GET /api/admin/users/:id
 
@@ -238,7 +249,7 @@ curl -X POST "http://localhost:3000/api/admin/users/login" \
 | page     | number | 否   | 1      | 页码，最小 1                  |
 | pageSize | number | 否   | 10     | 每页条数，1~100               |
 | keyword  | string | 否   | —      | 邮箱 / 用户名 / 昵称模糊搜索  |
-| sex      | string | 否   | —      | `unknown` / `male` / `female` |
+| sex      | number | 否   | —      | `0` 未知 / `1` 男 / `2` 女 |
 
 ### POST /api/admin/app-users
 
@@ -250,7 +261,7 @@ curl -X POST "http://localhost:3000/api/admin/users/login" \
 | password | string | 是   | —       | 明文密码，6-72 位                         |
 | username | string | 是   | —       | 用户名，唯一，仅限字母/数字/下划线/短横线 |
 | nickname | string | 否   | null    | 昵称，最长 64 字                          |
-| sex      | string | 否   | unknown | `unknown` / `male` / `female`             |
+| sex      | number | 否   | 0       | `0` 未知 / `1` 男 / `2` 女   |
 
 ### GET /api/admin/app-users/:id
 
@@ -400,7 +411,7 @@ curl -X POST "http://localhost:3000/api/admin/uploads/presign" \
     "meta": {
       "objectKey": "uploads/image/2026/10/6f1c0f0e-3f0f-4f3a-9a4e-8f0d1c2b3a4e.png",
       "name": "cover.png",
-      "type": "image",
+      "type": 0,
       "mimeType": "image/png",
       "size": 20480
     }
@@ -414,7 +425,7 @@ curl -X POST "http://localhost:3000/api/admin/uploads/presign" \
 curl -X PUT "<uploadUrl>" -H "Content-Type: image/png" --data-binary @./cover.png
 ```
 
-对象路径为 `<OSS_DIR>/<image|video>/<年>/<月>/<uuid>.<ext>`，`OSS_DIR` 默认 `uploads`。预签名地址有效期由 `OSS_PRESIGN_EXPIRES` 控制，默认 3600 秒。
+对象路径为 `<OSS_DIR>/<image|video>/<年>/<月>/<uuid>.<ext>`，`OSS_DIR` 默认 `uploads`。预签名地址有效期由 `OSS_PRESIGN_EXPIRES` 控制，默认 3600 秒。响应中的 `meta.type` 与附件表的 `type` 使用数字编码：`0` 图片 / `1` 视频；OSS 对象路径仍按 `image` / `video` 分目录。
 
 > 浏览器直传要求 Bucket 配置跨域规则：来源为后台域名，方法包含 `PUT`，请求头允许 `Content-Type`。否则浏览器会因 CORS 拒绝上传。预签名地址使用 `OSS_ENDPOINT`，该地址必须能被浏览器公网访问，不能使用内网 Endpoint。
 
@@ -457,7 +468,7 @@ curl -X POST "http://localhost:3000/api/admin/uploads/complete" \
     "name": "cover.png",
     "objectKey": "uploads/image/2026/10/6f1c0f0e-3f0f-4f3a-9a4e-8f0d1c2b3a4e.png",
     "url": "https://my-bucket.oss-cn-shenzhen.aliyuncs.com/uploads/image/2026/10/6f1c0f0e-3f0f-4f3a-9a4e-8f0d1c2b3a4e.png",
-    "type": "image",
+    "type": 0,
     "mimeType": "image/png",
     "size": 20480,
     "createdAt": "2026-10-27T09:00:00.000Z",
@@ -512,7 +523,7 @@ curl -X POST "http://localhost:3000/api/admin/uploads/complete" \
 | page     | number | 否   | 1      | 页码，最小 1                          |
 | pageSize | number | 否   | 10     | 每页条数，1~100                       |
 | keyword  | string | 否   | —      | 文件名 / OSS Key / 地址模糊搜索       |
-| type     | string | 否   | —      | `image` 或 `video`，其他值会被忽略    |
+| type     | number | 否   | —      | `0` 图片 / `1` 视频，其他值会被忽略  |
 
 响应示例：
 
@@ -528,7 +539,7 @@ curl -X POST "http://localhost:3000/api/admin/uploads/complete" \
         "name": "cover.png",
         "objectKey": "uploads/image/2026/10/6f1c0f0e-3f0f-4f3a-9a4e-8f0d1c2b3a4e.png",
         "url": "https://my-bucket.oss-cn-shenzhen.aliyuncs.com/uploads/image/2026/10/6f1c0f0e-3f0f-4f3a-9a4e-8f0d1c2b3a4e.png",
-        "type": "image",
+        "type": 0,
         "mimeType": "image/png",
         "size": 20480,
         "createdAt": "2026-10-27T09:00:00.000Z",
@@ -558,7 +569,7 @@ curl -X POST "http://localhost:3000/api/admin/uploads/complete" \
 
 ### GET /api/admin/charts/gender
 
-统计前台用户（`app_users`）性别分布，无查询参数。按 `unknown` / `male` / `female` 固定顺序返回各性别的数量与占比（占比保留两位小数），未出现过的性别也返回 0，保证图表数据结构稳定。
+统计前台用户（`app_users`）性别分布，无查询参数。按 `0` / `1` / `2` 固定顺序返回各性别的数量与占比（占比保留两位小数），未出现过的性别也返回 0，保证图表数据结构稳定。
 
 响应示例：
 
@@ -569,9 +580,9 @@ curl -X POST "http://localhost:3000/api/admin/uploads/complete" \
   "data": {
     "total": 42,
     "list": [
-      { "sex": "unknown", "count": 12, "percent": 28.57 },
-      { "sex": "male", "count": 18, "percent": 42.86 },
-      { "sex": "female", "count": 12, "percent": 28.57 }
+      { "sex": 0, "count": 12, "percent": 28.57 },
+      { "sex": 1, "count": 18, "percent": 42.86 },
+      { "sex": 2, "count": 12, "percent": 28.57 }
     ]
   }
 }
@@ -628,7 +639,7 @@ curl -X POST "http://localhost:3000/api/admin/uploads/complete" \
 | password | string | 是   | —       | 明文密码，6-72 位                         |
 | username | string | 是   | —       | 用户名，唯一，仅限字母/数字/下划线/短横线 |
 | nickname | string | 否   | null    | 昵称，最长 64 字                          |
-| sex      | string | 否   | unknown | `unknown` / `male` / `female`             |
+| sex      | number | 否   | 0       | `0` 未知 / `1` 男 / `2` 女   |
 
 请求示例：
 
@@ -654,8 +665,8 @@ curl -X POST "http://localhost:3000/api/auth/register" \
       "email": "user@example.com",
       "username": "user01",
       "nickname": "小优",
-      "sex": "unknown",
-      "role": "user",
+      "sex": 0,
+      "role": 0,
       "createdAt": "2026-10-27T05:00:00.000Z",
       "updatedAt": "2026-10-27T05:00:00.000Z"
     }
@@ -707,7 +718,7 @@ curl "http://localhost:3000/api/auth/me" \
 curl -X PUT "http://localhost:3000/api/auth/me" \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
-  -d '{ "nickname": "新昵称", "sex": "female" }'
+  -d '{ "nickname": "新昵称", "sex": 2 }'
 ```
 
 空请求体返回 400「没有需要更新的字段」。
@@ -749,7 +760,7 @@ JWT 无状态，服务端不维护会话；该接口仅返回成功提示，客�
 curl "http://localhost:3000/api/articles?page=1&pageSize=10&sort=hot"
 ```
 
-响应中的 `list` 仅包含 `published` 状态文章，草稿不会出现。
+响应中的 `list` 仅包含 `status=1` 的已发布文章，草稿不会出现。
 
 ### GET /api/articles/:id
 

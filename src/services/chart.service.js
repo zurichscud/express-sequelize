@@ -1,11 +1,10 @@
 const { col, fn, literal, Op } = require('sequelize');
 const { AppUser } = require('../models');
-
-const SEXES = ['unknown', 'male', 'female'];
+const { USER_SEXES } = require('../constants/enums');
 
 /**
  * 统计用户性别分布（数量与占比）
- * @returns {Promise<{ total: number, list: { sex: string, count: number, percent: number }[] }>}
+ * @returns {Promise<{ total: number, list: { sex: number, count: number, percent: number }[] }>}
  */
 async function getGenderDistribution() {
   const rows = await AppUser.findAll({
@@ -14,15 +13,18 @@ async function getGenderDistribution() {
   });
 
   // 按固定顺序兜底：没出现过的性别也返回 0，保证图表数据结构稳定
-  const counts = Object.fromEntries(SEXES.map((sex) => [sex, 0]));
+  const counts = Object.fromEntries(USER_SEXES.map((sex) => [sex, 0]));
   let total = 0;
   for (const row of rows) {
+    const sex = Number(row.get('sex'));
     const count = Number(row.get('count'));
-    counts[row.sex] = count;
+    if (sex in counts) {
+      counts[sex] = count;
+    }
     total += count;
   }
 
-  const list = SEXES.map((sex) => ({
+  const list = USER_SEXES.map((sex) => ({
     sex,
     count: counts[sex],
     // 占比保留两位小数；无用户时占比为 0，避免除零

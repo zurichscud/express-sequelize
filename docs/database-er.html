@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>express-sequelize · 数据模型与实体关系</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:  #f5f5f5;
+      --color-ink:    #2d3142;
+      --color-muted:  #4f5d75;
+      --color-soft:   #5a6580;
+      --color-accent: #bf4520;
+      --font-sans:    'Geist', 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', system-ui, sans-serif;
+      --font-serif:   'Instrument Serif', 'Noto Serif', 'Songti SC', 'Noto Serif SC', serif;
+      --font-mono:    'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      padding: 40px 32px 56px;
+    }
+
+    .frame { max-width: 1280px; width: 100%; margin: 0 auto; }
+    .copy { padding-left: 72px; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 8px;
+    }
+
+    .lede {
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--color-muted);
+      margin-bottom: 28px;
+    }
+
+    .diagram-container { width: 100%; overflow-x: auto; }
+    svg { width: 100%; min-width: 1280px; display: block; }
+
+    .source {
+      margin-top: 14px;
+      font-size: 10px;
+      color: var(--color-soft);
+    }
+
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="copy">
+      <p class="eyebrow">express-sequelize · ER</p>
+      <h1>数据模型与实体关系</h1>
+      <p class="lede">MySQL · InnoDB · 9 张表 · 6 条外键关系 · 仅展示关键字段</p>
+    </div>
+    <div class="diagram-container">
+<svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="database-er-title database-er-desc">
+  <title id="database-er-title">express-sequelize 数据模型与实体关系</title>
+  <desc id="database-er-desc">九张 MySQL 表的 ER 图：articles、settings、sys_users、app_users、categories、courses、likes、chapters 与 attachments，以及它们之间的主外键与基数关系。</desc>
+  <defs>
+    <marker id="database-er-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+    <marker id="database-er-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bf4520"/></marker>
+    <marker id="database-er-arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+  </defs>
+  <rect width="1280" height="720" fill="#f5f5f5"/>
+  <path d="M 612 196 V 240" fill="none" stroke="#4f5d75" stroke-width="1" stroke-linecap="butt"/>
+  <path d="M 612 418 V 462" fill="none" stroke="#4f5d75" stroke-width="1" stroke-linecap="butt"/>
+  <path d="M 788 338 H 904" fill="none" stroke="#4f5d75" stroke-width="1" stroke-linecap="butt"/>
+  <path d="M 1056 232 V 276" fill="none" stroke="#4f5d75" stroke-width="1" stroke-linecap="butt"/>
+  <path d="M 196 418 V 462" fill="none" stroke="#4f5d75" stroke-width="1" stroke-linecap="butt"/>
+  <path d="M 904 152 H 854 Q 846 152 846 160 V 284 Q 846 292 838 292 H 788" fill="none" stroke="#4f5d75" stroke-width="1" stroke-linecap="butt"/>
+  <rect x="622" y="202" width="12" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="628" y="211" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" font-weight="500" text-anchor="middle">1</text>
+  <rect x="622" y="222" width="12" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="628" y="231" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" font-weight="500" text-anchor="middle">N</text>
+  <rect x="622" y="422" width="12" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="628" y="431" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" font-weight="500" text-anchor="middle">1</text>
+  <rect x="622" y="444" width="12" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="628" y="453" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" font-weight="500" text-anchor="middle">N</text>
+  <rect x="794" y="320" width="12" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="800" y="329" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" font-weight="500" text-anchor="middle">1</text>
+  <rect x="886" y="320" width="12" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="892" y="329" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" font-weight="500" text-anchor="middle">N</text>
+  <rect x="1066" y="236" width="12" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="1072" y="245" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" font-weight="500" text-anchor="middle">1</text>
+  <rect x="1066" y="258" width="12" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="1072" y="267" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" font-weight="500" text-anchor="middle">N</text>
+  <rect x="206" y="422" width="12" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="212" y="431" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" font-weight="500" text-anchor="middle">1</text>
+  <rect x="206" y="444" width="28" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="220" y="453" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" font-weight="500" text-anchor="middle">0..N</text>
+  <rect x="872" y="134" width="12" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="878" y="143" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" font-weight="500" text-anchor="middle">1</text>
+  <rect x="810" y="274" width="12" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="816" y="283" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" font-weight="500" text-anchor="middle">N</text>
+  <g>
+    <!-- articles -->
+    <rect x="72" y="72" width="248" height="160" rx="6" fill="#f5f5f5"/>
+    <rect x="72" y="72" width="248" height="160" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <rect x="72" y="72" width="248" height="40" rx="6" fill="rgba(45,49,66,0.04)"/>
+    <rect x="72" y="104" width="248" height="8" fill="rgba(45,49,66,0.04)"/>
+    <line x1="72" y1="112" x2="320" y2="112" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+    <text x="88" y="87" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">TABLE</text>
+    <text x="88" y="104" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">articles</text>
+    <text x="88" y="128" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace"># id</text>
+    <text x="304" y="128" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+    <text x="88" y="146" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">title</text>
+    <text x="304" y="146" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">varchar(200)</text>
+    <text x="88" y="164" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">author</text>
+    <text x="304" y="164" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">varchar(64)</text>
+    <text x="88" y="182" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">status</text>
+    <text x="304" y="182" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">tinyint</text>
+    <text x="88" y="200" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">views</text>
+    <text x="304" y="200" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+    <text x="88" y="218" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">created_at</text>
+    <text x="304" y="218" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">datetime</text>
+  </g>
+  <g>
+    <!-- sys_users -->
+    <rect x="72" y="276" width="248" height="142" rx="6" fill="#f5f5f5"/>
+    <rect x="72" y="276" width="248" height="142" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <rect x="72" y="276" width="248" height="40" rx="6" fill="rgba(45,49,66,0.04)"/>
+    <rect x="72" y="308" width="248" height="8" fill="rgba(45,49,66,0.04)"/>
+    <line x1="72" y1="316" x2="320" y2="316" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+    <text x="88" y="291" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">TABLE</text>
+    <text x="88" y="308" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">sys_users</text>
+    <text x="88" y="332" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace"># id</text>
+    <text x="304" y="332" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+    <text x="88" y="350" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">email</text>
+    <text x="304" y="350" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">varchar(128) · UQ</text>
+    <text x="88" y="368" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">username</text>
+    <text x="304" y="368" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">varchar(64) · UQ</text>
+    <text x="88" y="386" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">role</text>
+    <text x="304" y="386" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">tinyint</text>
+    <text x="88" y="404" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">created_at</text>
+    <text x="304" y="404" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">datetime</text>
+  </g>
+  <g>
+    <!-- attachments -->
+    <rect x="72" y="462" width="248" height="142" rx="6" fill="#f5f5f5"/>
+    <rect x="72" y="462" width="248" height="142" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <rect x="72" y="462" width="248" height="40" rx="6" fill="rgba(45,49,66,0.04)"/>
+    <rect x="72" y="494" width="248" height="8" fill="rgba(45,49,66,0.04)"/>
+    <line x1="72" y1="502" x2="320" y2="502" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+    <text x="88" y="477" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">TABLE</text>
+    <text x="88" y="494" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">attachments</text>
+    <text x="88" y="518" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace"># id</text>
+    <text x="304" y="518" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+    <text x="88" y="536" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">→ user_id</text>
+    <text x="304" y="536" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int · null</text>
+    <text x="88" y="554" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">name</text>
+    <text x="304" y="554" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">varchar(255)</text>
+    <text x="88" y="572" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">object_key</text>
+    <text x="304" y="572" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">varchar(500) · UQ</text>
+    <text x="88" y="590" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">type</text>
+    <text x="304" y="590" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">tinyint</text>
+  </g>
+  <g>
+    <!-- categories -->
+    <rect x="436" y="72" width="352" height="124" rx="6" fill="#f5f5f5"/>
+    <rect x="436" y="72" width="352" height="124" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <rect x="436" y="72" width="352" height="40" rx="6" fill="rgba(45,49,66,0.04)"/>
+    <rect x="436" y="104" width="352" height="8" fill="rgba(45,49,66,0.04)"/>
+    <line x1="436" y1="112" x2="788" y2="112" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+    <text x="452" y="87" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">TABLE</text>
+    <text x="452" y="104" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">categories</text>
+    <text x="452" y="128" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace"># id</text>
+    <text x="772" y="128" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+    <text x="452" y="146" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">name</text>
+    <text x="772" y="146" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">varchar(64) · UQ</text>
+    <text x="452" y="164" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">rank</text>
+    <text x="772" y="164" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+    <text x="452" y="182" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">created_at</text>
+    <text x="772" y="182" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">datetime</text>
+  </g>
+  <g>
+    <!-- courses -->
+    <rect x="436" y="240" width="352" height="178" rx="6" fill="#f5f5f5"/>
+    <rect x="436" y="240" width="352" height="178" rx="6" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1"/>
+    <rect x="436" y="240" width="352" height="40" rx="6" fill="rgba(191,69,32,0.10)"/>
+    <rect x="436" y="272" width="352" height="8" fill="rgba(191,69,32,0.10)"/>
+    <line x1="436" y1="280" x2="788" y2="280" stroke="rgba(191,69,32,0.35)" stroke-width="1"/>
+    <text x="452" y="255" fill="#bf4520" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">TABLE · CORE</text>
+    <text x="452" y="272" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">courses</text>
+    <text x="452" y="296" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace"># id</text>
+    <text x="772" y="296" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+    <text x="452" y="314" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">→ category_id</text>
+    <text x="772" y="314" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+    <text x="452" y="332" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">→ user_id</text>
+    <text x="772" y="332" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+    <text x="452" y="350" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">name</text>
+    <text x="772" y="350" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">varchar(128)</text>
+    <text x="452" y="368" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">is_recommended</text>
+    <text x="772" y="368" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">tinyint(1)</text>
+    <text x="452" y="386" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">like_count</text>
+    <text x="772" y="386" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+    <text x="452" y="404" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">chapter_count</text>
+    <text x="772" y="404" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+  </g>
+  <g>
+    <!-- chapters -->
+    <rect x="436" y="462" width="352" height="142" rx="6" fill="#f5f5f5"/>
+    <rect x="436" y="462" width="352" height="142" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <rect x="436" y="462" width="352" height="40" rx="6" fill="rgba(45,49,66,0.04)"/>
+    <rect x="436" y="494" width="352" height="8" fill="rgba(45,49,66,0.04)"/>
+    <line x1="436" y1="502" x2="788" y2="502" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+    <text x="452" y="477" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">TABLE</text>
+    <text x="452" y="494" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">chapters</text>
+    <text x="452" y="518" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace"># id</text>
+    <text x="772" y="518" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+    <text x="452" y="536" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">→ course_id</text>
+    <text x="772" y="536" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+    <text x="452" y="554" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">title</text>
+    <text x="772" y="554" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">varchar(200)</text>
+    <text x="452" y="572" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">rank</text>
+    <text x="772" y="572" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+    <text x="452" y="590" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">video_url</text>
+    <text x="772" y="590" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">varchar(500)</text>
+  </g>
+  <g>
+    <!-- app_users -->
+    <rect x="904" y="72" width="304" height="160" rx="6" fill="#f5f5f5"/>
+    <rect x="904" y="72" width="304" height="160" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <rect x="904" y="72" width="304" height="40" rx="6" fill="rgba(45,49,66,0.04)"/>
+    <rect x="904" y="104" width="304" height="8" fill="rgba(45,49,66,0.04)"/>
+    <line x1="904" y1="112" x2="1208" y2="112" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+    <text x="920" y="87" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">TABLE</text>
+    <text x="920" y="104" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">app_users</text>
+    <text x="920" y="128" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace"># id</text>
+    <text x="1192" y="128" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+    <text x="920" y="146" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">email</text>
+    <text x="1192" y="146" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">varchar(128) · UQ</text>
+    <text x="920" y="164" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">username</text>
+    <text x="1192" y="164" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">varchar(64) · UQ</text>
+    <text x="920" y="182" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">nickname</text>
+    <text x="1192" y="182" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">varchar(64)</text>
+    <text x="920" y="200" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">sex</text>
+    <text x="1192" y="200" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">tinyint</text>
+    <text x="920" y="218" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">created_at</text>
+    <text x="1192" y="218" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">datetime</text>
+  </g>
+  <g>
+    <!-- likes -->
+    <rect x="904" y="276" width="304" height="124" rx="6" fill="#f5f5f5"/>
+    <rect x="904" y="276" width="304" height="124" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <rect x="904" y="276" width="304" height="40" rx="6" fill="rgba(45,49,66,0.04)"/>
+    <rect x="904" y="308" width="304" height="8" fill="rgba(45,49,66,0.04)"/>
+    <line x1="904" y1="316" x2="1208" y2="316" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+    <text x="920" y="291" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">TABLE · JOIN</text>
+    <text x="920" y="308" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">likes</text>
+    <text x="920" y="332" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace"># id</text>
+    <text x="1192" y="332" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+    <text x="920" y="350" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">→ course_id</text>
+    <text x="1192" y="350" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+    <text x="920" y="368" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">→ user_id</text>
+    <text x="1192" y="368" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+    <text x="920" y="386" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">created_at</text>
+    <text x="1192" y="386" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">datetime</text>
+  </g>
+  <g>
+    <!-- settings -->
+    <rect x="904" y="444" width="304" height="124" rx="6" fill="#f5f5f5"/>
+    <rect x="904" y="444" width="304" height="124" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+    <rect x="904" y="444" width="304" height="40" rx="6" fill="rgba(45,49,66,0.04)"/>
+    <rect x="904" y="476" width="304" height="8" fill="rgba(45,49,66,0.04)"/>
+    <line x1="904" y1="484" x2="1208" y2="484" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+    <text x="920" y="459" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">TABLE</text>
+    <text x="920" y="476" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">settings</text>
+    <text x="920" y="500" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace"># id</text>
+    <text x="1192" y="500" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">int</text>
+    <text x="920" y="518" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">name</text>
+    <text x="1192" y="518" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">varchar(100)</text>
+    <text x="920" y="536" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">icp</text>
+    <text x="1192" y="536" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">varchar(64)</text>
+    <text x="920" y="554" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">copyright</text>
+    <text x="1192" y="554" fill="#5a6580" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">varchar(200)</text>
+  </g>
+  <line x1="72" y1="652" x2="1208" y2="652" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+  <text x="72" y="668" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+  <text x="176" y="668" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace" font-weight="600">#</text>
+  <text x="190" y="668" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">PRIMARY KEY</text>
+  <text x="316" y="668" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace" font-weight="600">→</text>
+  <text x="330" y="668" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">FOREIGN KEY</text>
+  <text x="448" y="668" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace" font-weight="600">1 : N</text>
+  <text x="500" y="668" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">CARDINALITY</text>
+  <rect x="628" y="658" width="14" height="10" rx="2" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1"/>
+  <text x="650" y="668" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">CORE TABLE</text>
+  <text x="784" y="668" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace" font-weight="600">UQ</text>
+  <text x="806" y="668" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">UNIQUE</text>
+</svg>
+    </div>
+    <p class="source copy">来源：src/migrations · 建表以迁移为准</p>
+  </div>
+</body>
+</html>

@@ -28,14 +28,14 @@ interface SearchValues {
 }
 
 const SEX_LABELS: Record<Sex, string> = {
-  male: '男',
-  female: '女',
-  unknown: '未知',
+  1: '男',
+  2: '女',
+  0: '未知',
 }
 
 const ROLE_LABELS: Record<Role, string> = {
-  admin: '管理员',
-  user: '普通用户',
+  1: '管理员',
+  0: '普通用户',
 }
 
 // 1 号系统用户为超级管理员，不允许在后台编辑或删除
@@ -81,8 +81,8 @@ export default function UsersPage() {
     setPage(1)
     setQuery({
       keyword: values.keyword?.trim() || undefined,
-      role: values.role || undefined,
-      sex: values.sex || undefined,
+      role: values.role ?? undefined,
+      sex: values.sex ?? undefined,
     })
   }
 
@@ -149,7 +149,7 @@ export default function UsersPage() {
         record.id === SUPER_ADMIN_ID ? (
           <Tag color="red">超级管理员</Tag>
         ) : (
-          <Tag color={role === 'admin' ? 'gold' : 'blue'}>{ROLE_LABELS[role]}</Tag>
+          <Tag color={role === 1 ? 'gold' : 'blue'}>{ROLE_LABELS[role]}</Tag>
         ),
     },
     {
@@ -230,8 +230,8 @@ export default function UsersPage() {
               placeholder="全部角色"
               aria-label="用户角色"
               options={[
-                { value: 'admin', label: '管理员' },
-                { value: 'user', label: '普通用户' },
+                { value: 1, label: '管理员' },
+                { value: 0, label: '普通用户' },
               ]}
               style={{ width: 140 }}
             />
@@ -242,9 +242,9 @@ export default function UsersPage() {
               placeholder="全部性别"
               aria-label="用户性别"
               options={[
-                { value: 'male', label: '男' },
-                { value: 'female', label: '女' },
-                { value: 'unknown', label: '未知' },
+                { value: 1, label: '男' },
+                { value: 2, label: '女' },
+                { value: 0, label: '未知' },
               ]}
               style={{ width: 120 }}
             />

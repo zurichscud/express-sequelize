@@ -1,8 +1,7 @@
 const { Op } = require('sequelize');
 const { Attachment, SysUser } = require('../models');
+const { ATTACHMENT_TYPES } = require('../constants/enums');
 const { removeObject } = require('./upload.service');
-
-const TYPES = ['image', 'video'];
 
 // 列表只返回展示所需字段，上传者仅暴露安全信息
 const LIST_ATTRIBUTES = [
@@ -26,12 +25,12 @@ const UPLOADER_INCLUDE = {
 
 /**
  * 分页查询附件列表，按上传时间倒序
- * @param {{ offset: number, limit: number, keyword?: string, type?: string }} options
+ * @param {{ offset: number, limit: number, keyword?: string, type?: number }} options
  * @returns {Promise<{ list: object[], total: number }>}
  */
 async function listAttachments({ offset, limit, keyword, type }) {
   const where = {};
-  if (TYPES.includes(type)) {
+  if (ATTACHMENT_TYPES.includes(type)) {
     where.type = type;
   }
   if (keyword) {

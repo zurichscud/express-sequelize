@@ -5,20 +5,22 @@ const {
   idParam,
   queryText,
   queryEnum,
+  queryIntEnum,
+  optionalIntEnum,
   requiredString,
   optionalString,
   optionalNonEmptyString,
 } = require("./common");
+const { ARTICLE_STATUSES } = require("../constants/enums");
 
-const STATUSES = ["draft", "published"];
-const STATUS_MESSAGE = "状态只能是 draft 或 published";
+const STATUS_MESSAGE = "状态只能是 0（草稿）或 1（已发布）";
 
 const articleIdParamsSchema = z.object({ id: idParam("文章") });
 
 const adminListArticlesQuerySchema = z.object({
   title: queryText("标题关键词", 200),
   keyword: queryText("搜索关键词", 200),
-  status: queryEnum(STATUSES, STATUS_MESSAGE),
+  status: queryIntEnum(ARTICLE_STATUSES, STATUS_MESSAGE),
 });
 
 const webListArticlesQuerySchema = z.object({
@@ -31,7 +33,7 @@ const createArticleBodySchema = bodyObject({
   content: requiredString("正文"),
   summary: optionalString("摘要", 500),
   author: optionalString("作者", 64),
-  status: z.enum(STATUSES, { error: STATUS_MESSAGE }).optional(),
+  status: optionalIntEnum(ARTICLE_STATUSES, STATUS_MESSAGE),
 });
 
 const updateArticleBodySchema = requireAtLeastOneField(
@@ -40,7 +42,7 @@ const updateArticleBodySchema = requireAtLeastOneField(
     content: optionalNonEmptyString("正文"),
     summary: optionalString("摘要", 500),
     author: optionalString("作者", 64),
-    status: z.enum(STATUSES, { error: STATUS_MESSAGE }).optional(),
+    status: optionalIntEnum(ARTICLE_STATUSES, STATUS_MESSAGE),
   }),
 );
 
